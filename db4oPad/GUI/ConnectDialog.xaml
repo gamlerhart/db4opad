@@ -1,0 +1,41 @@
+﻿<Window x:Class="Gamlor.Db4oPad.GUI.ConnectDialog"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+                 SizeToContent="Height"
+    Width="336" 
+    WindowStartupLocation="CenterScreen">
+    <StackPanel Margin="7">
+        <DockPanel>
+            <Label 
+                DockPanel.Dock="Right"
+                Padding="1">
+                <Hyperlink Click="BrowseAssembly">Open local database file</Hyperlink>
+            </Label>
+            <Label Padding="0,0,0,1">Path to database:</Label>
+        </DockPanel>
+        <TextBox Name="PathToAssembly" Margin="0,0,0,6" Text="{Binding CustomTypeInfo.CustomMetadataPath}"/>
+
+        <CheckBox IsChecked="{Binding Persist}">Remember this connection</CheckBox>
+        <DockPanel LastChildFill="False" Margin="0,10,0,0">
+            <Button Name="btnCancel"
+                    DockPanel.Dock="Right"
+                    Content="Cancel"
+                    Margin="5,0,0,0"
+                    Padding="8,2"
+                    MinWidth="60"
+                    IsCancel="True"
+                    TabIndex="2" />
+            <Button Name="btnOK"
+                    DockPanel.Dock="Right"
+                    Content="Open Database"
+                    Margin="5,0,0,0"
+                    Padding="8,2"
+                    MinWidth="60"
+                    IsDefault="True"
+                    TabIndex="1" 
+                    Click="btnOK_Click" />
+        </DockPanel>
+    </StackPanel>
+</Window>
