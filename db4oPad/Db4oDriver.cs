@@ -33,7 +33,10 @@ namespace Gamlor.Db4oPad
 
         public override List<ExplorerItem> GetSchemaAndBuildAssembly(IConnectionInfo cxInfo, AssemblyName assemblyToBuild, ref string nameSpace, ref string typeName)
         {
-            return new List<ExplorerItem>();
+            var item = new ExplorerItem("fun", ExplorerItemKind.QueryableObject, ExplorerIcon.Table);
+            return new List<ExplorerItem>() { item };
         }
+
+
     }
 }

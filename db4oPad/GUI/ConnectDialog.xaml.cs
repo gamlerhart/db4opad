@@ -45,7 +45,7 @@ namespace Gamlor.Db4oPad.GUI
             }
         }
 
-        private void btnOK_Click(object sender, RoutedEventArgs e)
+        private void OpenDB(object sender, RoutedEventArgs e)
         {
             DialogResult = true;
         }

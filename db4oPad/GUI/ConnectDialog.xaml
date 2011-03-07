@@ -35,7 +35,7 @@
                     MinWidth="60"
                     IsDefault="True"
                     TabIndex="1" 
-                    Click="btnOK_Click" />
+                    Click="OpenDB" />
         </DockPanel>
     </StackPanel>
 </Window>

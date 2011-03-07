@@ -1,0 +1,83 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Sprache;
+
+namespace Gamlor.Db4oPad.MetaInfo
+{
+    internal static class TypeNameParser
+    {
+        internal static Parser<string> Identifier = from id in Parse.LetterOrDigit.Or(Parse.Char('.')).Many()
+                                                    select new string(id.ToArray());
+
+
+        internal static Parser<char> Seperator = from sep in Parse.Char(',')
+                                                 from space in Parse.Char(' ')
+                                                 select sep;
+
+
+        internal static Parser<string> AssemblyName = from sep in Seperator
+                                                      from id in Identifier
+                                                      select id;
+
+        internal static Parser<int> GenericIndicator = from sep in Parse.Char('`')
+                                                       from number in Parse.Number
+                                                       select int.Parse(number);
+
+        internal static Parser<char> ParentherisOpen = from sep in Parse.Char('[')
+                                                       select sep;
+
+        internal static Parser<char> ParentherisClose = from sep in Parse.Char(']')
+                                                        select sep;
+
+        internal static Parser<TypeName> TypeDefinition = from typeName in Identifier
+                                                          from argList in Parse.Ref(() => TypeNameParser.GenericArgumentList).Many()
+                                                          from assemblyName in AssemblyName
+                                                          select CreateType(typeName, assemblyName, argList.SingleOrDefault());
+
+
+
+        internal static Parser<TypeName> GenericArgument = from o in ParentherisOpen
+                                                           from type in TypeDefinition
+                                                           from c in ParentherisClose
+                                                           select type;
+
+        internal static Parser<TypeName> GenericArgumentWithFollower = from type in GenericArgument
+                                                                       from s in Seperator
+                                                                       select type;
+
+        internal static Parser<IEnumerable<TypeName>> GenericArgumentList = from expectedLength in GenericIndicator
+                                                                            from o in ParentherisOpen
+                                                                            from args in GenericArgumentWithFollower.Many()
+                                                                            from lastArg in GenericArgument
+                                                                            from c in ParentherisClose
+                                                                            select CheckAndCreateGenericList(args, lastArg, expectedLength);
+
+
+        public static TypeName ParseString(string typeToParse)
+        {
+            return TypeDefinition.Parse(typeToParse);
+        }
+
+        private static IEnumerable<TypeName> CheckAndCreateGenericList(IEnumerable<TypeName> argList, TypeName lastArg, int expectedLength)
+        {
+            var result = argList.Concat(new[] { lastArg }).ToArray();
+            if (expectedLength != result.Length)
+            {
+                throw new ArgumentException(
+                    string.Format("argument-count hasn't the expected count. List-count {0}, expected {1}",
+                        result.Length, expectedLength));
+            }
+            return result;
+        }
+        private static TypeName CreateType(string typeName, string assemblyName, IEnumerable<TypeName> genericArgs = null)
+        {
+            if (null == genericArgs)
+            {
+                genericArgs = new TypeName[0];
+            }
+            return TypeName.Create(typeName, assemblyName, genericArgs);
+        }
+    }
+
+}

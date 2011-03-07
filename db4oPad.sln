@@ -3,16 +3,38 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "db4oPad", "db4oPad\db4oPad.csproj", "{06F076CA-6F7F-4E1C-B6BF-9E1A0F479AAB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gamlor.Db4oPad.Tests", "Gamlor.Db4oPad.Tests\Gamlor.Db4oPad.Tests.csproj", "{005F6FA5-3B37-407A-B042-98FDB49E9AE7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sprache", "Sprache\Sprache.csproj", "{DF5FE6F0-5ABE-4363-9184-EB6EF64F0F61}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|x86 = Debug|x86
 		Release|Any CPU = Release|Any CPU
+		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{06F076CA-6F7F-4E1C-B6BF-9E1A0F479AAB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{06F076CA-6F7F-4E1C-B6BF-9E1A0F479AAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06F076CA-6F7F-4E1C-B6BF-9E1A0F479AAB}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{06F076CA-6F7F-4E1C-B6BF-9E1A0F479AAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{06F076CA-6F7F-4E1C-B6BF-9E1A0F479AAB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{06F076CA-6F7F-4E1C-B6BF-9E1A0F479AAB}.Release|x86.ActiveCfg = Release|Any CPU
+		{005F6FA5-3B37-407A-B042-98FDB49E9AE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{005F6FA5-3B37-407A-B042-98FDB49E9AE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{005F6FA5-3B37-407A-B042-98FDB49E9AE7}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{005F6FA5-3B37-407A-B042-98FDB49E9AE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{005F6FA5-3B37-407A-B042-98FDB49E9AE7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{005F6FA5-3B37-407A-B042-98FDB49E9AE7}.Release|x86.ActiveCfg = Release|Any CPU
+		{DF5FE6F0-5ABE-4363-9184-EB6EF64F0F61}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF5FE6F0-5ABE-4363-9184-EB6EF64F0F61}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF5FE6F0-5ABE-4363-9184-EB6EF64F0F61}.Debug|x86.ActiveCfg = Debug|x86
+		{DF5FE6F0-5ABE-4363-9184-EB6EF64F0F61}.Debug|x86.Build.0 = Debug|x86
+		{DF5FE6F0-5ABE-4363-9184-EB6EF64F0F61}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF5FE6F0-5ABE-4363-9184-EB6EF64F0F61}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF5FE6F0-5ABE-4363-9184-EB6EF64F0F61}.Release|x86.ActiveCfg = Release|x86
+		{DF5FE6F0-5ABE-4363-9184-EB6EF64F0F61}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
