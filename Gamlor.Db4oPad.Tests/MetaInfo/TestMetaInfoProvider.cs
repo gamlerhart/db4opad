@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Reflection;
 using Db4objects.Db4o;
 using Gamlor.Db4oPad.MetaInfo;
 using Gamlor.Db4oPad.Tests.TestTypes;
@@ -17,7 +18,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         protected override void FixtureSetup(IObjectContainer db)
         {
             db.Store(new Person("Roman", "Stoffel", 24));
-            this.toTest = MetaInfoProvider.Create(DatabaseMetaInfo.Create(db));
+            this.toTest = MetaInfoProvider.Create(DatabaseMetaInfo.Create(db,new AssemblyName("Gamlor.Dynamic")));
         }
 
         [Test]

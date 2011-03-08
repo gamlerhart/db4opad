@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using Gamlor.Db4oPad.MetaInfo;
 using NUnit.Framework;
 
@@ -19,6 +22,20 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
 
             var type = GenerateSingle(metaInfo);
             Assert.AreEqual(metaInfo.Single().Name, type.Name);
+        }
+        [Test]
+        public void IsInRightAssembly()
+        {
+            var metaInfo = CreateEmptyClassMetaInfo();
+            var assemblyName = new AssemblyName("Gamlor.Dynamic.Name.Of.This.Assembly");
+            assemblyName.Version = new Version(1,0,0,1);
+            assemblyName.CultureInfo = CultureInfo.InvariantCulture;
+            var type = CodeGenerator.Create(metaInfo, assemblyName).Single();
+
+            var generatedAssembly = type.Value.Assembly.GetName();
+            Assert.AreEqual(assemblyName.Name, generatedAssembly.Name);
+            Assert.AreEqual(assemblyName.Version, generatedAssembly.Version);
+            Assert.AreEqual(assemblyName.CultureInfo, generatedAssembly.CultureInfo);
         }
 
         [Test]
@@ -55,8 +72,8 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         {
             var metaInfo = CreateEmptyClassMetaInfo();
 
-            var type1 = CodeGenerator.Create(metaInfo).Single();
-            var type2 = CodeGenerator.Create(metaInfo).Single();
+            var type1 = NewTestInstance(metaInfo).Single();
+            var type2 = NewTestInstance(metaInfo).Single();
             Assert.NotNull(type1);
             Assert.NotNull(type2);
         }
@@ -77,7 +94,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         {
             var metaInfo = CircularType();
 
-            var type = CodeGenerator.Create(metaInfo).Single().Value;
+            var type = NewTestInstance(metaInfo).Single().Value;
             Assert.AreEqual(metaInfo.Single().Name, type.Name);
             dynamic instance = CreateInstance(type);
             dynamic fieldInstance = CreateInstance(type);
@@ -109,7 +126,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         {
             var metaInfo = TwoGenericInstances();
 
-            var types = CodeGenerator.Create(metaInfo);
+            var types = NewTestInstance(metaInfo);
             var genericTypes = types.Where(f => f.Key.Name.Contains("SingleField"));
             Assert.AreEqual(2, genericTypes.Count());
 
@@ -140,6 +157,17 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             instance.Data = 1;
             Assert.AreEqual(1, instance.Data);
         }
+        [Test]
+        public void HasAssembly()
+        {
+            var metaInfo = CreateEmptyClassMetaInfo();
+
+            var name = NewName();
+            name.CodeBase = Path.GetTempFileName();
+            var infos = CodeGenerator.Create(metaInfo, name);
+            Assert.IsTrue(File.Exists(name.CodeBase));
+
+        }
 
         private void AssertFieldCanBeSet(dynamic instance, dynamic fieldInstance)
         {
@@ -149,7 +177,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
 
         private Type GenerateSingle(IEnumerable<ITypeDescription> metaInfo)
         {
-            return CodeGenerator.Create(metaInfo).Single().Value;
+            return NewTestInstance(metaInfo).Single().Value;
         }
 
         private object CreateInstance(Type type)
@@ -234,12 +262,22 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
 
         private static Type ExtractSingleFieldType(IEnumerable<ITypeDescription> metaInfo)
         {
-            return CodeGenerator.Create(metaInfo).Where(t => t.Key.Name.Contains("SingleField")).Single().Value;
+            return CodeGenerator.Create(metaInfo, NewName()).Where(t => t.Key.Name.Contains("SingleField")).Single().Value;
         }
 
         private static ITypeDescription SingleFieldMeta(IEnumerable<ITypeDescription> metaInfo)
         {
             return metaInfo.Where(t => t.Name.Contains("SingleField")).Single();
+        }
+
+        private static AssemblyName NewName()
+        {
+            return new AssemblyName("Gamlor.DynamicAssembly");
+        }
+
+        private CodeGenerator.Result NewTestInstance(IEnumerable<ITypeDescription> metaInfo)
+        {
+            return CodeGenerator.Create(metaInfo, NewName());
         }
     }
 

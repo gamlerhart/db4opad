@@ -1,5 +1,7 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -9,18 +11,20 @@ namespace Gamlor.Db4oPad.MetaInfo
 {
     internal class CodeGenerator
     {
-        internal const string DynamicNameSpace = "Gamlor.Dynamic";
-
-        internal static IDictionary<ITypeDescription, Type> Create(IEnumerable<ITypeDescription> metaInfo)
+        public const String NameSpace = "LINQPad.User";
+        internal static Result Create(IEnumerable<ITypeDescription> metaInfo,
+            AssemblyName intoAssembly)
         {
-            var builder = CreateModule();
+            var assemblyBuilder = CreateAssembly(intoAssembly);
+            var builder = CreateModule(assemblyBuilder);
             var dictionary = metaInfo.ToDictionary(mi => mi, mi => Maybe<Type>.Empty);
-            return CreateTypes(builder, dictionary);
+            var types = CreateTypes(builder, dictionary);
+            assemblyBuilder.Save(Path.GetFileName(intoAssembly.CodeBase));
+            return new Result(types);
         }
 
         private static IDictionary<ITypeDescription, Type> CreateTypes(ModuleBuilder modBuilder,
-                                                                       IDictionary<ITypeDescription, Maybe<Type>>
-                                                                           typeBuildMap)
+            IDictionary<ITypeDescription, Maybe<Type>> typeBuildMap)
         {
             foreach (var typeInfo in typeBuildMap.Keys.ToArray())
             {
@@ -139,7 +143,8 @@ namespace Gamlor.Db4oPad.MetaInfo
         }
 
         private static Type GetType(SimpleFieldDescription field,
-                                    IDictionary<ITypeDescription, Maybe<Type>> typeBuildMap, ModuleBuilder modBuilder)
+                                    IDictionary<ITypeDescription, Maybe<Type>> typeBuildMap,
+            ModuleBuilder modBuilder)
         {
             return typeBuildMap[field.Type].GetValue(
                 () => GetOrCreateType(typeBuildMap, modBuilder, field.Type));
@@ -147,20 +152,52 @@ namespace Gamlor.Db4oPad.MetaInfo
 
         private static TypeBuilder CreateType(ModuleBuilder modBuilder, string className)
         {
-            return modBuilder.DefineType(DynamicNameSpace + "." + className,
+            return modBuilder.DefineType(NameSpace + "." + className,
                                          TypeAttributes.Class | TypeAttributes.Public);
         }
 
-        private static ModuleBuilder CreateModule()
+        private static ModuleBuilder CreateModule(AssemblyBuilder builder)
         {
-            var asmBuilder = CreateAssembly();
-            return asmBuilder.DefineDynamicModule(DynamicNameSpace, DynamicNameSpace + ".dll");
+            var theName = builder.GetName();
+            return builder.DefineDynamicModule(theName.Name, theName.Name + ".dll");
         }
 
-        private static AssemblyBuilder CreateAssembly()
+        private static AssemblyBuilder CreateAssembly(AssemblyName theName)
         {
             return AppDomain.CurrentDomain
-                .DefineDynamicAssembly(new AssemblyName(DynamicNameSpace), AssemblyBuilderAccess.RunAndCollect);
+                .DefineDynamicAssembly(theName, AssemblyBuilderAccess.RunAndSave,
+                                       Path.GetDirectoryName(theName.CodeBase));
+        }
+
+        public class Result : IEnumerable<KeyValuePair<ITypeDescription, Type>>
+        {
+            private readonly IDictionary<ITypeDescription, Type> types;
+
+
+            public Result(IDictionary<ITypeDescription, Type> types)
+            {
+                this.types = types;
+            }
+
+            public IEnumerator<KeyValuePair<ITypeDescription, Type>> GetEnumerator()
+            {
+                return types.GetEnumerator();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
+
+            public Type this[ITypeDescription key]
+            {
+                get { return types[key]; }
+            }
+
+            public IDictionary<ITypeDescription, Type> Types
+            {
+                get { return types; }
+            }
         }
     }
 

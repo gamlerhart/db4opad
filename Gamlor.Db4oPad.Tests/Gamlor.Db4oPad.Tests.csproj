@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -29,6 +30,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
@@ -38,6 +40,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Db4objects.Db4o, Version=8.0.151.14539, Culture=neutral, PublicKeyToken=6199cd4f203aa8eb, processorArchitecture=MSIL" />
+    <Reference Include="LINQPad, Version=1.0.0.0, Culture=neutral, PublicKeyToken=21353812cd2a2db5, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <ExecutableExtension>.exe</ExecutableExtension>
+      <HintPath>..\libs\LINQPad.exe</HintPath>
+    </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\libs\NUnit\bin\net-2.0\nunit.framework.dll</HintPath>
     </Reference>
@@ -51,6 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AbstractDatabaseFixture.cs" />
+    <Compile Include="GenerateTestDatabase.cs" />
     <Compile Include="HashCodeAsserts.cs" />
     <Compile Include="MemoryDBForTests.cs" />
     <Compile Include="MetaInfo\TestCodeGenerator.cs" />
@@ -59,6 +67,8 @@
     <Compile Include="MetaInfo\TestTypeName.cs" />
     <Compile Include="MetaInfo\TestTypeNameParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestCurrentContext.cs" />
+    <Compile Include="TestDatabaseContext.cs" />
     <Compile Include="TestTypes\Person.cs" />
     <Compile Include="TestTypes\TestTypes.cs" />
     <Compile Include="Utils\TestMaybe.cs" />

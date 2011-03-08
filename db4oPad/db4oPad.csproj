@@ -61,10 +61,11 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CurrentContext.cs" />
     <Compile Include="MetaInfo\CodeGenerator.cs" />
     <Compile Include="MetaInfo\DatabaseMetaInfo.cs" />
     <Compile Include="Db4oDriver.cs" />
-    <Compile Include="Db4oPad.cs" />
+    <Compile Include="DatabaseContext.cs" />
     <Compile Include="GUI\ConnectDialog.xaml.cs">
       <DependentUpon>ConnectDialog.xaml</DependentUpon>
     </Compile>
@@ -103,8 +104,9 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /i/y $(TargetPath)  "c:\ProgramData\LINQPad\Drivers\DataContext\4.0\Gamlor.Db4oPad (84df7351ef30e150)\"
-xcopy /i/y $(TargetDir)header.xml "c:\ProgramData\LINQPad\Drivers\DataContext\4.0\Gamlor.Db4oPad (84df7351ef30e150)\"</PostBuildEvent>
+    <PostBuildEvent>xcopy /i/y $(TargetDir)*.* "c:\ProgramData\LINQPad\Drivers\DataContext\4.0\Gamlor.Db4oPad (84df7351ef30e150)\"
+del "c:\ProgramData\LINQPad\Drivers\DataContext\4.0\Gamlor.Db4oPad (84df7351ef30e150)\LINQPad.exe"
+</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

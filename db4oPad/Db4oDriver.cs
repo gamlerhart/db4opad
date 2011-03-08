@@ -1,8 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using Db4objects.Db4o;
 using Gamlor.Db4oPad.GUI;
+using Gamlor.Db4oPad.MetaInfo;
 using LINQPad.Extensibility.DataContext;
 
 namespace Gamlor.Db4oPad
@@ -31,12 +35,46 @@ namespace Gamlor.Db4oPad
             get { return "Roman Stoffel"; }
         }
 
-        public override List<ExplorerItem> GetSchemaAndBuildAssembly(IConnectionInfo cxInfo, AssemblyName assemblyToBuild, ref string nameSpace, ref string typeName)
+        public override List<ExplorerItem> GetSchemaAndBuildAssembly(IConnectionInfo cxInfo,
+            AssemblyName assemblyToBuild,
+            ref string nameSpace, ref string typeName)
         {
-            var item = new ExplorerItem("fun", ExplorerItemKind.QueryableObject, ExplorerIcon.Table);
-            return new List<ExplorerItem>() { item };
+            using (var db = Db4oEmbedded.OpenFile(cxInfo.CustomTypeInfo.CustomMetadataPath))
+            {
+                var ctx =  DatabaseContext.Create(db, assemblyToBuild);
+                return ctx.ListTypes().ToList();
+            }
         }
 
+        public override void TearDownContext(IConnectionInfo cxInfo, object context, QueryExecutionManager executionManager, object[] constructorArguments)
+        {
+            Console.Out.WriteLine("Down");
+        }
+
+        public override void InitializeContext(IConnectionInfo cxInfo, object context, QueryExecutionManager executionManager)
+        {
+            Console.Out.WriteLine("");
+        }
+
+        public override IEnumerable<string> GetNamespacesToAdd()
+        {
+            return new[] {CodeGenerator.NameSpace};
+        }
 
     }
+
+
+}
+
+namespace LINQPad.User
+{
+    public class Cheat
+    {
+        
+    }
+    public class TypedDataContext
+    {
+        public IQueryable<Cheat> Cheat { get { return new[] {new Cheat()}.AsQueryable(); } }   
+    }
+
 }
