@@ -19,5 +19,10 @@ namespace Gamlor.Db4oPad
         {
             context.Value = newContext;
         }
+
+        public static void CloseContext()
+        {
+            context.Value = null;
+        }
     }
 }

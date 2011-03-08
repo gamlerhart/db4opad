@@ -58,10 +58,18 @@ namespace Gamlor.Db4oPad.Tests
             Assert.IsTrue(File.Exists(name.CodeBase));
             Assert.IsTrue(new FileInfo(name.CodeBase).Length>0);
         }
+        [Test]
+        public void DisposesDB()
+        {
+            NewTestInstance().Dispose();
+            Assert.IsTrue(DB.Ext().IsClosed());
+        }
 
         private DatabaseContext NewTestInstance()
         {
-            return DatabaseContext.Create(DB, NewName());
+            var name = NewName();
+            name.CodeBase = Path.GetTempFileName();
+            return DatabaseContext.Create(DB, name);
         }
 
         private AssemblyName NewName()

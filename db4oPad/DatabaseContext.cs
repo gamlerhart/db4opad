@@ -4,13 +4,15 @@ using System.Linq;
 using System.Reflection;
 using Db4objects.Db4o;
 using Gamlor.Db4oPad.MetaInfo;
+using Gamlor.Db4oPad.Utils;
 using LINQPad.Extensibility.DataContext;
 
 namespace Gamlor.Db4oPad
 {
-    class DatabaseContext
+    class DatabaseContext : IDisposable
     {
         private readonly DatabaseMetaInfo metaInfo;
+        private readonly Disposer disposer = new Disposer();
 
         private DatabaseContext(DatabaseMetaInfo metaInfo)
         {
@@ -19,7 +21,14 @@ namespace Gamlor.Db4oPad
 
         public static DatabaseContext Create(IObjectContainer db, AssemblyName theAssembly)
         {
-            return new DatabaseContext(DatabaseMetaInfo.Create(db, theAssembly));
+            var context = new DatabaseContext(DatabaseMetaInfo.Create(db, theAssembly));
+            context.disposer.Add(db);
+            return context;
+        }
+
+        public void Dispose()
+        {
+            disposer.Dispose();
         }
 
         public IEnumerable<ExplorerItem> ListTypes()

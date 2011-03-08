@@ -16,6 +16,7 @@ namespace Gamlor.Db4oPad.Tests
             var context = NewContext();
             CurrentContext.NewContext(context);
             Assert.AreEqual(context, CurrentContext.GetCurrentContext());
+            CurrentContext.CloseContext();
         }
         [Test]
         public void IsThreadLocal()
@@ -24,6 +25,15 @@ namespace Gamlor.Db4oPad.Tests
             task.Start();
             task.Wait();
             Assert.Throws(typeof(InvalidOperationException), () => CurrentContext.GetCurrentContext());
+            CurrentContext.CloseContext();
+        }
+        [Test]
+        public void ClosesContext()
+        {
+            CurrentContext.NewContext(NewContext());
+            CurrentContext.CloseContext();
+            Assert.Throws(typeof(InvalidOperationException), () => CurrentContext.GetCurrentContext());
+
         }
 
         private DatabaseContext NewContext()

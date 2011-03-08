@@ -10,10 +10,9 @@ using NUnit.Framework;
 namespace Gamlor.Db4oPad.Tests.MetaInfo
 {
     [TestFixture]
-    public class TestCodeGenerator
+    public class TestTypeGeneration : TypeGenerationBase
     {
         private const string SingleFieldTypeName = "ANamespace.SingleField";
-        private const string AssemblyName = "AAssembly";
 
         [Test]
         public void GenerateEmptyClass()
@@ -27,9 +26,12 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         public void IsInRightAssembly()
         {
             var metaInfo = CreateEmptyClassMetaInfo();
-            var assemblyName = new AssemblyName("Gamlor.Dynamic.Name.Of.This.Assembly");
-            assemblyName.Version = new Version(1,0,0,1);
-            assemblyName.CultureInfo = CultureInfo.InvariantCulture;
+            var assemblyName = new AssemblyName("Gamlor.Dynamic.Name.Of.This.Assembly")
+                                   {
+                                       CodeBase = Path.GetTempFileName(),
+                                       Version = new Version(1, 0, 0, 1),
+                                       CultureInfo = CultureInfo.InvariantCulture
+                                   };
             var type = CodeGenerator.Create(metaInfo, assemblyName).Single();
 
             var generatedAssembly = type.Value.Assembly.GetName();
@@ -163,7 +165,6 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             var metaInfo = CreateEmptyClassMetaInfo();
 
             var name = NewName();
-            name.CodeBase = Path.GetTempFileName();
             var infos = CodeGenerator.Create(metaInfo, name);
             Assert.IsTrue(File.Exists(name.CodeBase));
 
@@ -186,11 +187,6 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             return constructor.Invoke(new object[0]);
         }
 
-        private IEnumerable<ITypeDescription> CreateEmptyClassMetaInfo()
-        {
-            return new[]{SimpleClassDescription.Create(TypeName.Create("ANamespace.EmptyClass", AssemblyName),
-                                                 (f) => new SimpleFieldDescription[0])};
-        }
         private IEnumerable<ITypeDescription> CreateSingleFieldClass()
         {
             var stringType = new SystemType(typeof(string));
@@ -269,16 +265,5 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         {
             return metaInfo.Where(t => t.Name.Contains("SingleField")).Single();
         }
-
-        private static AssemblyName NewName()
-        {
-            return new AssemblyName("Gamlor.DynamicAssembly");
-        }
-
-        private CodeGenerator.Result NewTestInstance(IEnumerable<ITypeDescription> metaInfo)
-        {
-            return CodeGenerator.Create(metaInfo, NewName());
-        }
     }
-
 }

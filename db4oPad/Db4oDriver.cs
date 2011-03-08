@@ -39,10 +39,9 @@ namespace Gamlor.Db4oPad
             AssemblyName assemblyToBuild,
             ref string nameSpace, ref string typeName)
         {
-            using (var db = Db4oEmbedded.OpenFile(cxInfo.CustomTypeInfo.CustomMetadataPath))
+            using (var context = DatabaseContext.Create(Db4oEmbedded.OpenFile(cxInfo.CustomTypeInfo.CustomMetadataPath),assemblyToBuild))
             {
-                var ctx =  DatabaseContext.Create(db, assemblyToBuild);
-                return ctx.ListTypes().ToList();
+                return context.ListTypes().ToList();
             }
         }
 
@@ -66,15 +65,3 @@ namespace Gamlor.Db4oPad
 
 }
 
-namespace LINQPad.User
-{
-    public class Cheat
-    {
-        
-    }
-    public class TypedDataContext
-    {
-        public IQueryable<Cheat> Cheat { get { return new[] {new Cheat()}.AsQueryable(); } }   
-    }
-
-}

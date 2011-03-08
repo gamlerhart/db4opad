@@ -1,3 +1,4 @@
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using Db4objects.Db4o;
@@ -11,14 +12,18 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
     public class TestMetaInfoProvider : AbstractDatabaseFixture
     {
         private IMetaInfo toTest;
-        private readonly string className = typeof(Person).Name;
-        private readonly string classNameSpace = typeof(Person).Namespace + "." + typeof(Person).Name;
+        private readonly string className = typeof (Person).Name;
+        private readonly string classNameSpace = typeof (Person).Namespace + "." + typeof (Person).Name;
 
 
         protected override void FixtureSetup(IObjectContainer db)
         {
             db.Store(new Person("Roman", "Stoffel", 24));
-            this.toTest = MetaInfoProvider.Create(DatabaseMetaInfo.Create(db,new AssemblyName("Gamlor.Dynamic")));
+            this.toTest = MetaInfoProvider.Create(DatabaseMetaInfo.Create(db,
+                                                                          new AssemblyName("Gamlor.Dynamic")
+                                                                              {
+                                                                                  CodeBase = Path.GetTempFileName()
+                                                                              }));
         }
 
         [Test]
@@ -27,6 +32,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             var classes = toTest.Classes;
             Assert.AreEqual(1, classes.Count());
         }
+
         [Test]
         public void PrintsItself()
         {
@@ -34,6 +40,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             var expectedText = "Meta-Info";
             Assert.AreEqual(expectedText, printLabel);
         }
+
         [Test]
         public void NamesClasses()
         {
@@ -42,7 +49,5 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             Assert.AreEqual(className, classes.Single().Name);
             Assert.AreEqual(classNameSpace, classes.Single().FullName);
         }
-
     }
-
 }
