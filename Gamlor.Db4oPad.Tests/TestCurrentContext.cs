@@ -1,7 +1,10 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Db4objects.Db4o;
+using Gamlor.Db4oPad.Tests.TestTypes;
 using NUnit.Framework;
 
 namespace Gamlor.Db4oPad.Tests
@@ -33,16 +36,46 @@ namespace Gamlor.Db4oPad.Tests
             CurrentContext.NewContext(NewContext());
             CurrentContext.CloseContext();
             Assert.Throws(typeof(InvalidOperationException), () => CurrentContext.GetCurrentContext());
-
         }
-
-        private DatabaseContext NewContext()
+        [Test]
+        public void DisposeWhenClosesContext()
         {
             var db = MemoryDBForTests.NewDB();
+            CurrentContext.NewContext(NewContext(db));
+            CurrentContext.CloseContext();
+            Assert.IsTrue(db.Ext().IsClosed());
+        }
+        [Test]
+        public void DirectQuery()
+        {
+            var db = MemoryDBForTests.NewDB();
+            db.Store(new ClassWithFields());
+            CurrentContext.NewContext(NewContext(db));
+            var query = CurrentContext.Query<ClassWithFields>();
+            Assert.AreNotEqual(0,query.Count());
+            CurrentContext.CloseContext();
+
+        }
+        
+        private DatabaseContext NewContext()
+        {
+            return NewContext(MemoryDBForTests.NewDB());
+        }
+
+        private DatabaseContext NewContext(IObjectContainer db)
+        {
             return DatabaseContext.Create(db, new AssemblyName("temp")
                                                   {
                                                       CodeBase = Path.GetTempFileName()
                                                   });
+        }
+    }
+
+    static class StaticQueryConetext
+    {
+        public static IQueryable<ClassWithFields> ClassWithFields
+        {
+            get { return CurrentContext.Query<ClassWithFields>(); }
         }
     }
 }

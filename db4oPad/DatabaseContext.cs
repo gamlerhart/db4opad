@@ -6,24 +6,26 @@ using Db4objects.Db4o;
 using Gamlor.Db4oPad.MetaInfo;
 using Gamlor.Db4oPad.Utils;
 using LINQPad.Extensibility.DataContext;
+using Db4objects.Db4o.Linq;
 
 namespace Gamlor.Db4oPad
 {
     class DatabaseContext : IDisposable
     {
         private readonly DatabaseMetaInfo metaInfo;
+        private readonly IObjectContainer theContainer;
         private readonly Disposer disposer = new Disposer();
 
-        private DatabaseContext(DatabaseMetaInfo metaInfo)
+        private DatabaseContext(IObjectContainer container,DatabaseMetaInfo metaInfo)
         {
             this.metaInfo = metaInfo;
+            disposer.Add(container);
+            this.theContainer = container;
         }
 
         public static DatabaseContext Create(IObjectContainer db, AssemblyName theAssembly)
         {
-            var context = new DatabaseContext(DatabaseMetaInfo.Create(db, theAssembly));
-            context.disposer.Add(db);
-            return context;
+            return new DatabaseContext(db,DatabaseMetaInfo.Create(db, theAssembly));
         }
 
         public void Dispose()
@@ -36,6 +38,11 @@ namespace Gamlor.Db4oPad
             return (from t in metaInfo.Types
                        where !t.KnowsType.HasValue
                        select ToExplorerItem(t)).ToList();
+        }
+
+        public IQueryable<T> Query<T>()
+        {
+            return this.theContainer.AsQueryable<T>();
         }
 
         private ExplorerItem ToExplorerItem(ITypeDescription typeDescription)

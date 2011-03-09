@@ -1,28 +1,43 @@
 using System;
+using System.Linq;
 using System.Threading;
 
 namespace Gamlor.Db4oPad
 {
-    static class CurrentContext
+    public static class CurrentContext
     {
         private static readonly ThreadLocal<DatabaseContext> context = new ThreadLocal<DatabaseContext>();
-        public static DatabaseContext GetCurrentContext()
+        internal static DatabaseContext GetCurrentContext()
         {
-            if(context.IsValueCreated && context.Value!=null)
+            if(IsAvailable())
             {
                 return context.Value;
             }
             throw new InvalidOperationException("No context available");
         }
 
-        public static void NewContext(DatabaseContext newContext)
+        internal static void NewContext(DatabaseContext newContext)
         {
             context.Value = newContext;
         }
 
         public static void CloseContext()
         {
+            if (IsAvailable())
+            {
+                context.Value.Dispose();
+            }
             context.Value = null;
+        }
+
+        public static IQueryable<T> Query<T>()
+        {
+            return GetCurrentContext().Query<T>();
+        }
+
+        private static bool IsAvailable()
+        {
+            return context.IsValueCreated && context.Value != null;
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 using Gamlor.Db4oPad.Utils;
@@ -11,7 +12,8 @@ namespace Gamlor.Db4oPad.MetaInfo
 {
     internal class CodeGenerator
     {
-        public const String NameSpace = "LINQPad.User";
+        public const string NameSpace = "LINQPad.User";
+        public const string QueryContextClassName = "LINQPad.User.TypedDataContext";
         internal static Result Create(IEnumerable<ITypeDescription> metaInfo,
             AssemblyName intoAssembly)
         {
@@ -19,8 +21,49 @@ namespace Gamlor.Db4oPad.MetaInfo
             var builder = CreateModule(assemblyBuilder);
             var dictionary = metaInfo.ToDictionary(mi => mi, mi => Maybe<Type>.Empty);
             var types = CreateTypes(builder, dictionary);
+            var contextType = CreateContextType(builder, types);
             assemblyBuilder.Save(Path.GetFileName(intoAssembly.CodeBase));
-            return new Result(types);
+            return new Result(contextType, types);
+        }
+
+        private static Type CreateContextType(ModuleBuilder builder, IDictionary<ITypeDescription, Type> types)
+        {
+            var typeBuilder = builder.DefineType(QueryContextClassName,
+                                         TypeAttributes.Class | TypeAttributes.Public);
+            foreach (var type in types)
+            {
+                var querableType = typeof (IQueryable<>).MakeGenericType(type.Value);
+                var property = typeBuilder.DefineProperty(type.Key.Name,
+                                                          PropertyAttributes.HasDefault,
+                                                          querableType, new[] { querableType });
+                
+                property.SetGetMethod(CreateQueryGetter(type.Value,querableType, type.Key.Name, typeBuilder));
+               
+            }
+
+            return typeBuilder.CreateType();
+
+        }
+
+        private static MethodBuilder CreateQueryGetter(Type type, Type queryableType,
+            string propertyName,
+            TypeBuilder typeBuilder)
+        {
+            var getterMethod =
+                typeBuilder.DefineMethod("get_" + propertyName,
+                                         MethodAttributes.Public | MethodAttributes.SpecialName |
+                                         MethodAttributes.HideBySig|MethodAttributes.Static);
+
+            var call = Expression.Call(null, StaticQueryCall(type));
+            var lambda = Expression.Lambda(typeof(Func<>).MakeGenericType(queryableType),
+                call, new ParameterExpression[0]);
+            lambda.CompileToMethod(getterMethod);
+            return getterMethod;
+        }
+
+        private static MethodInfo StaticQueryCall(Type forType)
+        {
+            return typeof (CurrentContext).GetMethod("Query").MakeGenericMethod(forType);
         }
 
         private static IDictionary<ITypeDescription, Type> CreateTypes(ModuleBuilder modBuilder,
@@ -164,18 +207,21 @@ namespace Gamlor.Db4oPad.MetaInfo
 
         private static AssemblyBuilder CreateAssembly(AssemblyName theName)
         {
-            return AppDomain.CurrentDomain
+            var assembly = AppDomain.CurrentDomain
                 .DefineDynamicAssembly(theName, AssemblyBuilderAccess.RunAndSave,
                                        Path.GetDirectoryName(theName.CodeBase));
+            return assembly;
         }
 
         public class Result : IEnumerable<KeyValuePair<ITypeDescription, Type>>
         {
             private readonly IDictionary<ITypeDescription, Type> types;
+            private readonly Type dataContext;
 
 
-            public Result(IDictionary<ITypeDescription, Type> types)
+            public Result(Type dataContext,IDictionary<ITypeDescription, Type> types)
             {
+                this.dataContext = dataContext;
                 this.types = types;
             }
 
@@ -197,6 +243,11 @@ namespace Gamlor.Db4oPad.MetaInfo
             public IDictionary<ITypeDescription, Type> Types
             {
                 get { return types; }
+            }
+
+            public Type DataContext
+            {
+                get { return dataContext; }
             }
         }
     }

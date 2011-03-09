@@ -64,6 +64,16 @@ namespace Gamlor.Db4oPad.Tests
             NewTestInstance().Dispose();
             Assert.IsTrue(DB.Ext().IsClosed());
         }
+        [Test]
+        public void CanQuery()
+        {
+            using (var db = NewTestInstance())
+            {
+                var result = from i in db.Query<ClassWithoutFields>()
+                             select i;
+                Assert.AreNotEqual(0,result.Count());
+            }
+        }
 
         private DatabaseContext NewTestInstance()
         {
