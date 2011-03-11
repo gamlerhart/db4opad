@@ -39,7 +39,13 @@
     <AssemblyOriginatorKeyFile>db4oPad.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Db4objects.Db4o, Version=8.0.151.14539, Culture=neutral, PublicKeyToken=6199cd4f203aa8eb, processorArchitecture=MSIL" />
+    <Reference Include="Db4objects.Db4o, Version=8.0.151.14539, Culture=neutral, PublicKeyToken=6199cd4f203aa8eb, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\libs\db4o\Db4objects.Db4o.dll</HintPath>
+    </Reference>
+    <Reference Include="Db4objects.Db4o.Linq">
+      <HintPath>..\libs\db4o\Db4objects.Db4o.Linq.dll</HintPath>
+    </Reference>
     <Reference Include="LINQPad, Version=1.0.0.0, Culture=neutral, PublicKeyToken=21353812cd2a2db5, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
       <ExecutableExtension>.exe</ExecutableExtension>
@@ -65,6 +71,7 @@
     <Compile Include="GenerateTestDatabase.cs" />
     <Compile Include="HashCodeAsserts.cs" />
     <Compile Include="IO\AbstractIOTestCase.cs" />
+    <Compile Include="IO\HighLevelIOTestCases.cs" />
     <Compile Include="IO\TestAggrevieCacheBin.cs" />
     <Compile Include="IO\TestAggressiveCacheStorage.cs" />
     <Compile Include="MemoryDBForTests.cs" />

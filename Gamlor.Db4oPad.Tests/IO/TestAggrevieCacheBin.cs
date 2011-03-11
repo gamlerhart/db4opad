@@ -12,7 +12,6 @@ namespace Gamlor.Db4oExt.Tests.IO
     {
         private readonly Random rnd = new Random();
         private const int KiloByte = 1024;
-        private const int MegaByte = 1024;
         private const int AmountOfRandomReadsWrites =5*KiloByte;
         private AggressiveCacheBin bin;
         private string path;
@@ -27,13 +26,6 @@ namespace Gamlor.Db4oExt.Tests.IO
         {
             var bytes = new byte[5];
             bin.Read(0, bytes, 5);
-            Assert.IsTrue(existingData.Take(5).SequenceEqual(bytes));
-        }
-        [Test]
-        public void CanReadSync()
-        {
-            var bytes = new byte[5];
-            bin.SyncRead(0, bytes, 5);
             Assert.IsTrue(existingData.Take(5).SequenceEqual(bytes));
         }
 

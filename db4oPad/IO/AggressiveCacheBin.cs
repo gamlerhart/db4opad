@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Db4objects.Db4o.IO;
 using Sharpen.Lang;
 
@@ -32,7 +33,8 @@ namespace Gamlor.Db4oExt.IO
 
         public void Sync()
         {
-            // Write-Through
+            // Not that we expect a write through stream
+            file.Flush();
         }
 
         public void Sync(IRunnable runnable)
@@ -44,7 +46,7 @@ namespace Gamlor.Db4oExt.IO
 
         public int SyncRead(long position, byte[] bytes, int bytesToRead)
         {
-            return Read(0, bytes, bytesToRead);
+            throw new NotSupportedException("wtf");
         }
 
         public void Close()

@@ -7,7 +7,7 @@ namespace Gamlor.Db4oExt.Tests.IO
 {
     public abstract class AbstractIOTestCase
     {
-        private const int MegaByte = 1024*1024;
+        internal const int MegaByte = 1024 * 1024;
         protected static readonly byte[] existingData = InitializeMegaByte();
 
         private static byte[] InitializeMegaByte()
