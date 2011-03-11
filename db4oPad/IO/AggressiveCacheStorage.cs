@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.IO;
 using Db4objects.Db4o.IO;
 
@@ -9,10 +7,21 @@ namespace Gamlor.Db4oExt.IO
     {
         public IBin Open(BinConfiguration config)
         {
-            return new AggressiveCacheBin(new FileStream(config.Uri(),
+            var theBin = new AggressiveCacheBin(new FileStream(config.Uri(),
                 FileMode.OpenOrCreate,
                 FileAccess.ReadWrite,
                 FileShare.None,32,FileOptions.WriteThrough));
+            FillUpBytes(theBin,config.InitialLength());
+            return theBin;
+        }
+
+        private void FillUpBytes(AggressiveCacheBin theBin, long initialLength)
+        {
+            if(theBin.Length()<initialLength)
+            {
+                var bytes = new byte[initialLength - theBin.Length()];
+                theBin.Write(theBin.Length(),bytes, bytes.Length);
+            }
         }
 
         public bool Exists(string uri)

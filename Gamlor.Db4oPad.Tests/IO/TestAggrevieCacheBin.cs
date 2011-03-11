@@ -12,6 +12,8 @@ namespace Gamlor.Db4oExt.Tests.IO
     {
         private readonly Random rnd = new Random();
         private const int KiloByte = 1024;
+        private const int MegaByte = 1024;
+        private const int AmountOfRandomReadsWrites =5*KiloByte;
         private AggressiveCacheBin bin;
         private string path;
 
@@ -72,6 +74,49 @@ namespace Gamlor.Db4oExt.Tests.IO
             bin.Read(bin.Length()-written.Length, read, written.Length);
             Assert.IsTrue(written.SequenceEqual(read));
         }
+        [Test]
+        public void RandomWritesReads()
+        {
+            for(var i=0;i<AmountOfRandomReadsWrites;i++)
+            {
+                var bytesToWrite = new byte[i];
+                rnd.NextBytes(bytesToWrite);
+                var position = rnd.Next((int)bin.Length());
+                bin.Write(position,bytesToWrite,bytesToWrite.Length);
+
+                var bytesRead = new byte[i];
+                var readedAmount = bin.Read(position, bytesRead, bytesToWrite.Length);
+                Assert.AreEqual(readedAmount, bytesToWrite.Length);
+                Assert.IsTrue(bytesToWrite.SequenceEqual(bytesRead));
+
+            }
+        }
+
+        [Test]
+        public void ReturnsBytesRead()
+        {
+            var readedAmount = bin.Read(bin.Length()-2, new byte[4], 4);
+            Assert.AreEqual(2,readedAmount);
+        }
+        [Test]
+        public void OnlyReadSection()
+        {
+            var bytes = new byte[] {0, 0, 0, 1, 2, 3};
+            bin.Read(16, bytes, 3);
+            Assert.IsTrue(bytes.Take(3).SequenceEqual(new byte[]{42,42,42}));
+            Assert.IsTrue(bytes.Skip(3).SequenceEqual(new byte[]{1,2,3}));
+        }
+        [Test]
+        public void OnlyWriteSection()
+        {
+            var write = new byte[] { 1, 2,3, 4, 5, 6 };
+            bin.Write(16, write, 3);
+
+            var read = new byte[write.Length];
+            bin.Read(16, read, 6);
+            Assert.IsTrue(read.Take(3).SequenceEqual(new byte[] {1, 2, 3 }));
+            Assert.IsTrue(read.Skip(3).SequenceEqual(new byte[] { 42, 42, 42 }));
+        }
 
         [Test]
         public void CanClose()
@@ -84,6 +129,14 @@ namespace Gamlor.Db4oExt.Tests.IO
         public void GetLenght()
         {
             Assert.AreEqual(existingData.Length, bin.Length());
+        }
+
+
+        [Test]
+        public void OpenWithGivenSize()
+        {
+            var theBin = (AggressiveCacheBin)toTest.Open(new BinConfiguration(Path.GetRandomFileName(), true,KiloByte, true));
+            Assert.AreEqual(KiloByte, theBin.Length());
         }
 
         private AggressiveCacheBin OpenBin()
