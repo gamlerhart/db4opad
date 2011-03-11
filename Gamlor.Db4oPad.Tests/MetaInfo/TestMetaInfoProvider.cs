@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -48,6 +49,23 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             Assert.AreEqual(className, classes.Single().ToString());
             Assert.AreEqual(className, classes.Single().Name);
             Assert.AreEqual(classNameSpace, classes.Single().FullName);
+        }
+
+        [Test]
+        public void CanReuseAssembly()
+        {
+            var theClass = QueryForPersonClass(this.toTest);
+            var result = MetaInfoProvider.Create(DatabaseMetaInfo.Create(DB, theClass.Assembly));
+            var theClassAsSencondTime = QueryForPersonClass(result);
+            Assert.AreEqual(theClass.Assembly,theClassAsSencondTime.Assembly);
+            Assert.AreEqual(theClass,theClassAsSencondTime);
+        }
+
+        private Type QueryForPersonClass(IMetaInfo theInfoSource)
+        {
+            return (from t in theInfoSource.DyanmicTypesRepresentation.Values
+                    where t.Name.Contains("Person")
+                    select t).Single();
         }
     }
 }

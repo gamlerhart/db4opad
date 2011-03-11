@@ -45,6 +45,9 @@
       <ExecutableExtension>.exe</ExecutableExtension>
       <HintPath>..\libs\LINQPad.exe</HintPath>
     </Reference>
+    <Reference Include="Moq">
+      <HintPath>..\libs\moq\Moq.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\libs\NUnit\bin\net-2.0\nunit.framework.dll</HintPath>
     </Reference>
@@ -61,8 +64,12 @@
     <Compile Include="AssertDisposable.cs" />
     <Compile Include="GenerateTestDatabase.cs" />
     <Compile Include="HashCodeAsserts.cs" />
+    <Compile Include="IO\TestReadOnlyBin.cs" />
+    <Compile Include="IO\TestReadOnlyStorage.cs" />
     <Compile Include="MemoryDBForTests.cs" />
+    <Compile Include="MetaInfo\TestDynamicGeneratedTypesReflector.cs" />
     <Compile Include="MetaInfo\TestQueryContextGeneration.cs" />
+    <Compile Include="MetaInfo\TestTypeDescriptions.cs" />
     <Compile Include="MetaInfo\TestTypeGeneration.cs" />
     <Compile Include="MetaInfo\TestDb4oMetaDataToClassDescription.cs" />
     <Compile Include="MetaInfo\TestMetaInfoProvider.cs" />
@@ -72,6 +79,7 @@
     <Compile Include="MetaInfo\TypeGenerationBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestCurrentContext.cs" />
+    <Compile Include="TestDatabaseConfigurator.cs" />
     <Compile Include="TestDatabaseContext.cs" />
     <Compile Include="TestTypes\Person.cs" />
     <Compile Include="TestTypes\TestTypes.cs" />

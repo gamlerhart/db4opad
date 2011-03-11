@@ -12,7 +12,6 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
     [TestFixture]
     public class TestTypeGeneration : TypeGenerationBase
     {
-        private const string SingleFieldTypeName = "ANamespace.SingleField";
 
         [Test]
         public void GenerateEmptyClass()
@@ -209,23 +208,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
                                                       CreateField);
             return new ITypeDescription[] { type };
         }
-        private static IEnumerable<ITypeDescription> TypeWithGenericList()
-        {
-            var stringList = new SystemType(typeof(List<string>));
-            var type = SimpleClassDescription.Create(SingleFieldType(),
-                                                     f => CreateField(stringList));
-            return new ITypeDescription[] { type, stringList };
-        }
 
-        private static IEnumerable<ITypeDescription> GenericType()
-        {
-            var stringList = new SystemType(typeof(List<string>));
-            var stringType = typeof(string);
-            var genericArguments = GenericArg(stringType);
-            var type = SimpleClassDescription.Create(TypeName.Create(SingleFieldTypeName, AssemblyName, genericArguments),
-                                                     f => CreateField(stringList));
-            return new ITypeDescription[] { type, stringList };
-        }
         private static IEnumerable<ITypeDescription> TwoGenericInstances()
         {
             var stringList = new SystemType(typeof(List<string>));
@@ -240,20 +223,6 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             var intInstance = SimpleClassDescription.Create(TypeName.Create(SingleFieldTypeName, AssemblyName, intGenericArgs),
                                                      f => CreateField(intList));
             return new ITypeDescription[] { stringInstance, intInstance, stringList, intList };
-        }
-
-        private static IEnumerable<TypeName> GenericArg(Type intType)
-        {
-            return new[] { TypeName.Create(intType.FullName, intType.Assembly.GetName().Name) };
-        }
-
-        private static TypeName SingleFieldType()
-        {
-            return TypeName.Create(SingleFieldTypeName, AssemblyName);
-        }
-        private static IEnumerable<SimpleFieldDescription> CreateField(ITypeDescription stringType)
-        {
-            return new[] { SimpleFieldDescription.Create("data", stringType) };
         }
 
         private static Type ExtractSingleFieldType(IEnumerable<ITypeDescription> metaInfo)

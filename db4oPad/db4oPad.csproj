@@ -62,6 +62,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CurrentContext.cs" />
+    <Compile Include="DatabaseConfigurator.cs" />
+    <Compile Include="IO\ReadOnlyBin.cs" />
+    <Compile Include="IO\ReadOnlyStorage.cs" />
+    <Compile Include="MetaInfo\DynamicGeneratedTypesReflector.cs" />
     <Compile Include="MetaInfo\CodeGenerator.cs" />
     <Compile Include="MetaInfo\DatabaseMetaInfo.cs" />
     <Compile Include="Db4oDriver.cs" />

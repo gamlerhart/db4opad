@@ -26,16 +26,31 @@ namespace Gamlor.Db4oPad.MetaInfo
             return new Result(contextType, types);
         }
 
+        public static Result Create(IEnumerable<ITypeDescription> metaInfo, Assembly candidateAssembly)
+        {
+            var types = metaInfo.ToDictionary(mi => mi, mi => FindType(mi,candidateAssembly));
+            var contextType = candidateAssembly.GetType(QueryContextClassName);
+            return new Result(contextType, types);
+        }
+
+        private static Type FindType(ITypeDescription typeInfo, Assembly candidateAssembly)
+        {
+            return typeInfo.KnowsType
+                .Convert(t => t)
+                .GetValue(() => candidateAssembly.GetType(BuildName(typeInfo.TypeName.NameWithGenerics)));
+        }
+
+
         private static Type CreateContextType(ModuleBuilder builder, IDictionary<ITypeDescription, Type> types)
         {
             var typeBuilder = builder.DefineType(QueryContextClassName,
                                          TypeAttributes.Class | TypeAttributes.Public);
-            foreach (var type in types)
+            foreach (var type in types.Where(t=>!t.Key.KnowsType.HasValue))
             {
                 var querableType = typeof (IQueryable<>).MakeGenericType(type.Value);
                 var property = typeBuilder.DefineProperty(type.Key.Name,
-                                                          PropertyAttributes.HasDefault,
-                                                          querableType, new[] { querableType });
+                                                          PropertyAttributes.HasDefault, 
+                                                          querableType, null);
                 
                 property.SetGetMethod(CreateQueryGetter(type.Value,querableType, type.Key.Name, typeBuilder));
                
@@ -195,8 +210,13 @@ namespace Gamlor.Db4oPad.MetaInfo
 
         private static TypeBuilder CreateType(ModuleBuilder modBuilder, string className)
         {
-            return modBuilder.DefineType(NameSpace + "." + className,
+            return modBuilder.DefineType(BuildName(className),
                                          TypeAttributes.Class | TypeAttributes.Public);
+        }
+
+        private static string BuildName(string className)
+        {
+            return NameSpace + "." + className;
         }
 
         private static ModuleBuilder CreateModule(AssemblyBuilder builder)

@@ -34,9 +34,29 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
                                 Assert.NotNull(query);
                             });
         }
-        private static MethodInfo StaticQueryCall(Type forType)
+        [Test]
+        public void OnlyHasQueriesForComplexTypes()
         {
-            return typeof(CurrentContext).GetMethod("Query").MakeGenericMethod(forType);
+            TestUtils.WithTestContext(
+                () =>
+                {
+                    var metaInfo = TypeWithGenericList();
+                    var infos = NewTestInstance(metaInfo);
+                    var properties = infos.DataContext.GetProperties();
+                    Assert.AreEqual(1, properties.Length);
+                });
+        }
+        [Test]
+        public void QueryForGenericType()
+        {
+            TestUtils.WithTestContext(
+                () =>
+                    {
+                        var metaInfo = GenericType();
+                        var infos = NewTestInstance(metaInfo);
+                        var property = infos.DataContext.GetProperty("SingleField_1");
+                    Assert.NotNull(property);
+                });
         }
 
         private Type SingleTypeQueryContext()

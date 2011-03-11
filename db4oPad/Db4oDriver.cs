@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Db4objects.Db4o;
+using Db4objects.Db4o.Config;
 using Gamlor.Db4oPad.GUI;
 using Gamlor.Db4oPad.MetaInfo;
 using LINQPad.Extensibility.DataContext;
@@ -13,6 +14,7 @@ namespace Gamlor.Db4oPad
 {
     public class Db4oDriver : DynamicDataContextDriver
     {
+        private const string AssemblyLocation = "Db4oDriver.AssemblyLocationKey";
         public override string GetConnectionDescription(IConnectionInfo cxInfo)
         {
             return Path.GetFileName(cxInfo.CustomTypeInfo.CustomMetadataPath);
@@ -41,24 +43,62 @@ namespace Gamlor.Db4oPad
         {
             using (var context = DatabaseContext.Create(Db4oEmbedded.OpenFile(cxInfo.CustomTypeInfo.CustomMetadataPath),assemblyToBuild))
             {
+                cxInfo.SessionData[AssemblyLocation] = assemblyToBuild.CodeBase;
                 return context.ListTypes().ToList();
             }
         }
 
         public override void TearDownContext(IConnectionInfo cxInfo, object context, QueryExecutionManager executionManager, object[] constructorArguments)
         {
-            Console.Out.WriteLine("Down");
+            CurrentContext.CloseContext();
         }
 
         public override void InitializeContext(IConnectionInfo cxInfo, object context, QueryExecutionManager executionManager)
         {
-            Console.Out.WriteLine("");
+            var assembly = LoadAssembly(cxInfo);
+            var meta = DatabaseMetaInfo.Create(OpenDB(cxInfo), assembly);
+            var configurator = DatabaseConfigurator.Create(meta);
+
+            var ctx = DatabaseContext.Create(OpenDB(cxInfo, configurator.Configure), assembly);
+            CurrentContext.NewContext(ctx);
+        }
+
+        private Assembly LoadAssembly(IConnectionInfo cxInfo)
+        {
+            return Assembly.LoadFrom(GetAssemblyLocation(cxInfo));
+        }
+
+        private IEmbeddedObjectContainer OpenDB(IConnectionInfo cxInfo)
+        {
+            return OpenDB(cxInfo, c => { });
+        }
+
+        private IEmbeddedObjectContainer OpenDB(IConnectionInfo cxInfo,
+            Action<IEmbeddedConfiguration> configurator)
+        {
+            var config = NewConfig();
+            configurator(config);
+            return Db4oEmbedded.OpenFile(config,cxInfo.CustomTypeInfo.CustomMetadataPath);
+        }
+
+        private IEmbeddedConfiguration NewConfig()
+        {
+            var config = Db4oEmbedded.NewConfiguration();
+            config.File.ReadOnly = true;
+            return config;
+        }
+
+        private string GetAssemblyLocation(IConnectionInfo cxInfo)
+        {
+            return (string)cxInfo.SessionData[AssemblyLocation];
         }
 
         public override IEnumerable<string> GetNamespacesToAdd()
         {
             return new[] {CodeGenerator.NameSpace};
         }
+
+
 
     }
 

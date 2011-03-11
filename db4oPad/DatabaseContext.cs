@@ -27,6 +27,14 @@ namespace Gamlor.Db4oPad
         {
             return new DatabaseContext(db,DatabaseMetaInfo.Create(db, theAssembly));
         }
+        public static DatabaseContext Create(IObjectContainer db, Assembly theAssembly)
+        {
+            return new DatabaseContext(db, DatabaseMetaInfo.Create(db, theAssembly));
+        }
+        public static DatabaseContext Create(IObjectContainer db, DatabaseMetaInfo metaInfo)
+        {
+            return new DatabaseContext(db, metaInfo);
+        }
 
         public void Dispose()
         {
@@ -44,6 +52,12 @@ namespace Gamlor.Db4oPad
         {
             return this.theContainer.AsQueryable<T>();
         }
+
+        public DatabaseMetaInfo MetaInfo
+        {
+            get { return metaInfo; }
+        }
+
 
         private ExplorerItem ToExplorerItem(ITypeDescription typeDescription)
         {

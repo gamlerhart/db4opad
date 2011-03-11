@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using Db4objects.Db4o;
 
@@ -20,6 +19,18 @@ namespace Gamlor.Db4oPad.MetaInfo
         {
             var dynamicRepresentaton = CodeGenerator.Create(types, intoAssembly);
             return new DatabaseMetaInfo(types, dynamicRepresentaton.Types);
+        }
+        public static DatabaseMetaInfo Create(IEnumerable<ITypeDescription> types,
+            Assembly candidateAssembly)
+        {
+            var dynamicRepresentaton = CodeGenerator.Create(types, candidateAssembly);
+            return new DatabaseMetaInfo(types, dynamicRepresentaton.Types);
+        }
+        public static DatabaseMetaInfo Create(IObjectContainer db,
+            Assembly candidateAssembly)
+        {
+            var metaInfo = MetaDataReader.Read(db);
+            return Create(metaInfo, candidateAssembly);
         }
         public static DatabaseMetaInfo Create(IObjectContainer db,
             AssemblyName intoAssembly)

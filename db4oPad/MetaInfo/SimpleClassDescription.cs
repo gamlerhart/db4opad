@@ -51,7 +51,7 @@ namespace Gamlor.Db4oPad.MetaInfo
         {
             if (count != 0)
             {
-                return "`" + count;
+                return "_" + count;
             }
             return "";
         }
