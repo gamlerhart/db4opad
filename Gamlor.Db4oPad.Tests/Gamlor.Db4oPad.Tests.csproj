@@ -64,8 +64,9 @@
     <Compile Include="AssertDisposable.cs" />
     <Compile Include="GenerateTestDatabase.cs" />
     <Compile Include="HashCodeAsserts.cs" />
-    <Compile Include="IO\TestReadOnlyBin.cs" />
-    <Compile Include="IO\TestReadOnlyStorage.cs" />
+    <Compile Include="IO\AbstractIOTestCase.cs" />
+    <Compile Include="IO\TestAggrevieCacheBin.cs" />
+    <Compile Include="IO\TestAggressiveCacheStorage.cs" />
     <Compile Include="MemoryDBForTests.cs" />
     <Compile Include="MetaInfo\TestDynamicGeneratedTypesReflector.cs" />
     <Compile Include="MetaInfo\TestQueryContextGeneration.cs" />

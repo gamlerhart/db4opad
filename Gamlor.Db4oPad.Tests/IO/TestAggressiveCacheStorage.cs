@@ -1,39 +1,12 @@
 using System;
 using System.IO;
 using Db4objects.Db4o.IO;
-using Gamlor.Db4oPad.IO;
 using NUnit.Framework;
 
-namespace Gamlor.Db4oPad.Tests.IO
+namespace Gamlor.Db4oExt.Tests.IO
 {
-
-    public abstract class AbstractIOTestCase
-    {
-        protected static readonly byte[] existingData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-
-        internal ReadOnlyStorage toTest;
-
-        [SetUp]
-        public void Setup()
-        {
-            this.toTest = new ReadOnlyStorage();
-            AdditionalSetup(toTest);
-        }
-
-        internal virtual void AdditionalSetup(ReadOnlyStorage readOnlyStorage)
-        {
-        }
-
-        protected static string NewFileWithBytes()
-        {
-            var file = Path.GetTempFileName();
-            File.WriteAllBytes(file, existingData);
-            return file;
-        }
-    }
-
     [TestFixture]
-    public class TestReadOnlyStorage : AbstractIOTestCase
+    public class TestAggressiveCacheStorage : AbstractIOTestCase
     {
         [Test]
         public void CanOpen()

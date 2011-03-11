@@ -1,14 +1,18 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using Db4objects.Db4o.IO;
 
-namespace Gamlor.Db4oPad.IO
+namespace Gamlor.Db4oExt.IO
 {
-    class ReadOnlyStorage : IStorage
+    class AggressiveCacheStorage : IStorage
     {
         public IBin Open(BinConfiguration config)
         {
-            return new ReadOnlyBin(new FileStream(config.Uri(),FileMode.OpenOrCreate,FileAccess.Read));
+            return new AggressiveCacheBin(new FileStream(config.Uri(),
+                FileMode.OpenOrCreate,
+                FileAccess.ReadWrite,
+                FileShare.None,32,FileOptions.WriteThrough));
         }
 
         public bool Exists(string uri)
