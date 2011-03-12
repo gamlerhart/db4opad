@@ -72,6 +72,7 @@
     <Compile Include="HashCodeAsserts.cs" />
     <Compile Include="IO\AbstractIOTestCase.cs" />
     <Compile Include="IO\HighLevelIOTestCases.cs" />
+    <Compile Include="IO\MiniBenchMark.cs" />
     <Compile Include="IO\TestAggrevieCacheBin.cs" />
     <Compile Include="IO\TestAggressiveCacheStorage.cs" />
     <Compile Include="MemoryDBForTests.cs" />

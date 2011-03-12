@@ -19,6 +19,12 @@ namespace Gamlor.Db4oPad.Tests.TestTypes
     class WithBuiltInGeneric
     {
         private List<string> aField;
+
+        public List<string> AField
+        {
+            get { return aField; }
+            set { aField = value; }
+        }
     }
     class Generic<T>
     {

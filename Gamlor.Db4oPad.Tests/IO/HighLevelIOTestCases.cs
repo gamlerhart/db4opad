@@ -14,11 +14,13 @@ namespace Gamlor.Db4oExt.Tests.IO
     class HighLevelIOTestCases
     {
         private IEmbeddedObjectContainer container;
+        private string path;
         private const int ObjectsPerSession = 200;
 
         [SetUp]
         public void Setup()
         {
+            this.path = Path.GetRandomFileName();
             OpenContainer();
         }
 
@@ -26,7 +28,7 @@ namespace Gamlor.Db4oExt.Tests.IO
         public void OpenClose()
         {
             container.Dispose();
-            OpenContainer();
+            ReOpenContainer();
             container.Dispose();
         }
 
@@ -65,6 +67,7 @@ namespace Gamlor.Db4oExt.Tests.IO
             }
             Task.WaitAll(tasks.ToArray());
 
+            ReOpenContainer();
             var persons = container.Query<Person>();
             Assert.AreEqual(amoutOfTasks * ObjectsPerSession, persons.Count);
         }
@@ -92,12 +95,18 @@ namespace Gamlor.Db4oExt.Tests.IO
         }
 
 
+
+        private void ReOpenContainer()
+        {
+            this.container.Close();
+            OpenContainer();
+        }
         
         private void OpenContainer()
         {
             var config = Db4oEmbedded.NewConfiguration();
             config.File.Storage = new AggressiveCacheStorage();
-            this.container = Db4oEmbedded.OpenFile(config, Path.GetRandomFileName());
+            this.container = Db4oEmbedded.OpenFile(config, path);
         }
     }
 }
