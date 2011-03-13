@@ -10,7 +10,7 @@ namespace Gamlor.Db4oExt.IO
             var theBin = new AggressiveCacheBin(new FileStream(config.Uri(),
                 FileMode.OpenOrCreate,
                 FileAccess.ReadWrite,
-                FileShare.None,32,FileOptions.WriteThrough));
+                FileShare.None,128,FileOptions.WriteThrough));
             FillUpBytes(theBin,config.InitialLength());
             return theBin;
         }
@@ -26,7 +26,7 @@ namespace Gamlor.Db4oExt.IO
 
         public bool Exists(string uri)
         {
-            return File.Exists(uri);
+            return File.Exists(uri) && new FileInfo(uri).Length>0;
         }
 
         public void Delete(string uri)

@@ -8,6 +8,7 @@ using Db4objects.Db4o;
 using Db4objects.Db4o.Config;
 using Db4objects.Db4o.IO;
 using Db4objects.Db4o.Linq;
+using Gamlor.Db4oExt.IO;
 using Gamlor.Db4oPad.Tests.TestTypes;
 using NUnit.Framework;
 
@@ -17,16 +18,18 @@ namespace Gamlor.Db4oExt.Tests.IO
     {
         private const int AmountOfRuns = 50;
 
-//        [Test]
+
+        [Test]
         public void TheBenchMark()
         {
             RunRoundWith(DefaultConfig(),"default warmup ");
-            RunRoundWith(NoCache(), "cache warmup ");
+            RunRoundWith(InMemory(), "cache warmup ");
+            RunRoundWith(OurImplementation(), "our warmup ");
 
 
             RunRoundWith(DefaultConfig(), "default real ");
-            RunRoundWith(NoCache(), "cache real ");
-            RunRoundWith(DefaultConfig(), "default real 2 ");
+            RunRoundWith(InMemory(), "cache real ");
+            RunRoundWith(OurImplementation(), "our real ");
         }
 
         private void RunRoundWith(Func<IEmbeddedConfiguration> config, string label)
@@ -129,7 +132,7 @@ namespace Gamlor.Db4oExt.Tests.IO
                            return config;
                        };
         }
-        private Func<IEmbeddedConfiguration> NoCache()
+        private Func<IEmbeddedConfiguration> InMemory()
         {
             return () =>
                        {
@@ -137,6 +140,15 @@ namespace Gamlor.Db4oExt.Tests.IO
                            cfg.File.Storage = new PagingMemoryStorage();
                            return cfg;
                        };
+        }
+        private Func<IEmbeddedConfiguration> OurImplementation()
+        {
+            return () =>
+            {
+                var cfg = DefaultConfig()();
+                cfg.File.Storage = new AggressiveCacheStorage();
+                return cfg;
+            };
         }
     }
 }

@@ -35,6 +35,14 @@ namespace Gamlor.Db4oExt.Tests.IO
             Assert.IsTrue(exists);
         }
         [Test]
+        public void ExistsChecksForZeroBytes()
+        {
+            var path = Path.GetTempFileName();
+            File.WriteAllBytes(path, new byte[0]);
+            var exists = toTest.Exists(path);
+            Assert.IsFalse(exists);
+        }
+        [Test]
         public void DoesNotExists()
         {
             var path = NewFileWithBytes();
