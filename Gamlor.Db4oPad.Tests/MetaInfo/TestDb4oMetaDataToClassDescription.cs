@@ -118,7 +118,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
 
         private ITypeDescription For<T>()
         {
-            return generatedClassses.Where(c => c.Name.Equals(typeof(T).Name)).Single();
+            return generatedClassses.Where(c => c.Name.Equals(typeof(T).Name.Replace('`','_'))).Single();
         }
     }
 

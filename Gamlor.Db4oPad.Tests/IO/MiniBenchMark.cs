@@ -19,7 +19,7 @@ namespace Gamlor.Db4oExt.Tests.IO
         private const int AmountOfRuns = 50;
 
 
-        [Test]
+//        [Test]
         public void TheBenchMark()
         {
             RunRoundWith(DefaultConfig(),"default warmup ");
