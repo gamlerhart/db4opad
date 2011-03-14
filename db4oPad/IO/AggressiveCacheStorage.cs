@@ -10,7 +10,9 @@ namespace Gamlor.Db4oExt.IO
             var theBin = new AggressiveCacheBin(new FileStream(config.Uri(),
                 FileMode.OpenOrCreate,
                 FileAccess.ReadWrite,
-                FileShare.None,128,FileOptions.WriteThrough));
+                FileShare.None,
+                128,
+                FileOptions.WriteThrough | FileOptions.RandomAccess | FileOptions.Asynchronous));
             FillUpBytes(theBin,config.InitialLength());
             return theBin;
         }
