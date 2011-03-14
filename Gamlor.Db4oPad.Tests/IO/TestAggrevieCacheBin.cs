@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using Db4objects.Db4o.Config;
 using Db4objects.Db4o.IO;
 using Gamlor.Db4oExt.IO;
 using NUnit.Framework;
@@ -77,6 +78,17 @@ namespace Gamlor.Db4oExt.Tests.IO
             var read = RandomBytes(50 * KiloByte);
             bin.Read(4, read, 50 * KiloByte);
             Assert.IsTrue(written.SequenceEqual(read));
+        }
+        [Test]
+        public void CanWriteLargeAndReadAtTheEnd()
+        {
+            var written = RandomBytes(50 * KiloByte);
+            var originaLenght = bin.Length();
+            bin.Write(bin.Length(), written, written.Length);
+            var section = written.Length / 8;
+            var read = RandomBytes(section);
+            bin.Read(originaLenght+(written.Length - section), read, section);
+            Assert.IsTrue(written.Skip(written.Length-section).SequenceEqual(read));
         }
         [Test]
         public void CanWriteOverFileEnd()
