@@ -54,11 +54,14 @@ namespace Gamlor.Db4oExt.IO
 
         private Page PageAt(int currentPage)
         {
-            if(pages.Count==currentPage)
+            if(pages.Count<=currentPage)
             {
-                var newPage = new Page(pages.Count, file);
-                pages.Add(newPage);
-                return newPage;
+                var difference = (currentPage - pages.Count)+1;
+                for (int i = 0; i < difference;i++ )
+                {
+                    pages.Add(new Page(pages.Count, file));
+
+                }
             }
             return pages[currentPage];
         }
