@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using Db4objects.Db4o.Config;
 using Db4objects.Db4o.IO;
 using Gamlor.Db4oExt.IO;
 using NUnit.Framework;
@@ -140,6 +139,19 @@ namespace Gamlor.Db4oExt.Tests.IO
             var read = new byte[write.Length];
             bin.Read(16, read, 6);
             Assert.IsTrue(read.Take(3).SequenceEqual(new byte[] {1, 2, 3 }));
+            Assert.IsTrue(read.Skip(3).SequenceEqual(new byte[] { 42, 42, 42 }));
+        }
+        [Test]
+        public void WriteOnCachedSection()
+        {
+            var write = new byte[] { 1, 2, 3, 4, 5, 6 };
+            bin.Read(16,  new byte[write.Length], 6);
+
+            bin.Write(16, write, 3);
+
+            var read = new byte[write.Length];
+            bin.Read(16, read, 6);
+            Assert.IsTrue(read.Take(3).SequenceEqual(new byte[] { 1, 2, 3 }));
             Assert.IsTrue(read.Skip(3).SequenceEqual(new byte[] { 42, 42, 42 }));
         }
 

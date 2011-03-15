@@ -9,24 +9,17 @@ namespace Gamlor.Db4oExt.IO
         private readonly int pageNumber;
         private readonly FileStream theStream;
 
-        private ReadStateAction currentState; 
+        private PageState currentState; 
         private readonly object sync = new object();
         private byte[] pageData;
         private int pageLength;
-
-
-        private delegate int ReadStateAction(int startPositionOnPage,
-                                             byte[] bytes,
-                                             int writePositionOnArray,
-                                             int bytesToReadFromPage);
-
 
 
         public Page(int pageNumber,FileStream theStream)
         {
             this.pageNumber = pageNumber;
             this.theStream = theStream;
-            this.currentState = EmptyState;
+            this.currentState = PageState.EmptyState;
         }
 
 
@@ -37,36 +30,135 @@ namespace Gamlor.Db4oExt.IO
         {
             lock (sync)
             {
-                return currentState(startPositionOnPage, bytes, writePositionOnArray, bytesToReadFromPage);
+                return ApplyAndSwitchState(
+                    currentState.Read,
+                    new RequestParameters(startPositionOnPage,
+                    bytes, 
+                    writePositionOnArray, 
+                    bytesToReadFromPage));
             }
         }
 
-        int EmptyState(int startPositionOnPage,
-                        byte[] bytes,
-                        int writePositionOnArray, 
-                        int bytesToReadFromPage)
-        {
-            pageData = new byte[PageSize];
-            theStream.Seek(pageNumber*PageSize, SeekOrigin.Begin);
-            pageLength = theStream.Read(pageData, 0, PageSize);
-            var amoutToCopy = Math.Min(pageLength, bytesToReadFromPage);
-            Array.Copy(pageData, startPositionOnPage, bytes, writePositionOnArray, amoutToCopy);
-            //SwitchToState(CachePageLoadedState);
-            return amoutToCopy;
-        }
-        int CachePageLoadedState(int startPositionOnPage,
+        public int Write(int startPositionOnPage,
                         byte[] bytes,
                         int writePositionOnArray,
                         int bytesToReadFromPage)
         {
-            var amoutToCopy = Math.Min(pageLength, bytesToReadFromPage);
-            Array.Copy(pageData, startPositionOnPage, bytes, writePositionOnArray, amoutToCopy);
-            return amoutToCopy;
+            lock (sync)
+            {
+                return ApplyAndSwitchState(
+                    currentState.Write,
+                    new RequestParameters(startPositionOnPage,
+                    bytes,
+                    writePositionOnArray,
+                    bytesToReadFromPage));
+            }
         }
 
-        private void SwitchToState(ReadStateAction theNewState)
+        private int ApplyAndSwitchState(Func<Page,RequestParameters,Tuple<int,PageState>> action,
+            RequestParameters parameters)
+        {
+            var result = action(this, parameters);
+            SwitchToState(result.Item2);
+            return result.Item1;
+        }
+
+
+        private void SwitchToState(PageState theNewState)
         {
             currentState = theNewState;
         }
+
+        private struct RequestParameters
+        {
+            public RequestParameters(int startPositionOnPage,
+                byte[] bytes, 
+                int writePositionOnArray,
+                int bytesToReadFromPage) : this()
+            {
+                StartPositionOnPage = startPositionOnPage;
+                Bytes = bytes;
+                WritePositionOnArray = writePositionOnArray;
+                BytesToReadFromPage = bytesToReadFromPage;
+            }
+
+            public byte[] Bytes { get; private set; }
+
+            public int StartPositionOnPage { get; private set; }
+
+            public int WritePositionOnArray { get; private set; }
+
+            public int BytesToReadFromPage { get; private set; }
+        }
+
+        abstract class PageState
+        {
+            public abstract Tuple<int,PageState> Read(Page thePage,
+                RequestParameters parameters);
+
+            public abstract Tuple<int, PageState> Write(Page thePage,
+                RequestParameters parameters);
+
+            public static readonly PageState EmptyState = new EmptyStateImpl();
+            static readonly PageState CachePageLoadedState = new CachePageLoadedStateImpl();
+
+
+
+            protected Tuple<int, PageState> WriteOnPage(Page thePage, RequestParameters parameters)
+            {
+                Array.Copy(parameters.Bytes,
+                           parameters.WritePositionOnArray,
+                           thePage.pageData,
+                           parameters.StartPositionOnPage, parameters.BytesToReadFromPage);
+                thePage.pageLength = Math.Max(parameters.StartPositionOnPage + parameters.BytesToReadFromPage,
+                    thePage.pageLength);
+                return Tuple.Create(parameters.BytesToReadFromPage, CachePageLoadedState);
+            }
+
+            private class EmptyStateImpl : PageState
+            {
+                public override Tuple<int, PageState> Read(Page thePage,
+                    RequestParameters parameters)
+                {
+                    ReadDataIntoPage(thePage);
+                    var amoutToCopy = Math.Min(thePage.pageLength, parameters.BytesToReadFromPage);
+                    Array.Copy(thePage.pageData, parameters.StartPositionOnPage, parameters.Bytes, parameters.WritePositionOnArray, amoutToCopy);
+                    return Tuple.Create(amoutToCopy, CachePageLoadedState);
+                }
+
+                public override Tuple<int, PageState> Write(Page thePage,
+                   RequestParameters parameters)
+                {
+                    ReadDataIntoPage(thePage);
+                    return WriteOnPage(thePage, parameters);
+                }
+
+                private void ReadDataIntoPage(Page thePage)
+                {
+                    thePage.pageData = new byte[PageSize];
+                    thePage.theStream.Seek(thePage.pageNumber * PageSize, SeekOrigin.Begin);
+                    thePage.pageLength = thePage.theStream.Read(thePage.pageData, 0, PageSize);
+                }
+
+            }
+
+            private class CachePageLoadedStateImpl : PageState
+            {
+                public override Tuple<int, PageState> Read(Page thePage,
+                    RequestParameters parameters)
+                {
+                    var amoutToCopy = Math.Min(thePage.pageLength, parameters.BytesToReadFromPage);
+                    Array.Copy(thePage.pageData, parameters.StartPositionOnPage, parameters.Bytes, parameters.WritePositionOnArray, amoutToCopy);
+                    return Tuple.Create(amoutToCopy, CachePageLoadedState);
+                }
+                public override Tuple<int, PageState> Write(Page thePage,
+                   RequestParameters parameters)
+                {
+                    return WriteOnPage(thePage, parameters);
+                }
+            }
+        }
+
+
     }
 }

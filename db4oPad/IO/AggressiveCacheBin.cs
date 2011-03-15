@@ -10,28 +10,34 @@ namespace Gamlor.Db4oExt.IO
     {
         private readonly FileStream file;
         private List<Page> pages;
+        private long length;
 
         public AggressiveCacheBin(FileStream file)
         {
             this.file = file;
+            this.length = file.Length;
             InitializePages(file.Length, file);
         }
 
         public long Length()
         {
-            return file.Length;
+            return length;
         }
 
         public int Read(long position, byte[] bytes, int bytesToRead)
         {
-            return ReadFromPage(position,bytes, bytesToRead,b=>b.Read);
+            return DoActionOnPage(position,bytes, bytesToRead,b=>b.Read);
         }
 
 
         public void Write(long position, byte[] bytes, int bytesToWrite)
         {
-            file.Seek(position, SeekOrigin.Begin);
-            file.Write(bytes, 0,bytesToWrite);
+            var amoutWritten = DoActionOnPage(position, bytes, bytesToWrite, b => b.Write);
+            var lastByte = position + amoutWritten;
+            if(lastByte > length)
+            {
+                length = lastByte;
+            }
         }
 
         public void Sync()
@@ -63,7 +69,7 @@ namespace Gamlor.Db4oExt.IO
                                           int positionOnArray,
                                           int bytesToProcessOnPage);
 
-        private int ReadFromPage(long position,
+        private int DoActionOnPage(long position,
             byte[] bytes,
             int bytesToRead,
             Func<Page, ActionOnPage> action)
@@ -99,14 +105,14 @@ namespace Gamlor.Db4oExt.IO
         private void InitializePages(long length, FileStream stream)
         {
             this.pages = new List<Page>(AmountOfPages(length));
-            EnsureEnoughtPagesFor(AmountOfPages(stream.Length));
+            EnsureEnoughtPagesFor(AmountOfPages(stream.Length)-1);
         }
 
-        private void EnsureEnoughtPagesFor(int needAtLeast)
+        private void EnsureEnoughtPagesFor(int pageIndex)
         {
-            if (pages.Count <= needAtLeast)
+            if (pages.Count <= pageIndex)
             {
-                var amountToCreate = (needAtLeast - pages.Count) + 1;
+                var amountToCreate = (pageIndex - pages.Count)+1;
                 for (int i = 0; i < amountToCreate; i++)
                 {
                     pages.Add(new Page(pages.Count, file));
