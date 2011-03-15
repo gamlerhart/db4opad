@@ -112,6 +112,8 @@ namespace Gamlor.Db4oExt.IO
                            parameters.StartPositionOnPage, parameters.BytesToReadFromPage);
                 thePage.pageLength = Math.Max(parameters.StartPositionOnPage + parameters.BytesToReadFromPage,
                     thePage.pageLength);
+                thePage.theStream.Seek(thePage.pageNumber * PageSize, SeekOrigin.Begin);
+                thePage.theStream.Write(thePage.pageData, 0,thePage.pageLength);
                 return Tuple.Create(parameters.BytesToReadFromPage, CachePageLoadedState);
             }
 
