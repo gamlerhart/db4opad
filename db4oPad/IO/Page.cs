@@ -7,18 +7,17 @@ namespace Gamlor.Db4oExt.IO
     {
         internal const int PageSize = 512;
         private readonly int pageNumber;
-        private readonly FileStream theStream;
+        private readonly IOCoordination ioCoordination;
 
         private PageState currentState; 
-        private readonly object sync = new object();
         private byte[] pageData;
         private int pageLength;
 
 
-        public Page(int pageNumber,FileStream theStream)
+        public Page(int pageNumber, IOCoordination ioCoordination)
         {
             this.pageNumber = pageNumber;
-            this.theStream = theStream;
+            this.ioCoordination = ioCoordination;
             this.currentState = PageState.EmptyState;
         }
 
@@ -28,15 +27,12 @@ namespace Gamlor.Db4oExt.IO
                         int writePositionOnArray, 
                         int bytesToReadFromPage)
         {
-            lock (sync)
-            {
-                return ApplyAndSwitchState(
-                    currentState.Read,
-                    new RequestParameters(startPositionOnPage,
-                    bytes, 
-                    writePositionOnArray, 
-                    bytesToReadFromPage));
-            }
+            return ApplyAndSwitchState(
+                currentState.Read,
+                new RequestParameters(startPositionOnPage,
+                bytes, 
+                writePositionOnArray, 
+                bytesToReadFromPage));
         }
 
         public int Write(int startPositionOnPage,
@@ -44,15 +40,12 @@ namespace Gamlor.Db4oExt.IO
                         int writePositionOnArray,
                         int bytesToReadFromPage)
         {
-            lock (sync)
-            {
-                return ApplyAndSwitchState(
-                    currentState.Write,
-                    new RequestParameters(startPositionOnPage,
-                    bytes,
-                    writePositionOnArray,
-                    bytesToReadFromPage));
-            }
+            return ApplyAndSwitchState(
+                currentState.Write,
+                new RequestParameters(startPositionOnPage,
+                bytes,
+                writePositionOnArray,
+                bytesToReadFromPage));
         }
 
         private int ApplyAndSwitchState(Func<Page,RequestParameters,Tuple<int,PageState>> action,
@@ -112,8 +105,6 @@ namespace Gamlor.Db4oExt.IO
                            parameters.StartPositionOnPage, parameters.BytesToReadFromPage);
                 thePage.pageLength = Math.Max(parameters.StartPositionOnPage + parameters.BytesToReadFromPage,
                     thePage.pageLength);
-                thePage.theStream.Seek(thePage.pageNumber * PageSize, SeekOrigin.Begin);
-                thePage.theStream.Write(thePage.pageData, 0,thePage.pageLength);
                 return Tuple.Create(parameters.BytesToReadFromPage, CachePageLoadedState);
             }
 
@@ -138,8 +129,9 @@ namespace Gamlor.Db4oExt.IO
                 private void ReadDataIntoPage(Page thePage)
                 {
                     thePage.pageData = new byte[PageSize];
-                    thePage.theStream.Seek(thePage.pageNumber * PageSize, SeekOrigin.Begin);
-                    thePage.pageLength = thePage.theStream.Read(thePage.pageData, 0, PageSize);
+                    thePage.pageLength = thePage.ioCoordination.Read(thePage.pageNumber * PageSize,
+                        thePage.pageData,
+                        PageSize);
                 }
 
             }

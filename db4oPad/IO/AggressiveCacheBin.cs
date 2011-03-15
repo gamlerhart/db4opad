@@ -8,15 +8,15 @@ namespace Gamlor.Db4oExt.IO
 {
     class AggressiveCacheBin : IBin
     {
-        private readonly FileStream file;
         private List<Page> pages;
         private long length;
+        private IOCoordination ioCoordination;
 
         public AggressiveCacheBin(FileStream file)
         {
-            this.file = file;
             this.length = file.Length;
-            InitializePages(file.Length, file);
+            this.ioCoordination = IOCoordination.Create(file);
+            InitializePages(file.Length);
         }
 
         public long Length()
@@ -38,12 +38,13 @@ namespace Gamlor.Db4oExt.IO
             {
                 length = lastByte;
             }
+            ioCoordination.Write(position, bytes, bytesToWrite);
         }
 
         public void Sync()
         {
             // Note that use a write through stream
-            file.Flush();
+            ioCoordination.Flush();
         }
 
         public void Sync(IRunnable runnable)
@@ -60,7 +61,7 @@ namespace Gamlor.Db4oExt.IO
 
         public void Close()
         {
-            file.Dispose();
+            ioCoordination.Dispose();
         }
 
 
@@ -102,10 +103,10 @@ namespace Gamlor.Db4oExt.IO
             return pages[currentPage];
         }
 
-        private void InitializePages(long length, FileStream stream)
+        private void InitializePages(long length)
         {
             this.pages = new List<Page>(AmountOfPages(length));
-            EnsureEnoughtPagesFor(AmountOfPages(stream.Length)-1);
+            EnsureEnoughtPagesFor(AmountOfPages(length) - 1);
         }
 
         private void EnsureEnoughtPagesFor(int pageIndex)
@@ -115,7 +116,7 @@ namespace Gamlor.Db4oExt.IO
                 var amountToCreate = (pageIndex - pages.Count)+1;
                 for (int i = 0; i < amountToCreate; i++)
                 {
-                    pages.Add(new Page(pages.Count, file));
+                    pages.Add(new Page(pages.Count, ioCoordination));
 
                 }
             }

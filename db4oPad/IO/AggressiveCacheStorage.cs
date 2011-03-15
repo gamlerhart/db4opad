@@ -12,7 +12,7 @@ namespace Gamlor.Db4oExt.IO
                 FileAccess.ReadWrite,
                 FileShare.None,
                 128,
-                FileOptions.WriteThrough | FileOptions.RandomAccess | FileOptions.Asynchronous));
+                FileOptions.WriteThrough));
             FillUpBytes(theBin,config.InitialLength());
             return theBin;
         }

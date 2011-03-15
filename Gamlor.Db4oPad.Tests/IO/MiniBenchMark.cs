@@ -16,19 +16,17 @@ namespace Gamlor.Db4oExt.Tests.IO
 {
     public class MiniBenchMark
     {
-        private const int AmountOfRuns = 50;
+        private const int AmountOfRuns = 150;
 
 
-//        [Test]
+        [Test]
         public void TheBenchMark()
         {
             RunRoundWith(DefaultConfig(),"default warmup ");
-            RunRoundWith(InMemory(), "cache warmup ");
             RunRoundWith(OurImplementation(), "our warmup ");
 
 
             RunRoundWith(DefaultConfig(), "default real ");
-            RunRoundWith(InMemory(), "cache real ");
             RunRoundWith(OurImplementation(), "our real ");
         }
 
@@ -129,6 +127,7 @@ namespace Gamlor.Db4oExt.Tests.IO
                            var config = Db4oEmbedded.NewConfiguration();
                            config.Common.ObjectClass(typeof (Person)).ObjectField("firstName").Indexed(true);
                            config.Common.ObjectClass(typeof (Person)).ObjectField("age").Indexed(true);
+                           config.File.Storage = new LoggingStorage(new CachingStorage(new FileStorage()));
                            return config;
                        };
         }
@@ -146,7 +145,7 @@ namespace Gamlor.Db4oExt.Tests.IO
             return () =>
             {
                 var cfg = DefaultConfig()();
-                cfg.File.Storage = new AggressiveCacheStorage();
+                cfg.File.Storage = new LoggingStorage(new AggressiveCacheStorage());
                 return cfg;
             };
         }
