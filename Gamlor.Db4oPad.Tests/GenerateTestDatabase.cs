@@ -12,7 +12,8 @@ namespace Gamlor.Db4oPad.Tests
             using(var db = Db4oEmbedded.OpenFile("database.db4o"))
             {
                 db.Store(new ClassWithoutFields());
-                db.Store(new ClassWithFields());    
+                db.Store(new ClassWithFields());
+                db.Store(new SubClass(){SubClassField = "testData.2",AField = "base-data"});
             }     
         }
         

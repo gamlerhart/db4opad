@@ -14,5 +14,11 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             var theType = SimpleClassDescription.Create(theName, f => new SimpleFieldDescription[0]);
             Assert.AreEqual("TheType_1",theType.Name);
         }
+        [Test]
+        public void ObjectIsRecursive()
+        {
+            var type = SystemType.Object;
+            Assert.AreEqual(type,type.BaseClass);
+        }
     }
 }

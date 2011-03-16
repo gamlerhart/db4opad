@@ -63,7 +63,7 @@ namespace Gamlor.Db4oPad
         {
             return new ExplorerItem(typeDescription.Name, 
                 ExplorerItemKind.QueryableObject, 
-                ExplorerIcon.Table) {Children = Fields(typeDescription.Fields)};
+                ExplorerIcon.Table) {Children = Fields(typeDescription)};
         }
 
         private ExplorerItem ToExplorerItem(SimpleFieldDescription field)
@@ -71,10 +71,14 @@ namespace Gamlor.Db4oPad
             return new ExplorerItem(field.Name,ExplorerItemKind.Property, ExplorerIcon.Column);
         }
 
-        private List<ExplorerItem> Fields(IEnumerable<SimpleFieldDescription> fields)
+        private List<ExplorerItem> Fields(ITypeDescription type)
         {
-            return (from f in fields
-                   select ToExplorerItem(f)).ToList();
+            if(type.Equals(SystemType.Object))
+            {
+                return new List<ExplorerItem>();
+            }
+            return (from f in type.Fields
+                   select ToExplorerItem(f)).Concat(Fields(type.BaseClass)).ToList();
         }
     }
 }

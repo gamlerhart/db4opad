@@ -39,11 +39,22 @@ namespace Gamlor.Db4oPad.Tests.TestTypes
     class Base
     {
         private string aField;
+
+        public string AField
+        {
+            get { return aField; }
+            set { aField = value; }
+        }
     }
 
     class SubClass : Base
     {
         private string subClassField;
-        
+
+        public string SubClassField
+        {
+            get { return subClassField; }
+            set { subClassField = value; }
+        }
     }
 }

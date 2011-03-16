@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using Db4objects.Db4o;
 using Db4objects.Db4o.Config;
+using Gamlor.Db4oExt.IO;
 using Gamlor.Db4oPad.GUI;
 using Gamlor.Db4oPad.MetaInfo;
 using LINQPad.Extensibility.DataContext;
@@ -41,7 +42,9 @@ namespace Gamlor.Db4oPad
             AssemblyName assemblyToBuild,
             ref string nameSpace, ref string typeName)
         {
-            using (var context = DatabaseContext.Create(Db4oEmbedded.OpenFile(cxInfo.CustomTypeInfo.CustomMetadataPath),assemblyToBuild))
+            using (var context = DatabaseContext.Create(
+                OpenDB(cxInfo),
+                assemblyToBuild))
             {
                 cxInfo.SessionData[AssemblyLocation] = assemblyToBuild.CodeBase;
                 return context.ListTypes().ToList();
@@ -56,11 +59,19 @@ namespace Gamlor.Db4oPad
         public override void InitializeContext(IConnectionInfo cxInfo, object context, QueryExecutionManager executionManager)
         {
             var assembly = LoadAssembly(cxInfo);
-            var meta = DatabaseMetaInfo.Create(OpenDB(cxInfo), assembly);
-            var configurator = DatabaseConfigurator.Create(meta);
+            var configurator = Configurator(cxInfo, assembly);
 
             var ctx = DatabaseContext.Create(OpenDB(cxInfo, configurator.Configure), assembly);
             CurrentContext.NewContext(ctx);
+        }
+
+        private DatabaseConfigurator Configurator(IConnectionInfo cxInfo, Assembly assembly)
+        {
+            using (var tmpDb = OpenDB(cxInfo))
+            {
+                var meta = DatabaseMetaInfo.Create(tmpDb, assembly);
+                return DatabaseConfigurator.Create(meta);
+            }
         }
 
         private Assembly LoadAssembly(IConnectionInfo cxInfo)
@@ -84,7 +95,7 @@ namespace Gamlor.Db4oPad
         private IEmbeddedConfiguration NewConfig()
         {
             var config = Db4oEmbedded.NewConfiguration();
-            config.File.ReadOnly = true;
+            config.File.Storage = AggressiveCacheStorage.NoWriteBack();
             return config;
         }
 
