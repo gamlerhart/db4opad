@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Db4objects.Db4o.IO;
 using Gamlor.Db4oExt.IO;
 using NUnit.Framework;
 
@@ -20,16 +21,21 @@ namespace Gamlor.Db4oExt.Tests.IO
             return bytes;
         }
 
-        internal AggressiveCacheStorage toTest;
+        internal IStorage toTest;
 
         [SetUp]
         public void Setup()
         {
-            this.toTest = new AggressiveCacheStorage();
+            this.toTest = CreateStorage();
             AdditionalSetup(toTest);
         }
 
-        internal virtual void AdditionalSetup(AggressiveCacheStorage aggressiveCacheStorage)
+        protected virtual IStorage CreateStorage()
+        {
+            return AggressiveCacheStorage.RegularStorage();
+        }
+
+        internal virtual void AdditionalSetup(IStorage aggressiveCacheStorage)
         {
         }
 

@@ -105,7 +105,7 @@ namespace Gamlor.Db4oExt.Tests.IO
         private void OpenContainer()
         {
             var config = Db4oEmbedded.NewConfiguration();
-            config.File.Storage = new AggressiveCacheStorage();
+            config.File.Storage = AggressiveCacheStorage.RegularStorage();
             this.container = Db4oEmbedded.OpenFile(config, path);
         }
     }

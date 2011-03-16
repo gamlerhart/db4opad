@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 
 namespace Gamlor.Db4oExt.IO
 {
@@ -14,13 +13,27 @@ namespace Gamlor.Db4oExt.IO
         private int pageLength;
 
 
-        public Page(int pageNumber, IOCoordination ioCoordination)
+        private Page(int pageNumber, IOCoordination ioCoordination)
         {
             this.pageNumber = pageNumber;
             this.ioCoordination = ioCoordination;
             this.currentState = PageState.EmptyState;
         }
 
+        internal static Page ExistingPage(int pageNumber, IOCoordination ioCoordination)
+        {
+            return new Page(pageNumber, ioCoordination);   
+        }
+
+        internal static Page NewEmptyPage(int pageNumber, IOCoordination ioCoordination)
+        {
+            return new Page(pageNumber, ioCoordination)
+                       {
+                           pageData = new byte[PageSize],
+                           pageLength = 0,
+                           currentState = PageState.CachePageLoadedState
+                       };
+        }
 
         public int Read(int startPositionOnPage,
                         byte[] bytes,
@@ -93,7 +106,7 @@ namespace Gamlor.Db4oExt.IO
                 RequestParameters parameters);
 
             public static readonly PageState EmptyState = new EmptyStateImpl();
-            static readonly PageState CachePageLoadedState = new CachePageLoadedStateImpl();
+            public static readonly PageState CachePageLoadedState = new CachePageLoadedStateImpl();
 
 
 
@@ -106,6 +119,7 @@ namespace Gamlor.Db4oExt.IO
                 thePage.pageLength = Math.Max(parameters.StartPositionOnPage + parameters.BytesToReadFromPage,
                     thePage.pageLength);
                 return Tuple.Create(parameters.BytesToReadFromPage, CachePageLoadedState);
+
             }
 
             private class EmptyStateImpl : PageState

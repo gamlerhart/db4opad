@@ -8,15 +8,15 @@ using NUnit.Framework;
 namespace Gamlor.Db4oExt.Tests.IO
 {
     [TestFixture]
-    public class TestAggrevieCacheBin : AbstractIOTestCase
+    public abstract class AggressiveCacheBinTestBase : AbstractIOTestCase
     {
         private readonly Random rnd = new Random();
         private const int KiloByte = 1024;
         private const int AmountOfRandomReadsWrites =5*KiloByte;
-        private AggressiveCacheBin bin;
-        private string path;
+        internal AggressiveCacheBin bin;
+        internal string path;
 
-        internal override void AdditionalSetup(AggressiveCacheStorage aggressiveCacheStorage)
+        internal override void AdditionalSetup(IStorage aggressiveCacheStorage)
         {
             this.bin = OpenBin();
         }
@@ -40,26 +40,6 @@ namespace Gamlor.Db4oExt.Tests.IO
             Assert.IsTrue(written.SequenceEqual(read));
         }
 
-        [Test]
-        public void IsWrittenAfterClosing()
-        {
-            var written = new byte[] { 1, 1, 1, 1 };
-            bin.Write(0, written, written.Length);
-            bin.Close();
-            var bytesOnDisk = File.ReadAllBytes(path).Take(4);
-            Assert.IsTrue(written.SequenceEqual(bytesOnDisk));
-        }
-        [Test]
-        public void FileIsExpandedAfterClosing()
-        {
-            var oldLenght = bin.Length();
-            var written = new byte[] { 1, 1, 1, 1 };
-            bin.Write(oldLenght - 2, written, written.Length);
-            bin.Close();
-            var bytesOnDisk = File.ReadAllBytes(path);
-            Assert.AreEqual(oldLenght+2,bytesOnDisk.Length);
-            Assert.IsTrue(written.SequenceEqual(bytesOnDisk.Skip(bytesOnDisk.Length-4)));
-        }
         [Test]
         public void CanWriteInTheMiddle()
         {

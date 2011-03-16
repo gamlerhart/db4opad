@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Diagnostics;
 using Db4objects.Db4o.IO;
 using Sharpen.Lang;
 
@@ -12,11 +12,11 @@ namespace Gamlor.Db4oExt.IO
         private long length;
         private IOCoordination ioCoordination;
 
-        public AggressiveCacheBin(FileStream file)
+        public AggressiveCacheBin(IOCoordination file, long fileLenght)
         {
-            this.length = file.Length;
-            this.ioCoordination = IOCoordination.Create(file);
-            InitializePages(file.Length);
+            this.length = fileLenght;
+            this.ioCoordination = file;
+            InitializePages(fileLenght);
         }
 
         public long Length()
@@ -32,6 +32,7 @@ namespace Gamlor.Db4oExt.IO
 
         public void Write(long position, byte[] bytes, int bytesToWrite)
         {
+            var sw = Stopwatch.StartNew();
             var amoutWritten = DoActionOnPage(position, bytes, bytesToWrite, b => b.Write);
             var lastByte = position + amoutWritten;
             if(lastByte > length)
@@ -99,24 +100,24 @@ namespace Gamlor.Db4oExt.IO
 
         private Page PageAt(int currentPage)
         {
-            EnsureEnoughtPagesFor(currentPage);
+            EnsureEnoughtPagesFor(currentPage,i=>Page.NewEmptyPage(i,ioCoordination));
             return pages[currentPage];
         }
 
         private void InitializePages(long length)
         {
             this.pages = new List<Page>(AmountOfPages(length));
-            EnsureEnoughtPagesFor(AmountOfPages(length) - 1);
+            EnsureEnoughtPagesFor(AmountOfPages(length) - 1,i=>Page.ExistingPage(i,ioCoordination));
         }
 
-        private void EnsureEnoughtPagesFor(int pageIndex)
+        private void EnsureEnoughtPagesFor(int pageIndex,Func<int,Page> constructor)
         {
             if (pages.Count <= pageIndex)
             {
                 var amountToCreate = (pageIndex - pages.Count)+1;
                 for (int i = 0; i < amountToCreate; i++)
                 {
-                    pages.Add(new Page(pages.Count, ioCoordination));
+                    pages.Add(constructor(pages.Count));
 
                 }
             }

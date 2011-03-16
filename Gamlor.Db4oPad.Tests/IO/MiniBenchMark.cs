@@ -16,10 +16,10 @@ namespace Gamlor.Db4oExt.Tests.IO
 {
     public class MiniBenchMark
     {
-        private const int AmountOfRuns = 150;
+        private const int AmountOfRuns = 100;
 
 
-        [Test]
+//        [Test]
         public void TheBenchMark()
         {
             RunRoundWith(DefaultConfig(),"default warmup ");
@@ -43,16 +43,16 @@ namespace Gamlor.Db4oExt.Tests.IO
             using (var container = Db4oEmbedded.OpenFile(config(),file))
             {
                 DoQuerys(container.Ext().OpenSession);
-//                var runOne = new Task(() => DoQuerys(container.Ext().OpenSession));
-//                runOne.Start();
-//                var runTwo = new Task(() => DoQuerys(container.Ext().OpenSession));
-//                runTwo.Start();
-//                var runThree = new Task(() => DoQuerys(container.Ext().OpenSession));
-//                runThree.Start();
+                var runOne = new Task(() => DoQuerys(container.Ext().OpenSession));
+                runOne.Start();
+                var runTwo = new Task(() => DoQuerys(container.Ext().OpenSession));
+                runTwo.Start();
+                var runThree = new Task(() => DoQuerys(container.Ext().OpenSession));
+                runThree.Start();
 
                 DoQuerys(container.Ext().OpenSession);
                 
-//                Task.WaitAll(runOne, runTwo, runThree);
+                Task.WaitAll(runOne, runTwo, runThree);
             }
             File.Delete(file);
         }
@@ -127,7 +127,7 @@ namespace Gamlor.Db4oExt.Tests.IO
                            var config = Db4oEmbedded.NewConfiguration();
                            config.Common.ObjectClass(typeof (Person)).ObjectField("firstName").Indexed(true);
                            config.Common.ObjectClass(typeof (Person)).ObjectField("age").Indexed(true);
-                           config.File.Storage = new LoggingStorage(new CachingStorage(new FileStorage()));
+                           config.File.Storage = new CachingStorage(new FileStorage());
                            return config;
                        };
         }
@@ -145,7 +145,7 @@ namespace Gamlor.Db4oExt.Tests.IO
             return () =>
             {
                 var cfg = DefaultConfig()();
-                cfg.File.Storage = new LoggingStorage(new AggressiveCacheStorage());
+                cfg.File.Storage = AggressiveCacheStorage.RegularStorage();
                 return cfg;
             };
         }
