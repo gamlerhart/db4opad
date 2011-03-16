@@ -9,6 +9,7 @@ namespace Gamlor.Db4oPad.MetaInfo
     {
         private readonly Type typeInfo;
 
+        public readonly static ITypeDescription Object = new SystemType(typeof (object));
         public SystemType(Type typeInfo)
         {
             new { typeInfo }.CheckNotNull();
@@ -53,6 +54,11 @@ namespace Gamlor.Db4oPad.MetaInfo
         public Maybe<Type> KnowsType
         {
             get { return typeInfo; }
+        }
+
+        public ITypeDescription BaseClass
+        {
+            get { return new SystemType(typeInfo.BaseType); }
         }
     }
 

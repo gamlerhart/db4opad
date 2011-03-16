@@ -6,6 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
+using Db4objects.Db4o.Foundation;
 using Gamlor.Db4oPad.Utils;
 
 namespace Gamlor.Db4oPad.MetaInfo
@@ -19,7 +20,7 @@ namespace Gamlor.Db4oPad.MetaInfo
         {
             var assemblyBuilder = CreateAssembly(intoAssembly);
             var builder = CreateModule(assemblyBuilder);
-            var dictionary = metaInfo.ToDictionary(mi => mi, mi => Maybe<Type>.Empty);
+            var dictionary = metaInfo.Concat(new[]{SystemType.Object}).ToDictionary(mi => mi, mi => Maybe<Type>.Empty);
             var types = CreateTypes(builder, dictionary);
             var contextType = CreateContextType(builder, types);
             assemblyBuilder.Save(Path.GetFileName(intoAssembly.CodeBase));
@@ -115,7 +116,9 @@ namespace Gamlor.Db4oPad.MetaInfo
                                             IDictionary<ITypeDescription, Maybe<Type>> typeBuildMap,
                                             ModuleBuilder modBuilder)
         {
-            var defineType = CreateType(modBuilder, typeInfo.TypeName.NameWithGenerics);
+            var baseType = GetOrCreateType(typeBuildMap, modBuilder, typeInfo.BaseClass);
+            var defineType = CreateType(modBuilder,
+                typeInfo.TypeName.NameWithGenerics, baseType);
             typeBuildMap[typeInfo] = defineType;
 
             foreach (var field in typeInfo.Fields)
@@ -208,10 +211,11 @@ namespace Gamlor.Db4oPad.MetaInfo
                 () => GetOrCreateType(typeBuildMap, modBuilder, field.Type));
         }
 
-        private static TypeBuilder CreateType(ModuleBuilder modBuilder, string className)
+        private static TypeBuilder CreateType(ModuleBuilder modBuilder,
+            string className, Type baseType)
         {
             return modBuilder.DefineType(BuildName(className),
-                                         TypeAttributes.Class | TypeAttributes.Public);
+                                         TypeAttributes.Class | TypeAttributes.Public, baseType);
         }
 
         private static string BuildName(string className)

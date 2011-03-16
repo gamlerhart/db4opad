@@ -31,7 +31,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
                                        Version = new Version(1, 0, 0, 1),
                                        CultureInfo = CultureInfo.InvariantCulture
                                    };
-            var type = CodeGenerator.Create(metaInfo, assemblyName).Single();
+            var type = CodeGenerator.Create(metaInfo, assemblyName).Single(t=>t.Key!=SystemType.Object);
 
             var generatedAssembly = type.Value.Assembly.GetName();
             Assert.AreEqual(assemblyName.Name, generatedAssembly.Name);
@@ -73,8 +73,8 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         {
             var metaInfo = CreateEmptyClassMetaInfo();
 
-            var type1 = NewTestInstance(metaInfo).Single();
-            var type2 = NewTestInstance(metaInfo).Single();
+            var type1 = SingleNotObject(metaInfo);
+            var type2 = SingleNotObject(metaInfo);
             Assert.NotNull(type1);
             Assert.NotNull(type2);
         }
@@ -95,7 +95,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         {
             var metaInfo = CircularType();
 
-            var type = NewTestInstance(metaInfo).Single().Value;
+            var type = GenerateSingle(metaInfo);
             Assert.AreEqual(metaInfo.Single().Name, type.Name);
             dynamic instance = CreateInstance(type);
             dynamic fieldInstance = CreateInstance(type);
@@ -122,6 +122,18 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             var fieldInstance = new List<string>();
             AssertFieldCanBeSet(instance, fieldInstance);
         }
+        [Test]
+        public void CanInstanteSubClass()
+        {
+            var metaInfo = SubClassType();
+
+            var type = ExtractTypeByName(metaInfo,"SubClass");
+            dynamic instance = CreateInstance(type);
+            AssertFieldCanBeSet(instance, "dataOnParent");
+            instance.subField = 2;
+            Assert.AreEqual(2, instance.subField);
+        }
+
         [Test]
         public void CanInstantiateDifferentGenericInstances()
         {
@@ -169,6 +181,17 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
 
         }
 
+        private IEnumerable<ITypeDescription> SubClassType()
+        {
+            var baseClasses = CreateSingleFieldClass();
+            var intType = new SystemType(typeof(int));
+            var baseClass = baseClasses.Single(b=>!b.KnowsType.HasValue);
+            var subType = SimpleClassDescription.Create(
+                TypeName.Create("ANamespace.SubClass", AssemblyName), baseClass,
+                f => CreateField("subField",intType));
+            return baseClasses.Concat(new ITypeDescription[] {intType, subType});
+        }
+
         private void AssertFieldCanBeSet(dynamic instance, dynamic fieldInstance)
         {
             instance.data = fieldInstance;
@@ -177,7 +200,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
 
         private Type GenerateSingle(IEnumerable<ITypeDescription> metaInfo)
         {
-            return NewTestInstance(metaInfo).Single().Value;
+            return SingleNotObject(metaInfo).Value;
         }
 
         private object CreateInstance(Type type)
@@ -227,12 +250,22 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
 
         private static Type ExtractSingleFieldType(IEnumerable<ITypeDescription> metaInfo)
         {
-            return CodeGenerator.Create(metaInfo, NewName()).Where(t => t.Key.Name.Contains("SingleField")).Single().Value;
+            return ExtractTypeByName(metaInfo, "SingleField");
+        }
+
+        private static Type ExtractTypeByName(IEnumerable<ITypeDescription> metaInfo, string name)
+        {
+            return CodeGenerator.Create(metaInfo, NewName()).Where(t => t.Key.Name.Contains(name)).Single().Value;
         }
 
         private static ITypeDescription SingleFieldMeta(IEnumerable<ITypeDescription> metaInfo)
         {
             return metaInfo.Where(t => t.Name.Contains("SingleField")).Single();
+        }
+
+        private KeyValuePair<ITypeDescription, Type> SingleNotObject(IEnumerable<ITypeDescription> metaInfo)
+        {
+            return NewTestInstance(metaInfo).Single(t => t.Key != SystemType.Object);
         }
     }
 }

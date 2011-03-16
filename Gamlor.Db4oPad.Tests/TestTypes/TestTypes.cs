@@ -34,4 +34,16 @@ namespace Gamlor.Db4oPad.Tests.TestTypes
     {
         private Dictionary<T1, T2> aField;
     }
+
+
+    class Base
+    {
+        private string aField;
+    }
+
+    class SubClass : Base
+    {
+        private string subClassField;
+        
+    }
 }

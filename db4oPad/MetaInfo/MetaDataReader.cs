@@ -23,28 +23,22 @@ namespace Gamlor.Db4oPad.MetaInfo
             var typeMap = new Dictionary<string, ITypeDescription>();
             foreach (var classInfo in allClasses)
             {
-                CreateType(classInfo.GetName(), allClasses, typeMap);
+                CreateType(classInfo, allClasses, typeMap);
             }
             return typeMap.Select(t => t.Value);
         }
-        private static ITypeDescription CreateType(string name,
+        private static ITypeDescription CreateType(IReflectClass classInfo,
             IEnumerable<IReflectClass> allClasses,
             IDictionary<string, ITypeDescription> knownTypes)
         {
-            return CreateType(TypeNameParser.ParseString(name), allClasses, knownTypes);
-        }
-
-        private static ITypeDescription CreateType(TypeName name,
-            IEnumerable<IReflectClass> allClasses,
-            IDictionary<string, ITypeDescription> knownTypes)
-        {
+            var name = TypeNameParser.ParseString(classInfo.GetName());
             if (IsSystemType(name))
             {
                 var systemType = new SystemType(ResolveType(name));
                 knownTypes[name.FullName] = systemType;
                 return systemType;
             }
-            return SimpleClassDescription.Create(name,
+            return SimpleClassDescription.Create(name, GetOrCreateType(classInfo.GetSuperclass(),knownTypes, allClasses),
                 t =>
                 {
                     knownTypes[name.FullName] = t;
@@ -76,12 +70,12 @@ namespace Gamlor.Db4oPad.MetaInfo
             return name.Name.StartsWith("System.") || name.Name.StartsWith("Db4objects.Db4o.");
         }
 
-        private static ITypeDescription GetOrCreateType(string typeToFind,
+        private static ITypeDescription GetOrCreateType(IReflectClass typeToFind,
             IDictionary<string, ITypeDescription> knownTypes,
             IEnumerable<IReflectClass> allClasses)
         {
 
-            return knownTypes.TryGet(typeToFind)
+            return knownTypes.TryGet(typeToFind.GetName())
                 .GetValue(() => CreateType(typeToFind, allClasses, knownTypes));
         }
 
@@ -91,15 +85,15 @@ namespace Gamlor.Db4oPad.MetaInfo
         }
 
         private static IEnumerable<SimpleFieldDescription> ExtractFields(IReflectClass classInfo,
-            Func<string, ITypeDescription> typeLookUp)
+            Func<IReflectClass, ITypeDescription> typeLookUp)
         {
             return classInfo.GetDeclaredFields().Select(f => CreateField(f, typeLookUp));
         }
 
         private static SimpleFieldDescription CreateField(IReflectField field,
-            Func<string, ITypeDescription> typeLookUp)
+            Func<IReflectClass, ITypeDescription> typeLookUp)
         {
-            return SimpleFieldDescription.Create(field.GetName(), typeLookUp(field.GetFieldType().GetName()));
+            return SimpleFieldDescription.Create(field.GetName(), typeLookUp(field.GetFieldType()));
         }
     }
 

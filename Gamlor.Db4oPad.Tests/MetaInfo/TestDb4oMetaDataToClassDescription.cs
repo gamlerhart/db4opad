@@ -26,6 +26,8 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             database.Store(new WithBuiltInGeneric());
             database.Store(new Generic<string>());
             database.Store(new Generic<string, List<string>>());
+            database.Store(new Base());
+            database.Store(new SubClass());
 
             this.generatedClassses = MetaDataReader.Read(database);
         }
@@ -92,6 +94,22 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             Assert.NotNull(classMeta);
             Assert.AreEqual(FieldName, classMeta.Fields.Single().Name);
             Assert.AreEqual(typeof(Dictionary<string, List<string>>).Name, classMeta.Fields.Single().Type.Name);
+        }
+        [Test]
+        public void BaseClass()
+        {
+            var classMeta = For<Base>();
+            Assert.NotNull(classMeta);
+            Assert.AreEqual(FieldName, classMeta.Fields.Single().Name);
+            Assert.AreEqual(typeof(string).Name, classMeta.Fields.Single().Type.Name);
+        }
+        [Test]
+        public void SubClass()
+        {
+            var classMeta = For<SubClass>();
+            Assert.NotNull(classMeta);
+            Assert.IsTrue(classMeta.Fields.Any(f => f.Name == "subClassField"));
+            Assert.IsTrue(classMeta.BaseClass.Fields.Any(f => f.Name == FieldName));
         }
 
         [Test]

@@ -52,7 +52,12 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         }
         internal static IEnumerable<SimpleFieldDescription> CreateField(ITypeDescription stringType)
         {
-            return new[] { SimpleFieldDescription.Create("data", stringType) };
+            return CreateField("data", stringType);
+        }
+        internal static IEnumerable<SimpleFieldDescription> CreateField(string fieldName, 
+            ITypeDescription stringType)
+        {
+            return new[] { SimpleFieldDescription.Create(fieldName, stringType) };
         }
 
         internal static TypeName SingleFieldType()

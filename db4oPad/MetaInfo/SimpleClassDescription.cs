@@ -7,11 +7,24 @@ namespace Gamlor.Db4oPad.MetaInfo
 {
     internal class SimpleClassDescription : ITypeDescription
     {
-        private SimpleClassDescription(string name, TypeName fullName, int genericParams)
+
+        private SimpleClassDescription(string name,
+            TypeName fullName,
+            int genericParams):this(name, fullName, genericParams, new SystemType(typeof(object)))
         {
             this.Name = name;
             this.TypeName = fullName;
             this.GenericParametersCount = genericParams;
+        }
+
+        private SimpleClassDescription(string name,
+            TypeName fullName, 
+            int genericParams,ITypeDescription baseClass)
+        {
+            this.Name = name;
+            this.TypeName = fullName;
+            this.GenericParametersCount = genericParams;
+            this.BaseClass = baseClass;
         }
 
         public string Name { get; private set; }
@@ -28,16 +41,31 @@ namespace Gamlor.Db4oPad.MetaInfo
         {
             get { return Maybe<Type>.Empty; }
         }
+
+        public ITypeDescription BaseClass { get; private set; }
+
+        public static SimpleClassDescription Create(TypeName fullName, ITypeDescription baseClass)
+        {
+            return Create(fullName, baseClass, t => new SimpleFieldDescription[0]);
+        }
         public static SimpleClassDescription Create(TypeName fullName)
         {
-            return Create(fullName, t => new SimpleFieldDescription[0]);
+            return Create(fullName, SystemType.Object, t => new SimpleFieldDescription[0]);
         }
-
         public static SimpleClassDescription Create(TypeName fullName,
             Func<ITypeDescription, IEnumerable<SimpleFieldDescription>> fieldGenerator)
         {
             var toConstruct = new SimpleClassDescription(ExtractName(fullName), fullName,
-                fullName.GenericArguments.Count());
+                fullName.GenericArguments.Count(), SystemType.Object);
+            toConstruct.Fields = fieldGenerator(toConstruct).ToArray();
+            return toConstruct;
+        }
+
+        public static SimpleClassDescription Create(TypeName fullName,ITypeDescription baseClass,
+            Func<ITypeDescription, IEnumerable<SimpleFieldDescription>> fieldGenerator)
+        {
+            var toConstruct = new SimpleClassDescription(ExtractName(fullName), fullName,
+                fullName.GenericArguments.Count(), baseClass);
             toConstruct.Fields = fieldGenerator(toConstruct).ToArray();
             return toConstruct;
         }

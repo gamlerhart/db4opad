@@ -11,5 +11,6 @@ namespace Gamlor.Db4oPad.MetaInfo
         IEnumerable<SimpleFieldDescription> Fields { get; }
         int GenericParametersCount { get; }
         Maybe<Type> KnowsType { get; }
+        ITypeDescription BaseClass { get;}
     }
 }
