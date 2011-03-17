@@ -68,6 +68,7 @@
   <ItemGroup>
     <Compile Include="AbstractDatabaseFixture.cs" />
     <Compile Include="AssertDisposable.cs" />
+    <Compile Include="Db4oDriverIntegrationTest.cs" />
     <Compile Include="GenerateTestDatabase.cs" />
     <Compile Include="HashCodeAsserts.cs" />
     <Compile Include="IO\AbstractIOTestCase.cs" />

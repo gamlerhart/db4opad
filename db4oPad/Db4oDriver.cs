@@ -15,7 +15,7 @@ namespace Gamlor.Db4oPad
 {
     public class Db4oDriver : DynamicDataContextDriver
     {
-        private const string AssemblyLocation = "Db4oDriver.AssemblyLocationKey";
+        internal const string AssemblyLocation = "Db4oDriver.AssemblyLocationKey";
         public override string GetConnectionDescription(IConnectionInfo cxInfo)
         {
             return Path.GetFileName(cxInfo.CustomTypeInfo.CustomMetadataPath);
@@ -56,7 +56,8 @@ namespace Gamlor.Db4oPad
             CurrentContext.CloseContext();
         }
 
-        public override void InitializeContext(IConnectionInfo cxInfo, object context, QueryExecutionManager executionManager)
+        public override void InitializeContext(IConnectionInfo cxInfo,
+            object context, QueryExecutionManager executionManager)
         {
             var assembly = LoadAssembly(cxInfo);
             var configurator = Configurator(cxInfo, assembly);

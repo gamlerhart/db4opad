@@ -23,7 +23,8 @@ namespace Gamlor.Db4oPad.MetaInfo
             var dictionary = metaInfo.Union(new[]{SystemType.Object}).ToDictionary(mi => mi, mi => Maybe<Type>.Empty);
             var types = CreateTypes(builder, dictionary);
             var contextType = CreateContextType(builder, types);
-            assemblyBuilder.Save(Path.GetFileName(intoAssembly.CodeBase));
+            assemblyBuilder.Save(Path.GetFileName(intoAssembly.CodeBase),
+                PortableExecutableKinds.ILOnly,ImageFileMachine.I386);
             return new Result(contextType, types);
         }
 
