@@ -161,7 +161,7 @@ namespace Gamlor.Db4oPad.MetaInfo
             var propertyName = char.ToUpperInvariant(field.Name[0]) + field.Name.Substring(1);
             var property = typeBuilder.DefineProperty(propertyName,
                                                       PropertyAttributes.HasDefault,
-                                                      type, new[] { type });
+                                                      type, null);
 
             property.SetGetMethod(CreateGetter(typeBuilder, propertyName, generatedField));
             property.SetSetMethod(CreateSetter(typeBuilder, propertyName, generatedField));
@@ -174,8 +174,7 @@ namespace Gamlor.Db4oPad.MetaInfo
                 typeBuilder.DefineMethod("get_" + propertyName,
                                          MethodAttributes.Public | MethodAttributes.SpecialName |
                                          MethodAttributes.HideBySig,
-                                         generatedField.FieldType,
-                                         Type.EmptyTypes);
+                                         generatedField.FieldType,Type.EmptyTypes);
 
             var ilGenerator = getterMethod.GetILGenerator();
             ilGenerator.Emit(OpCodes.Ldarg_0);

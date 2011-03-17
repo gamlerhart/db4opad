@@ -28,9 +28,7 @@ namespace Gamlor.Db4oPad.Tests
         }
         public IObjectContainer Reopen()
         {
-            db.Close();
-            db = fileSystem.NewDB();
-            return db;
+            return Reopen(ConfigureDb);
         }
 
         public IObjectContainer Reopen(Action<IEmbeddedConfiguration> configuration)

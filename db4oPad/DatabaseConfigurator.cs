@@ -32,9 +32,9 @@ namespace Gamlor.Db4oPad
         {
             var reflector = DynamicGeneratedTypesReflector.CreateInstance(new NetReflector());
             configuration.Common.ReflectWith(reflector);
-            foreach (var value in types.Values)
+            foreach (var typeInfo in types)
             {
-                reflector.AddType(NameOfType(value), value);
+                reflector.AddType(NameOfType(typeInfo.Value), typeInfo.Value);
             }
         }
 

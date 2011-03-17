@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using Db4objects.Db4o;
 using Db4objects.Db4o.Config;
+using Db4objects.Db4o.IO;
 using Db4objects.Db4o.Reflect;
 using Gamlor.Db4oPad.MetaInfo;
 using Moq;
