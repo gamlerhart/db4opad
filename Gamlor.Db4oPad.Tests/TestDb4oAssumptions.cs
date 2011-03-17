@@ -60,12 +60,13 @@ namespace Gamlor.Db4oPad.Tests
             dynamicReflector.AddType(ReflectPlatform.FullyQualifiedName(typeof(MyData2)), typeof(MyData2));
             cfg.Common.ReflectWith(dynamicReflector);
             cfg.Common.AddAlias(new TypeAlias(OldName, ReflectPlatform.FullyQualifiedName(typeof(MyData2))));
-            var db = Db4oEmbedded.OpenFile(cfg, Databasename);
+            using(var db = Db4oEmbedded.OpenFile(cfg, Databasename)){
 
-            var result = from b in db.AsQueryable<MyData2>()
-                         where b.Value>=-5
-                         select b;
-            Assert.AreEqual(1, result.Count());
+                var result = from b in db.AsQueryable<MyData2>()
+                             where b.Value>=-5
+                             select b;
+                Assert.AreEqual(1, result.Count());
+            }
 
         }
         [Test]
@@ -76,12 +77,15 @@ namespace Gamlor.Db4oPad.Tests
 
             var cfg = Db4oEmbedded.NewConfiguration();
             configurator.Item1.Configure(cfg);
-            var db = Db4oEmbedded.OpenFile(Databasename);
+            using (var db = Db4oEmbedded.OpenFile(cfg, Databasename))
+            {
 
 
-            var type = configurator.Item2.DyanmicTypesRepresentation.First().Value;
-            var query = db.Query(type);
-            Assert.AreEqual(1, query.Count);
+                var type = configurator.Item2.DyanmicTypesRepresentation
+                    .First(t=>!t.Key.KnowsType.HasValue).Value;
+                var query = db.Query(type);
+                Assert.AreEqual(1, query.Count);
+            }
 
         }
 
