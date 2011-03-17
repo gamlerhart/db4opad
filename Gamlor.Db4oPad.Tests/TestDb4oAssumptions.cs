@@ -15,6 +15,9 @@ namespace Gamlor.Db4oPad.Tests
     [TestFixture]
     public class TestDb4oAssumptions : AbstractDatabaseFixture
     {
+        private const string OldName = "Gamlor.Db4oPad.Tests.OtherData.MyData, Gamlor.Db4oPad.Tests";
+        private const string Databasename = "testDB.db4o";
+
         protected override void ConfigureDb(IEmbeddedConfiguration configuration)
         {
             
@@ -47,31 +50,30 @@ namespace Gamlor.Db4oPad.Tests
             Assert.IsNull(baseClassOfBaseClass);
         }
 
-//        [Test]
-//        public void Aliasing2()
-//        {
-//            File.Delete("testDB.db4o");
-//            File.Copy("../../testDB.db4o", "testDB.db4o");
-//            var cfg = Db4oEmbedded.NewConfiguration();
-//            var dynamicReflector = DynamicGeneratedTypesReflector.CreateInstance();
-//            dynamicReflector.AddType("ConsoleApplication1.MyData, Db4oDoc", typeof(MyData2));
-//            dynamicReflector.AddType(ReflectPlatform.FullyQualifiedName(typeof(MyData2)), typeof(MyData2));
-            //cfg.Common.ReflectWith(dynamicReflector);
-//            var db = Db4oEmbedded.OpenFile(cfg, @"testDB.db4o");
-//            db.Store(new MyData2(11));
-//            db.Commit();
-//            var query = db.Query();
-//            query.Constrain(typeof (MyData2));
-//            query.Descend("value").Constrain(-11).Greater();
-//            var r = query.Execute();
-//            var count = r.Count;
-//
-//            var result = from b in db.AsQueryable<MyData2>()
-//                         where b.Value>=-5
-//                         select b;
-//            Assert.AreEqual(1, result.Count());
-//
-//        }
+        [Test]
+        public void AliasingWithoutTypes()
+        {
+            CopyTestDB();
+            var cfg = Db4oEmbedded.NewConfiguration();
+            var dynamicReflector = DynamicGeneratedTypesReflector.CreateInstance(new NetReflector());
+            dynamicReflector.AddType(ReflectPlatform.FullyQualifiedName(typeof(MyData2)), typeof(MyData2));
+            cfg.Common.ReflectWith(dynamicReflector);
+            cfg.Common.AddAlias(new TypeAlias(OldName, ReflectPlatform.FullyQualifiedName(typeof(MyData2))));
+            var db = Db4oEmbedded.OpenFile(cfg, Databasename);
+
+            var result = from b in db.AsQueryable<MyData2>()
+                         where b.Value>=-5
+                         select b;
+            Assert.AreEqual(1, result.Count());
+
+        }
+
+        private void CopyTestDB()
+        {
+            File.Delete(Databasename);
+            File.Copy("../../" + Databasename, Databasename);
+        }
+
         class MyData2
         {
             public MyData2(int number)
