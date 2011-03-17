@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using Db4objects.Db4o;
 using Db4objects.Db4o.Config;
 using Db4objects.Db4o.Internal;
@@ -66,6 +67,37 @@ namespace Gamlor.Db4oPad.Tests
                          select b;
             Assert.AreEqual(1, result.Count());
 
+        }
+        [Test]
+        public void AliasingWithDynamicTypes()
+        {
+            CopyTestDB();
+            var configurator = PrepareConfigurator();
+
+            var cfg = Db4oEmbedded.NewConfiguration();
+            configurator.Item1.Configure(cfg);
+            var db = Db4oEmbedded.OpenFile(Databasename);
+
+
+            var type = configurator.Item2.DyanmicTypesRepresentation.First().Value;
+            var query = db.Query(type);
+            Assert.AreEqual(1, query.Count);
+
+        }
+
+        private Tuple<DatabaseConfigurator,DatabaseMetaInfo> PrepareConfigurator()
+        {
+            using (var container = Db4oEmbedded.OpenFile(Databasename))
+            {
+                var assembly = new AssemblyName("New.Name")
+                                   {
+                                       CodeBase = Path.GetTempFileName()
+                                   };
+                var metaInfo =
+                    DatabaseMetaInfo.Create(container, assembly);
+                return Tuple.Create(DatabaseConfigurator.Create(metaInfo),metaInfo);
+                
+            }
         }
 
         private void CopyTestDB()
