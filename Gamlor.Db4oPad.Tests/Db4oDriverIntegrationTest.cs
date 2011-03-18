@@ -1,7 +1,10 @@
+using System;
+using System.Collections;
 using System.Configuration.Assemblies;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
+using System.Reflection.Emit;
 using LINQPad.Extensibility.DataContext;
 using Moq;
 using NUnit.Framework;
@@ -15,20 +18,25 @@ namespace Gamlor.Db4oPad.Tests
         [Test]
         public void CanQuery()
         {
+            CopyTestDB();
             var testInstance = new Db4oDriver();
             var connectionInfo = new Mock<IConnectionInfo>();
-            var assemblyPath = Path.GetTempFileName();
+            var assembly = NewAssemblyName();
+            var assemblyPath = assembly.CodeBase;
             connectionInfo.Setup(i => i.CustomTypeInfo.CustomMetadataPath)
-                .Returns(() => assemblyPath);
+                .Returns(() => Databasename);
             connectionInfo.Setup(i => i.SessionData[Db4oDriver.AssemblyLocation])
                 .Returns(() => assemblyPath);
             var dummy = "";
-            testInstance.GetSchemaAndBuildAssembly(connectionInfo.Object, NewAssemblyName(),
+            testInstance.GetSchemaAndBuildAssembly(connectionInfo.Object, assembly,
                 ref dummy, ref dummy);
             testInstance.InitializeContext(connectionInfo.Object, null,null);
             try
             {
-                CurrentContext.Query<object>();
+                var type = Assembly.LoadFrom(assemblyPath).GetType("LINQPad.User.Gamlor.Db4oPad.Tests.OtherData.MyData");
+                var queryMethod = typeof (CurrentContext).GetMethod("Query").MakeGenericMethod(type);
+                var result = (IEnumerable)queryMethod.Invoke(null, new object[0]);
+                Assert.IsTrue(result.GetEnumerator().MoveNext());
                 
             }finally
             {
@@ -37,15 +45,27 @@ namespace Gamlor.Db4oPad.Tests
 
         }
 
+        [Test]
+        public void StoreAssembly()
+        {
+            var theName = NewAssemblyName();
+            var assembly = AppDomain.CurrentDomain
+                .DefineDynamicAssembly(theName, AssemblyBuilderAccess.RunAndSave,
+                                       Path.GetDirectoryName(theName.CodeBase));
+
+            assembly.Save(Path.GetFileName(theName.CodeBase));
+        }
+
         private AssemblyName NewAssemblyName()
         {
-            return new AssemblyName("TempAssembly")
+            var assemblyName = "TestAssembyl_" + Path.GetRandomFileName();
+            var path = Path.Combine(Path.GetTempPath(), assemblyName);
+            return new AssemblyName(Path.GetFileNameWithoutExtension(assemblyName))
                        {
-                           CodeBase = Path.GetTempFileName(),
-                           CultureInfo = CultureInfo.InvariantCulture,
+                           CodeBase = path,
 
-                           ProcessorArchitecture = ProcessorArchitecture.MSIL,
-                           VersionCompatibility = AssemblyVersionCompatibility.SameProcess
+                           ProcessorArchitecture = ProcessorArchitecture.None,
+                           VersionCompatibility = AssemblyVersionCompatibility.SameMachine
 
                        };
         }
