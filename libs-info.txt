@@ -2,3 +2,4 @@ Sprache: Apache License 2.0, see http://code.google.com/p/sprache/
 Nunit: See http://www.nunit.org
 db4o: GPL 3, See http://developer.db4o.com
 moq: New BSD License, See http://code.google.com/p/moq/
+LinqPad: See http://www.linqpad.net/#license
