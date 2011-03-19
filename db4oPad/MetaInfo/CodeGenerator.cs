@@ -14,6 +14,8 @@ namespace Gamlor.Db4oPad.MetaInfo
     {
         public const string NameSpace = "LINQPad.User";
         public const string QueryContextClassName = "LINQPad.User.TypedDataContext";
+        private const string BackingFieldMarker = ">k__BackingField";
+
         internal static Result Create(IEnumerable<ITypeDescription> metaInfo,
             AssemblyName intoAssembly)
         {
@@ -51,7 +53,6 @@ namespace Gamlor.Db4oPad.MetaInfo
                 var property = typeBuilder.DefineProperty(type.Key.Name,
                                                           PropertyAttributes.HasDefault, 
                                                           querableType, null);
-                
                 property.SetGetMethod(CreateQueryGetter(type.Value,querableType, type.Key.Name, typeBuilder));
                
             }
@@ -148,7 +149,7 @@ namespace Gamlor.Db4oPad.MetaInfo
             SimpleFieldDescription field,
             Type type, FieldBuilder generatedField)
         {
-            if (char.IsLower(field.Name[0]))
+            if (char.IsLower(field.Name[0]) || char.IsSymbol(field.Name[0]))
             {
                 CreateProperty(typeBuilder, field, type, generatedField);
             }
@@ -157,13 +158,23 @@ namespace Gamlor.Db4oPad.MetaInfo
         private static void CreateProperty(TypeBuilder typeBuilder, SimpleFieldDescription field,
             Type type, FieldBuilder generatedField)
         {
-            var propertyName = char.ToUpperInvariant(field.Name[0]) + field.Name.Substring(1);
+            var propertyName = PropertyName(field);
             var property = typeBuilder.DefineProperty(propertyName,
                                                       PropertyAttributes.HasDefault,
                                                       type, null);
 
             property.SetGetMethod(CreateGetter(typeBuilder, propertyName, generatedField));
             property.SetSetMethod(CreateSetter(typeBuilder, propertyName, generatedField));
+        }
+
+        private static string PropertyName(SimpleFieldDescription field)
+        {
+            var name = char.ToUpperInvariant(field.Name[0]) + field.Name.Substring(1);
+            if(name.EndsWith(BackingFieldMarker))
+            {
+                return name.Substring(1, name.Length - BackingFieldMarker.Length-1);
+            }
+            return name;
         }
 
         private static MethodBuilder CreateGetter(TypeBuilder typeBuilder, string propertyName,

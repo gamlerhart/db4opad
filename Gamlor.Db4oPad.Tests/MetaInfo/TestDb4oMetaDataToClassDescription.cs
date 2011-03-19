@@ -32,6 +32,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             this.generatedClassses = MetaDataReader.Read(database);
         }
 
+
         [Test]
         public void ClassWithoutFields()
         {
