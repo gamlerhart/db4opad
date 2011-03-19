@@ -61,7 +61,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
 
         private Type SingleTypeQueryContext()
         {
-            var metaInfo = CreateEmptyClassMetaInfo();
+            var metaInfo = TestMetaData.CreateEmptyClassMetaInfo();
             var infos = NewTestInstance(metaInfo);
             return infos.DataContext;
         }

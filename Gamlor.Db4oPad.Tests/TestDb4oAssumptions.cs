@@ -52,24 +52,6 @@ namespace Gamlor.Db4oPad.Tests
         }
 
         [Test]
-        public void AliasingWithoutTypes()
-        {
-            CopyTestDB();
-            var cfg = Db4oEmbedded.NewConfiguration();
-            var dynamicReflector = DynamicGeneratedTypesReflector.CreateInstance(new NetReflector());
-            dynamicReflector.AddType(ReflectPlatform.FullyQualifiedName(typeof(MyData2)), typeof(MyData2));
-            cfg.Common.ReflectWith(dynamicReflector);
-            cfg.Common.AddAlias(new TypeAlias(OldName, ReflectPlatform.FullyQualifiedName(typeof(MyData2))));
-            using(var db = Db4oEmbedded.OpenFile(cfg, Databasename)){
-
-                var result = from b in db.AsQueryable<MyData2>()
-                             where b.Value>=-5
-                             select b;
-                Assert.AreEqual(1, result.Count());
-            }
-
-        }
-        [Test]
         public void AliasingWithDynamicTypes()
         {
             CopyTestDB();

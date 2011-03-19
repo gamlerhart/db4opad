@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Gamlor.Db4oPad.MetaInfo;
+using Gamlor.Db4oPad.Tests.TestTypes;
 using NUnit.Framework;
 
 namespace Gamlor.Db4oPad.Tests.MetaInfo
@@ -16,7 +17,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         [Test]
         public void GenerateEmptyClass()
         {
-            var metaInfo = CreateEmptyClassMetaInfo();
+            var metaInfo = TestMetaData.CreateEmptyClassMetaInfo();
 
             var type = GenerateSingle(metaInfo);
             Assert.AreEqual(metaInfo.Single().Name, type.Name);
@@ -24,7 +25,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         [Test]
         public void IsInRightAssembly()
         {
-            var metaInfo = CreateEmptyClassMetaInfo();
+            var metaInfo = TestMetaData.CreateEmptyClassMetaInfo();
             var assemblyName = new AssemblyName("Gamlor.Dynamic.Name.Of.This.Assembly")
                                    {
                                        CodeBase = Path.GetTempFileName(),
@@ -42,7 +43,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         [Test]
         public void CanInstantiateClass()
         {
-            var metaInfo = CreateEmptyClassMetaInfo();
+            var metaInfo = TestMetaData.CreateEmptyClassMetaInfo();
 
             var type = GenerateSingle(metaInfo);
             var instance = CreateInstance(type);
@@ -53,7 +54,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         [Test]
         public void CanInstantiateGenericWithClass()
         {
-            var metaInfo = CreateEmptyClassMetaInfo();
+            var metaInfo = TestMetaData.CreateEmptyClassMetaInfo();
 
             var type = GenerateSingle(metaInfo);
             var genericList = typeof(List<>).MakeGenericType(type);
@@ -71,7 +72,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         [Test]
         public void CanCreateTypeMultipleTimes()
         {
-            var metaInfo = CreateEmptyClassMetaInfo();
+            var metaInfo = TestMetaData.CreateEmptyClassMetaInfo();
 
             var type1 = SingleNotObject(metaInfo);
             var type2 = SingleNotObject(metaInfo);
@@ -173,7 +174,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         [Test]
         public void HasAssembly()
         {
-            var metaInfo = CreateEmptyClassMetaInfo();
+            var metaInfo = TestMetaData.CreateEmptyClassMetaInfo();
 
             var name = NewName();
             var infos = CodeGenerator.Create(metaInfo, name);
@@ -187,7 +188,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             var intType = new SystemType(typeof(int));
             var baseClass = baseClasses.Single(b=>!b.KnowsType.HasValue);
             var subType = SimpleClassDescription.Create(
-                TypeName.Create("ANamespace.SubClass", AssemblyName), baseClass,
+                TypeName.Create("ANamespace.SubClass", TestMetaData.AssemblyName), baseClass,
                 f => CreateField("subField",intType));
             return baseClasses.Concat(new ITypeDescription[] {intType, subType});
         }
@@ -237,13 +238,13 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             var stringList = new SystemType(typeof(List<string>));
             var stringType = typeof(string);
             var stringGenericArgs = GenericArg(stringType);
-            var stringInstance = SimpleClassDescription.Create(TypeName.Create(SingleFieldTypeName, AssemblyName, stringGenericArgs),
+            var stringInstance = SimpleClassDescription.Create(TypeName.Create(TestMetaData.SingleFieldTypeName, TestMetaData.AssemblyName, stringGenericArgs),
                                                      f => CreateField(stringList));
 
             var intList = new SystemType(typeof(List<int>));
             var intType = typeof(int);
             var intGenericArgs = GenericArg(intType);
-            var intInstance = SimpleClassDescription.Create(TypeName.Create(SingleFieldTypeName, AssemblyName, intGenericArgs),
+            var intInstance = SimpleClassDescription.Create(TypeName.Create(TestMetaData.SingleFieldTypeName, TestMetaData.AssemblyName, intGenericArgs),
                                                      f => CreateField(intList));
             return new ITypeDescription[] { stringInstance, intInstance, stringList, intList };
         }

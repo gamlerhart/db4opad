@@ -3,19 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using Gamlor.Db4oPad.MetaInfo;
+using Gamlor.Db4oPad.Tests.TestTypes;
 
 namespace Gamlor.Db4oPad.Tests.MetaInfo
 {
     public abstract class TypeGenerationBase
     {
-        internal const string AssemblyName = "AAssembly";
-        internal const string SingleFieldTypeName = "ANamespace.SingleField";
-
-        internal static IEnumerable<ITypeDescription> CreateEmptyClassMetaInfo()
-        {
-            return new[]{SimpleClassDescription.Create(TypeName.Create("ANamespace.EmptyClass", AssemblyName),
-                                                 (f) => new SimpleFieldDescription[0])};
-        }
 
         internal static AssemblyName NewName()
         {
@@ -41,7 +34,8 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             var stringList = new SystemType(typeof(List<string>));
             var stringType = typeof(string);
             var genericArguments = GenericArg(stringType);
-            var type = SimpleClassDescription.Create(TypeName.Create(SingleFieldTypeName, AssemblyName, genericArguments),
+            var type = SimpleClassDescription.Create(TypeName.Create(TestMetaData.SingleFieldTypeName,
+                TestMetaData.AssemblyName, genericArguments),
                                                      f => CreateField(stringList));
             return new ITypeDescription[] { type, stringList };
         }
@@ -62,7 +56,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
 
         internal static TypeName SingleFieldType()
         {
-            return TypeName.Create(SingleFieldTypeName, AssemblyName);
+            return TypeName.Create(TestMetaData.SingleFieldTypeName, TestMetaData.AssemblyName);
         }
 
     }

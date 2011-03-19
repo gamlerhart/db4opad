@@ -11,29 +11,27 @@ namespace Gamlor.Db4oPad.MetaInfo
 {
     public class DynamicGeneratedTypesReflector : NetReflector
     {
-        private IReflector parent;
         private readonly IDictionary<string, Type> specialTypes = new Dictionary<string, Type>();
         private readonly IDictionary<string, Tuple<string, Type>> renames = new Dictionary<string, Tuple<string, Type>>();
         private readonly object sync = new object();
 
-        private DynamicGeneratedTypesReflector(IReflector innerReflector)
+        private DynamicGeneratedTypesReflector()
         {
         }
 
-        private DynamicGeneratedTypesReflector(IReflector innerReflector, 
-            IDictionary<string, Type> knownTypes)
+        private DynamicGeneratedTypesReflector(IDictionary<string, Type> knownTypes)
         {
             this.specialTypes = knownTypes;
         }
 
         public override object DeepClone(object obj)
         {
-            return new DynamicGeneratedTypesReflector(null, CloneMap());
+            return new DynamicGeneratedTypesReflector(CloneMap());
         }
 
-        public static DynamicGeneratedTypesReflector CreateInstance(IReflector innerReflector)
+        public static DynamicGeneratedTypesReflector CreateInstance()
         {
-            return new DynamicGeneratedTypesReflector(innerReflector);
+            return new DynamicGeneratedTypesReflector();
         }
 
 

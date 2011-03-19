@@ -25,42 +25,17 @@ namespace Gamlor.Db4oPad
         public void Configure(IEmbeddedConfiguration configuration)
         {
             ConfigureReflector(configuration, info.DyanmicTypesRepresentation);
-            EnsureTypeMapping(configuration.Common, info.DyanmicTypesRepresentation);
         }
 
         private void ConfigureReflector(IEmbeddedConfiguration configuration,
             IDictionary<ITypeDescription, Type> types)
         {
-            var reflector = DynamicGeneratedTypesReflector.CreateInstance(new NetReflector());
+            var reflector = DynamicGeneratedTypesReflector.CreateInstance();
             configuration.Common.ReflectWith(reflector);
             foreach (var typeInfo in types.Where(t=>!t.Key.KnowsType.HasValue))
             {
                 reflector.AddType(typeInfo.Key.TypeName.FullName, typeInfo.Value);
             }
-        }
-
-        private void EnsureTypeMapping(ICommonConfiguration configuration,
-            IDictionary<ITypeDescription, Type> types)
-        {
-            foreach (var typeMapping in types)
-            {
-                //AddAlias(configuration, typeMapping);
-            }
-        }
-
-        private void AddAlias(ICommonConfiguration configuration, KeyValuePair<ITypeDescription, Type> typeMapping)
-        {
-            var storedName = typeMapping.Key.TypeName.FullName;
-            var currentName = NameOfType(typeMapping.Value);
-            if (storedName != currentName)
-            {
-                configuration.AddAlias(new TypeAlias(storedName, currentName));
-            }
-        }
-
-        private string NameOfType(Type typeName)
-        {
-            return ReflectPlatform.FullyQualifiedName(typeName);
         }
     }
 

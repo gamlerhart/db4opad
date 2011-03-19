@@ -97,6 +97,7 @@
     <Compile Include="TestDatabaseContext.cs" />
     <Compile Include="TestDb4oAssumptions.cs" />
     <Compile Include="TestTypes\Person.cs" />
+    <Compile Include="TestTypes\TestMetaData.cs" />
     <Compile Include="TestTypes\TestTypes.cs" />
     <Compile Include="Utils\TestDisposer.cs" />
     <Compile Include="Utils\TestMaybe.cs" />
