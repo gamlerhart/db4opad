@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Db4objects.Db4o.Config;
 using Db4objects.Db4o.Internal;
 using Db4objects.Db4o.Reflect.Net;
@@ -32,9 +33,9 @@ namespace Gamlor.Db4oPad
         {
             var reflector = DynamicGeneratedTypesReflector.CreateInstance(new NetReflector());
             configuration.Common.ReflectWith(reflector);
-            foreach (var typeInfo in types)
+            foreach (var typeInfo in types.Where(t=>!t.Key.KnowsType.HasValue))
             {
-                reflector.AddType(NameOfType(typeInfo.Value), typeInfo.Value);
+                reflector.AddType(typeInfo.Key.TypeName.FullName, typeInfo.Value);
             }
         }
 
@@ -43,7 +44,7 @@ namespace Gamlor.Db4oPad
         {
             foreach (var typeMapping in types)
             {
-                AddAlias(configuration, typeMapping);
+                //AddAlias(configuration, typeMapping);
             }
         }
 

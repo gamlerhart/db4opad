@@ -1,27 +1,34 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Db4objects.Db4o.Internal;
 using Db4objects.Db4o.Reflect;
+using Db4objects.Db4o.Reflect.Net;
 using Gamlor.Db4oPad.Utils;
 
 namespace Gamlor.Db4oPad.MetaInfo
 {
-    public class DynamicGeneratedTypesReflector : IReflector
+    public class DynamicGeneratedTypesReflector : NetReflector
     {
-        private readonly IReflector innerReflector;
+        private IReflector parent;
         private readonly IDictionary<string, Type> specialTypes = new Dictionary<string, Type>();
+        private readonly IDictionary<string, Tuple<string, Type>> renames = new Dictionary<string, Tuple<string, Type>>();
         private readonly object sync = new object();
 
         private DynamicGeneratedTypesReflector(IReflector innerReflector)
         {
-            this.innerReflector = innerReflector;
         }
 
         private DynamicGeneratedTypesReflector(IReflector innerReflector, 
             IDictionary<string, Type> knownTypes)
         {
-            this.innerReflector = innerReflector;
             this.specialTypes = knownTypes;
+        }
+
+        public override object DeepClone(object obj)
+        {
+            return new DynamicGeneratedTypesReflector(null, CloneMap());
         }
 
         public static DynamicGeneratedTypesReflector CreateInstance(IReflector innerReflector)
@@ -29,44 +36,50 @@ namespace Gamlor.Db4oPad.MetaInfo
             return new DynamicGeneratedTypesReflector(innerReflector);
         }
 
-        public object DeepClone(object context)
+
+        public override IReflectClass ForName(string className)
         {
-            return new DynamicGeneratedTypesReflector((IReflector)innerReflector.DeepClone(context), CloneMap());
+            return TryGetType(className).Convert(ByDbName)
+                .GetValue(()=>ResolveByTypeName(className,()=>FallbackResolve(className)));
         }
 
-        public void Configuration(IReflectorConfiguration config)
+
+        public override IReflectClass ForObject(object obj)
         {
-            innerReflector.Configuration(config);
+            return Parent().ForClass(obj.GetType());
         }
 
-        public IReflectArray Array()
+        public override IReflectClass ForClass(Type forType)
         {
-            return innerReflector.Array();
+            return ResolveByTypeName(ReflectPlatform.FullyQualifiedName(forType), () => FallbackResolve(forType));
+
+        }
+        private IReflectClass ResolveByTypeName(string name,Func<IReflectClass> fallback)
+        {
+            return TryGetName(name)
+                .Convert(RenamedType).GetValue(fallback);
         }
 
-        public IReflectClass ForClass(Type clazz)
+        private IReflectClass RenamedType(Tuple<string,Type> type)
         {
-            return innerReflector.ForClass(clazz);
+            return new RenamedNetClass(Parent(), this, type.Item2, type.Item1);
         }
 
-        public IReflectClass ForName(string className)
+        private IReflectClass FallbackResolve(string name)
         {
-            return TryGetType(className).Convert(ForClass).GetValue(() => innerReflector.ForName(className));
+            return base.ForName(name);
         }
 
-        public IReflectClass ForObject(object obj)
+        private IReflectClass FallbackResolve(Type type)
         {
-            return innerReflector.ForObject(obj);
+            return base.ForClass(type);
         }
 
-        public bool IsCollection(IReflectClass clazz)
-        {
-            return innerReflector.IsCollection(clazz);
-        }
 
-        public void SetParent(IReflector reflector)
+        private IReflectClass ByDbName(Type arg)
         {
-            innerReflector.SetParent(reflector);
+            return Parent().ForName(ReflectPlatform.FullyQualifiedName(arg));
+
         }
 
 
@@ -83,6 +96,7 @@ namespace Gamlor.Db4oPad.MetaInfo
             lock (sync)
             {
                 specialTypes[name] = type;
+                renames[ReflectPlatform.FullyQualifiedName(type)] = Tuple.Create(name,type);
             }
         }
         private Maybe<Type> TryGetType(string name)
@@ -90,6 +104,13 @@ namespace Gamlor.Db4oPad.MetaInfo
             lock (sync)
             {
                 return specialTypes.TryGet(name);
+            }
+        }
+        private Maybe<Tuple<string,Type> > TryGetName(string forType)
+        {
+            lock (sync)
+            {
+                return renames.TryGet(forType);
             }
         }
         private IDictionary<string, Type> CloneMap()
@@ -101,4 +122,20 @@ namespace Gamlor.Db4oPad.MetaInfo
         }
     }
 
+    internal class RenamedNetClass : NetClass
+    {
+        private string name;
+
+        public RenamedNetClass(IReflector parent, 
+            DynamicGeneratedTypesReflector netReflector,
+            Type type, string name) : base(parent,netReflector, type)
+        {
+            this.name = name;
+        }
+
+        public override string GetName()
+        {
+            return name;
+        }
+    }
 }

@@ -35,7 +35,7 @@ namespace Gamlor.Db4oPad
 
         public override string Author
         {
-            get { return "Roman Stoffel"; }
+            get { return "Roman 'Gamlor' Stoffel"; }
         }
 
         public override List<ExplorerItem> GetSchemaAndBuildAssembly(IConnectionInfo cxInfo,

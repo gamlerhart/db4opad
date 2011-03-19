@@ -4,21 +4,23 @@
         <name>Db4objects.Db4o.Linq</name>
     </assembly>
     <members>
-        <member name="T:Db4objects.Db4o.Linq.Internals.ObjectSequence`1">
-            <summary>
-            A generic wrapper around a not generic IEnumerable,
-            Faithfully hoping that all items in the enumeration
-            are of the same kind, otherwise it will throw a
-            ClassCastException on access.
-            </summary>
-            <typeparam name="T">The type of the items</typeparam>
-        </member>
         <member name="T:Db4objects.Db4o.Linq.IDb4oLinqQuery`1">
             <summary>
             IDb4oLinqQuery is the query type of Linq to db4o. Standard query operators
             are defined in <see cref="T:Db4objects.Db4o.Linq.Db4oLinqQueryExtensions">Db4oLinqQueryExtensions</see>.
             </summary>
             <typeparam name="T">The type of the objects that are queried from the database.</typeparam>
+        </member>
+        <member name="T:Db4objects.Db4o.Linq.Db4oLinqQueryExtensions">
+            <summary>
+            A class that defines some standard linq query operations
+            that can be optimized.
+            </summary>
+        </member>
+        <member name="T:Db4objects.Db4o.Linq.ILinqQueryMonitor">
+            <summary>
+            commonConfiguration.Environment.Add(new MyLinqQueryMonitor());
+            </summary>
         </member>
         <member name="M:Db4objects.Db4o.Linq.ObjectContainerExtensions.Cast``1(Db4objects.Db4o.Query.ISodaQueryFactory)">
             <summary>
@@ -31,17 +33,14 @@
             <param name="self">A query factory (any IObjectContainer implementation)</param>
             <returns>A <see cref="T:Db4objects.Db4o.Linq.IDb4oLinqQuery">IDb4oLinqQuery</see> marker interface</returns>
         </member>
-        <member name="T:Db4objects.Db4o.Linq.Caching.CacheFactory`2">
+        <member name="T:Db4objects.Db4o.Linq.Internals.ObjectSequence`1">
             <summary>
-            Generic wrappers for <see cref="T:Db4objects.Db4o.Internal.Caching.ICache4"/>.
+            A generic wrapper around a not generic IEnumerable,
+            Faithfully hoping that all items in the enumeration
+            are of the same kind, otherwise it will throw a
+            ClassCastException on access.
             </summary>
-            <typeparam name="TKey"></typeparam>
-            <typeparam name="TValue"></typeparam>
-        </member>
-        <member name="T:Db4objects.Db4o.Linq.ILinqQueryMonitor">
-            <summary>
-            commonConfiguration.Environment.Add(new MyLinqQueryMonitor());
-            </summary>
+            <typeparam name="T">The type of the items</typeparam>
         </member>
         <member name="T:Db4objects.Db4o.Linq.IDb4oLinqQueryable`1">
             <summary>
@@ -50,11 +49,12 @@
             <typeparam name="T">The type of the objects that are queried from the database.</typeparam>
             </summary>
         </member>
-        <member name="T:Db4objects.Db4o.Linq.Db4oLinqQueryExtensions">
+        <member name="T:Db4objects.Db4o.Linq.Caching.CacheFactory`2">
             <summary>
-            A class that defines some standard linq query operations
-            that can be optimized.
+            Generic wrappers for <see cref="T:Db4objects.Db4o.Internal.Caching.ICache4"/>.
             </summary>
+            <typeparam name="TKey"></typeparam>
+            <typeparam name="TValue"></typeparam>
         </member>
     </members>
 </doc>
