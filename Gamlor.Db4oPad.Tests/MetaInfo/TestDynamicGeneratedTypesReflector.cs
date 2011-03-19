@@ -1,10 +1,7 @@
 using System;
 using Db4objects.Db4o.Internal;
-using Db4objects.Db4o.Reflect;
-using Db4objects.Db4o.Reflect.Net;
 using Gamlor.Db4oPad.MetaInfo;
 using Gamlor.Db4oPad.Tests.TestTypes;
-using Moq;
 using NUnit.Framework;
 
 namespace Gamlor.Db4oPad.Tests.MetaInfo

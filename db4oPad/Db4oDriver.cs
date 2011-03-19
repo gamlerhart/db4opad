@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using Db4objects.Db4o;
 using Db4objects.Db4o.Config;
-using Gamlor.Db4oExt.IO;
 using Gamlor.Db4oPad.GUI;
 using Gamlor.Db4oPad.MetaInfo;
 using LINQPad.Extensibility.DataContext;
@@ -96,7 +94,7 @@ namespace Gamlor.Db4oPad
         private IEmbeddedConfiguration NewConfig()
         {
             var config = Db4oEmbedded.NewConfiguration();
-            config.File.Storage = AggressiveCacheStorage.NoWriteBack();
+            config.File.ReadOnly = true;
             return config;
         }
 

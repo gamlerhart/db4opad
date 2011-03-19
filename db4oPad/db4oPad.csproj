@@ -65,10 +65,6 @@
   <ItemGroup>
     <Compile Include="CurrentContext.cs" />
     <Compile Include="DatabaseConfigurator.cs" />
-    <Compile Include="IO\AggressiveCacheBin.cs" />
-    <Compile Include="IO\AggressiveCacheStorage.cs" />
-    <Compile Include="IO\Page.cs" />
-    <Compile Include="IO\IOCoordination.cs" />
     <Compile Include="MetaInfo\DynamicGeneratedTypesReflector.cs" />
     <Compile Include="MetaInfo\CodeGenerator.cs" />
     <Compile Include="MetaInfo\DatabaseMetaInfo.cs" />

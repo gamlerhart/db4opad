@@ -56,7 +56,7 @@ namespace Gamlor.Db4oPad.Tests
             assembly.Save(Path.GetFileName(theName.CodeBase));
         }
 
-        private AssemblyName NewAssemblyName()
+        private static AssemblyName NewAssemblyName()
         {
             var assemblyName = "TestAssembyl_" + Path.GetRandomFileName();
             var path = Path.Combine(Path.GetTempPath(), assemblyName);

@@ -71,15 +71,6 @@
     <Compile Include="Db4oDriverIntegrationTest.cs" />
     <Compile Include="GenerateTestDatabase.cs" />
     <Compile Include="HashCodeAsserts.cs" />
-    <Compile Include="IO\AbstractIOTestCase.cs" />
-    <Compile Include="IO\HighLevelIOTestCases.cs" />
-    <Compile Include="IO\LoggingStorage.cs" />
-    <Compile Include="IO\MiniBenchMark.cs" />
-    <Compile Include="IO\TaskAssumptions.cs" />
-    <Compile Include="IO\AggressiveCacheBinTestBase.cs" />
-    <Compile Include="IO\TestAggressiveCacheStorage.cs" />
-    <Compile Include="IO\TestNoWriteThrougBin.cs" />
-    <Compile Include="IO\TestRegularAggressiveCachingBin.cs" />
     <Compile Include="MemoryDBForTests.cs" />
     <Compile Include="MetaInfo\TestDynamicGeneratedTypesReflector.cs" />
     <Compile Include="MetaInfo\TestQueryContextGeneration.cs" />
