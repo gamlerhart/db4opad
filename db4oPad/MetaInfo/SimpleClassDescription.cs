@@ -8,14 +8,6 @@ namespace Gamlor.Db4oPad.MetaInfo
     internal class SimpleClassDescription : ITypeDescription
     {
 
-        private SimpleClassDescription(string name,
-            TypeName fullName,
-            int genericParams):this(name, fullName, genericParams, new SystemType(typeof(object)))
-        {
-            this.Name = name;
-            this.TypeName = fullName;
-            this.GenericParametersCount = genericParams;
-        }
 
         private SimpleClassDescription(string name,
             TypeName fullName, 

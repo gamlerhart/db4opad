@@ -81,9 +81,9 @@ namespace Gamlor.Db4oPad.MetaInfo
         }
 
 
-        public void AddNewTypes(IEnumerable<Tuple<string, Type>> specialTypes)
+        public void AddNewTypes(IEnumerable<Tuple<string, Type>> typesToAdd)
         {
-            foreach (var specialType in specialTypes)
+            foreach (var specialType in typesToAdd)
             {
                 AddType(specialType.Item1, specialType.Item2);
             }

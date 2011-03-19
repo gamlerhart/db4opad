@@ -18,10 +18,10 @@ namespace Gamlor.Db4oPad.Utils
 
         private static class NullChecker<T> where T : class
         {
-            private static readonly List<Tuple<Func<T, bool>, string>> checkers;
+            private static readonly List<Tuple<Func<T, bool>, string>> Checkers;
             static NullChecker()
             {
-                checkers = new List<Tuple<Func<T, bool>, string>>();
+                Checkers = new List<Tuple<Func<T, bool>, string>>();
                 foreach (var property in typeof(T).GetProperties())
                 {
                     AddChecker(property);
@@ -37,13 +37,13 @@ namespace Gamlor.Db4oPad.Utils
                     Expression nullValue = Expression.Constant(null, property.PropertyType);
                     Expression equality = Expression.Equal(propertyAccess, nullValue);
                     var lambda = Expression.Lambda<Func<T, bool>>(equality, param);
-                    checkers.Add(Tuple.Create(lambda.Compile(), property.Name));
+                    Checkers.Add(Tuple.Create(lambda.Compile(), property.Name));
                 }
             }
 
             internal static void Check(T item)
             {
-                foreach (var t in checkers)
+                foreach (var t in Checkers)
                 {
                     if (t.Item1(item))
                     {

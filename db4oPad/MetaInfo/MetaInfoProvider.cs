@@ -37,6 +37,11 @@ namespace Gamlor.Db4oPad.MetaInfo
             return "Meta-Info";
         }
 
+        public Type DataContext
+        {
+            get { return fullMetaInfo.DataContext; }
+        }
+
         private MetaInfoProvider(DatabaseMetaInfo metaInfo)
         {
             this.fullMetaInfo = metaInfo;

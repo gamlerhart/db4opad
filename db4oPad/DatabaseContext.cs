@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Db4objects.Db4o;
-using Db4objects.Db4o.Internal;
 using Gamlor.Db4oPad.MetaInfo;
 using Gamlor.Db4oPad.Utils;
 using LINQPad.Extensibility.DataContext;
@@ -21,7 +20,7 @@ namespace Gamlor.Db4oPad
         {
             this.metaInfo = metaInfo;
             disposer.Add(container);
-            this.theContainer = container;
+            theContainer = container;
         }
 
         public static DatabaseContext Create(IObjectContainer db, AssemblyName theAssembly)
@@ -51,16 +50,7 @@ namespace Gamlor.Db4oPad
 
         public IQueryable<T> Query<T>()
         {
-            IObjectSet result = ForName(typeof(T));
-            var c = result.Count;
             return this.theContainer.AsQueryable<T>();
-        }
-
-        private IObjectSet ForName(Type name)
-        {
-            var tt = theContainer.Query();
-            tt.Constrain(name);
-            return tt.Execute();
         }
 
         public DatabaseMetaInfo MetaInfo
@@ -78,7 +68,7 @@ namespace Gamlor.Db4oPad
 
         private ExplorerItem ToExplorerItem(SimpleFieldDescription field)
         {
-            return new ExplorerItem(field.Name,ExplorerItemKind.Property, ExplorerIcon.Column);
+            return new ExplorerItem(field.Name+":"+field.Type.Name,ExplorerItemKind.Property, ExplorerIcon.Column);
         }
 
         private List<ExplorerItem> Fields(ITypeDescription type)

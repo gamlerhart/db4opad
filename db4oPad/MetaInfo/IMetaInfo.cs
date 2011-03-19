@@ -7,6 +7,7 @@ namespace Gamlor.Db4oPad.MetaInfo
     {
         IEnumerable<IClassInfo> Classes { get; }
         IDictionary<ITypeDescription, Type> DyanmicTypesRepresentation { get; }
+        Type DataContext { get; }
         string ToString();
     }
 

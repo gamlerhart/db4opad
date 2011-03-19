@@ -45,6 +45,8 @@ namespace Gamlor.Db4oPad
                 assemblyToBuild))
             {
                 cxInfo.SessionData[AssemblyLocation] = assemblyToBuild.CodeBase;
+                nameSpace = context.MetaInfo.DataContext.Namespace;
+                typeName = context.MetaInfo.DataContext.Name;
                 return context.ListTypes().ToList();
             }
         }

@@ -31,10 +31,14 @@ namespace Gamlor.Db4oPad.MetaInfo
                                                         select sep;
 
         internal static Parser<TypeName> TypeDefinition = from typeName in Identifier
-                                                          from argList in Parse.Ref(() => TypeNameParser.GenericArgumentList).Many()
+// ReSharper disable StaticFieldInitializersReferesToFieldBelow
+                                                          //  Because the Parse.Ref() protects us from this issue
+                                                          from argList in Parse.Ref(() => GenericArgumentList).Many()
+// ReSharper restore StaticFieldInitializersReferesToFieldBelow
                                                           from assemblyName in AssemblyName
-                                                          select CreateType(typeName, assemblyName, argList.SingleOrDefault());
-
+                                                          select
+                                                              CreateType(typeName, assemblyName,
+                                                                         argList.SingleOrDefault());
 
 
         internal static Parser<TypeName> GenericArgument = from o in ParentherisOpen
@@ -48,10 +52,13 @@ namespace Gamlor.Db4oPad.MetaInfo
 
         internal static Parser<IEnumerable<TypeName>> GenericArgumentList = from expectedLength in GenericIndicator
                                                                             from o in ParentherisOpen
-                                                                            from args in GenericArgumentWithFollower.Many()
+                                                                            from args in
+                                                                                GenericArgumentWithFollower.Many()
                                                                             from lastArg in GenericArgument
                                                                             from c in ParentherisClose
-                                                                            select CheckAndCreateGenericList(args, lastArg, expectedLength);
+                                                                            select
+                                                                                CheckAndCreateGenericList(args, lastArg,
+                                                                                                          expectedLength);
 
 
         public static TypeName ParseString(string typeToParse)
@@ -59,18 +66,21 @@ namespace Gamlor.Db4oPad.MetaInfo
             return TypeDefinition.Parse(typeToParse);
         }
 
-        private static IEnumerable<TypeName> CheckAndCreateGenericList(IEnumerable<TypeName> argList, TypeName lastArg, int expectedLength)
+        private static IEnumerable<TypeName> CheckAndCreateGenericList(IEnumerable<TypeName> argList, TypeName lastArg,
+                                                                       int expectedLength)
         {
-            var result = argList.Concat(new[] { lastArg }).ToArray();
+            var result = argList.Concat(new[] {lastArg}).ToArray();
             if (expectedLength != result.Length)
             {
                 throw new ArgumentException(
                     string.Format("argument-count hasn't the expected count. List-count {0}, expected {1}",
-                        result.Length, expectedLength));
+                                  result.Length, expectedLength));
             }
             return result;
         }
-        private static TypeName CreateType(string typeName, string assemblyName, IEnumerable<TypeName> genericArgs = null)
+
+        private static TypeName CreateType(string typeName, string assemblyName,
+                                           IEnumerable<TypeName> genericArgs = null)
         {
             if (null == genericArgs)
             {
@@ -79,5 +89,4 @@ namespace Gamlor.Db4oPad.MetaInfo
             return TypeName.Create(typeName, assemblyName, genericArgs);
         }
     }
-
 }

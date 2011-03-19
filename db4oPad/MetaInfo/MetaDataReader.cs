@@ -55,14 +55,9 @@ namespace Gamlor.Db4oPad.MetaInfo
 
         private static string BuildName(TypeName name)
         {
-            if (name.IsGeneric)
-            {
-                return string.Format("{0}`{1}", name.Name, name.GenericArguments.Count());
-            }
-            else
-            {
-                return string.Format("{0}", name.Name);
-            }
+            return name.IsGeneric 
+                ? string.Format("{0}`{1}", name.Name, name.GenericArguments.Count())
+                : string.Format("{0}", name.Name);
         }
 
         private static bool IsSystemType(TypeName name)
