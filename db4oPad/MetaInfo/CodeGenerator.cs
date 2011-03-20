@@ -216,6 +216,13 @@ namespace Gamlor.Db4oPad.MetaInfo
                                     IDictionary<ITypeDescription, Maybe<Type>> typeBuildMap,
             ModuleBuilder modBuilder)
         {
+            if (field.Type.IsArray)
+            {
+                var arrayType = field.Type.ArrayOf.Value;
+                var type = typeBuildMap[arrayType].GetValue(
+                    () => GetOrCreateType(typeBuildMap, modBuilder, arrayType));
+                return type.MakeArrayType(1);
+            }
             return typeBuildMap[field.Type].GetValue(
                 () => GetOrCreateType(typeBuildMap, modBuilder, field.Type));
         }

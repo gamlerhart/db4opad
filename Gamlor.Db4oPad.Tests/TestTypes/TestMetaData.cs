@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -9,6 +10,7 @@ namespace Gamlor.Db4oPad.Tests.TestTypes
     {
         public const string AssemblyName = "AAssembly";
         public const string SingleFieldTypeName = "ANamespace.SingleField";
+        public const string FieldName = "data";
         public readonly static ITypeDescription StringType = new SystemType(typeof(string));
 
 
@@ -22,6 +24,13 @@ namespace Gamlor.Db4oPad.Tests.TestTypes
         {
             var type = SimpleClassDescription.Create(SingleFieldType(),
                                                              f => CreateField(StringType));
+            return new[] { type, StringType };
+        }
+
+        public static IEnumerable<ITypeDescription> CreateClassWithArrayField()
+        {
+            var type = SimpleClassDescription.Create(SingleFieldType(),
+                                                             f => CreateArrayField(StringType));
             return new[] { type, StringType };
         }
         internal static IEnumerable<ITypeDescription> CreateSingleAutoPropertyClass()
@@ -40,9 +49,14 @@ namespace Gamlor.Db4oPad.Tests.TestTypes
         {
             return new[] { SimpleFieldDescription.Create(fieldName, type) };
         }
+        internal static IEnumerable<SimpleFieldDescription> CreateArrayField(ITypeDescription type)
+        {
+            var arrayType = ArrayDescription.Create(type, 1);
+            return new[] { SimpleFieldDescription.Create(FieldName, arrayType) };
+        }
         internal static IEnumerable<SimpleFieldDescription> CreateField(ITypeDescription type)
         {
-            return CreateField("data", type);
+            return CreateField(FieldName, type);
         }
 
         private class AutoPropertyName
