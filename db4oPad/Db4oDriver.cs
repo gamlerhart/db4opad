@@ -28,7 +28,7 @@ namespace Gamlor.Db4oPad
 
         public override string Name
         {
-            get { return "db4o Driver"; }
+            get { return "db4o Driver Alpha"; }
         }
 
         public override string Author
