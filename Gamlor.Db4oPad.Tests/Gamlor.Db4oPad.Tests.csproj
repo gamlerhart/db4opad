@@ -69,6 +69,7 @@
     <Compile Include="AbstractDatabaseFixture.cs" />
     <Compile Include="AssertDisposable.cs" />
     <Compile Include="Db4oDriverIntegrationTest.cs" />
+    <Compile Include="ExampleDatabaseTests.cs" />
     <Compile Include="GenerateTestDatabase.cs" />
     <Compile Include="HashCodeAsserts.cs" />
     <Compile Include="MemoryDBForTests.cs" />
@@ -92,6 +93,7 @@
     <Compile Include="TestTypes\Person.cs" />
     <Compile Include="TestTypes\TestMetaData.cs" />
     <Compile Include="TestTypes\TestTypes.cs" />
+    <Compile Include="TestUtils.cs" />
     <Compile Include="Utils\TestDisposer.cs" />
     <Compile Include="Utils\TestMaybe.cs" />
     <Compile Include="Utils\TestMaybeExtensions.cs" />

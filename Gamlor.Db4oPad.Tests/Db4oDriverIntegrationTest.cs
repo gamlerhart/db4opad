@@ -21,7 +21,7 @@ namespace Gamlor.Db4oPad.Tests
             CopyTestDB();
             var testInstance = new Db4oDriver();
             var connectionInfo = new Mock<IConnectionInfo>();
-            var assembly = NewAssemblyName();
+            var assembly = TestUtils.NewName();
             var assemblyPath = assembly.CodeBase;
             connectionInfo.Setup(i => i.CustomTypeInfo.CustomMetadataPath)
                 .Returns(() => Databasename);
@@ -48,26 +48,12 @@ namespace Gamlor.Db4oPad.Tests
         [Test]
         public void StoreAssembly()
         {
-            var theName = NewAssemblyName();
+            var theName = TestUtils.NewName();
             var assembly = AppDomain.CurrentDomain
                 .DefineDynamicAssembly(theName, AssemblyBuilderAccess.RunAndSave,
                                        Path.GetDirectoryName(theName.CodeBase));
 
             assembly.Save(Path.GetFileName(theName.CodeBase));
-        }
-
-        private static AssemblyName NewAssemblyName()
-        {
-            var assemblyName = "TestAssembyl_" + Path.GetRandomFileName();
-            var path = Path.Combine(Path.GetTempPath(), assemblyName);
-            return new AssemblyName(Path.GetFileNameWithoutExtension(assemblyName))
-                       {
-                           CodeBase = path,
-
-                           ProcessorArchitecture = ProcessorArchitecture.None,
-                           VersionCompatibility = AssemblyVersionCompatibility.SameMachine
-
-                       };
         }
 
         private void CopyTestDB()

@@ -10,11 +10,10 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         [Test]
         public void GenericName()
         {
-            TypeName genericArg = TypeName.Create("System.Int32","mscorelib");
-            TypeName theName = TypeName.Create("TheType", "TheAssembly", new[] { genericArg });
-            var theType = SimpleClassDescription.Create(theName, f => new SimpleFieldDescription[0]);
+            var theType = CreateGenericType();
             Assert.AreEqual("TheType_1",theType.Name);
         }
+
         [Test]
         public void ThrowIfArrayType()
         {
@@ -32,6 +31,45 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             Assert.AreEqual(innerType,arrayType.ArrayOf.Value);
 
         }
+        [Test]
+        public void ArrayEquals()
+        {
+            var arrayType1 = CreateArrayType();
+            var arrayType2 = CreateArrayType();
+
+            Assert.AreEqual(arrayType1, arrayType2);
+        }
+        [Test]
+        public void GenericEquals()
+        {
+            var t1 = CreateGenericType();
+            var t2 = CreateGenericType();
+
+            Assert.AreEqual(t1, t2);
+        }
+        [Test]
+        public void SystemTypeEquals()
+        {
+            var t1 = new SystemType(typeof(string));
+            var t2 = new SystemType(typeof(string));
+
+            Assert.AreEqual(t1, t2);
+        }
+
+        private SimpleClassDescription CreateGenericType()
+        {
+            TypeName genericArg = TypeName.Create("System.Int32", "mscorelib");
+            TypeName theName = TypeName.Create("TheType", "TheAssembly", new[] { genericArg });
+            return SimpleClassDescription.Create(theName, f => new SimpleFieldDescription[0]);
+        }
+
+        private ITypeDescription CreateArrayType()
+        {
+            TypeName theName = TypeName.Create("System.Int32", "mscorelib", new TypeName[0], 0);
+            var innerType = SimpleClassDescription.Create(theName, f => new SimpleFieldDescription[0]);
+            return ArrayDescription.Create(innerType, 1);
+        }
+
         [Test]
         public void ObjectIsRecursive()
         {
