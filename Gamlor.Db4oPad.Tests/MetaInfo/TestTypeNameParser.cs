@@ -54,6 +54,20 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             Assert.AreEqual(TypeName, result);
         }
         [Test]
+        public void ArrayOfOne()
+        {
+
+            var result = TypeNameParser.AnArray.Parse("[]");
+            Assert.AreEqual(1, result);
+        }
+        [Test]
+        public void ArrayOfZero()
+        {
+
+            var result = TypeNameParser.AnArray.Parse("");
+            Assert.AreEqual(0, result);
+        }
+        [Test]
         public void AssemblyName()
         {
             var input = ", Assembly";
@@ -159,6 +173,19 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             var result = TypeNameParser.ParseString(input);
             Assert.AreEqual("Gamlor.Db4oPad.Tests.TypeGeneration.Generic", result.Name);
             Assert.AreEqual("Gamlor.Db4oPad.Tests", result.AssemblyName);
+        }
+        [Test]
+        public void StringArray()
+        {
+            var input = "System.String[], mscorlib";
+
+
+            var result = TypeNameParser.ParseString(input);
+            Assert.AreEqual("System.String[]", result.Name);
+            Assert.AreEqual("mscorlib", result.AssemblyName);
+            Assert.AreEqual("System.String[], mscorlib", result.FullName);
+            Assert.AreEqual(1, result.OrderOfArray);
+            Assert.AreEqual("System.String, mscorlib", result.ArrayOf.Value.FullName);
         }
 
 

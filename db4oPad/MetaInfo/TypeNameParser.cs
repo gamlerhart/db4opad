@@ -29,15 +29,24 @@ namespace Gamlor.Db4oPad.MetaInfo
 
         internal static Parser<char> ParentherisClose = from sep in Parse.Char(']')
                                                         select sep;
+        
+
+        internal static Parser<int> OneArrayIndicator = from o in ParentherisOpen
+                                            from c in ParentherisClose
+                                            select 1;
+
+        internal static Parser<int> AnArray = from arrays in OneArrayIndicator.Many()
+                                              select arrays.Count();
 
         internal static Parser<TypeName> TypeDefinition = from typeName in Identifier
 // ReSharper disable StaticFieldInitializersReferesToFieldBelow
                                                           //  Because the Parse.Ref() protects us from this issue
                                                           from argList in Parse.Ref(() => GenericArgumentList).Many()
-// ReSharper restore StaticFieldInitializersReferesToFieldBelow
+                                                          // ReSharper restore StaticFieldInitializersReferesToFieldBelow
+                                                          from array in AnArray
                                                           from assemblyName in AssemblyName
                                                           select
-                                                              CreateType(typeName, assemblyName,
+                                                              CreateType(typeName, assemblyName,array,
                                                                          argList.SingleOrDefault());
 
 
@@ -45,6 +54,7 @@ namespace Gamlor.Db4oPad.MetaInfo
                                                            from type in TypeDefinition
                                                            from c in ParentherisClose
                                                            select type;
+
 
         internal static Parser<TypeName> GenericArgumentWithFollower = from type in GenericArgument
                                                                        from s in Seperator
@@ -79,14 +89,14 @@ namespace Gamlor.Db4oPad.MetaInfo
             return result;
         }
 
-        private static TypeName CreateType(string typeName, string assemblyName,
+        private static TypeName CreateType(string typeName, string assemblyName, int array,
                                            IEnumerable<TypeName> genericArgs = null)
         {
             if (null == genericArgs)
             {
                 genericArgs = new TypeName[0];
             }
-            return TypeName.Create(typeName, assemblyName, genericArgs);
+            return TypeName.Create(typeName, assemblyName, genericArgs,array);
         }
     }
 }

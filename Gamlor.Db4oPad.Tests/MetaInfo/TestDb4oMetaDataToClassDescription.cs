@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using Db4objects.Db4o;
+using Db4objects.Db4o.Reflect.Net;
 using Gamlor.Db4oPad.MetaInfo;
 using Gamlor.Db4oPad.Tests.TestTypes;
+using Moq;
 using NUnit.Framework;
 
 namespace Gamlor.Db4oPad.Tests.MetaInfo
@@ -13,25 +15,28 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         private const string FieldName = "aField";
         private IObjectContainer database;
         private IEnumerable<ITypeDescription> generatedClassses;
+        
 
         [SetUp]
         public void Setup()
         {
-            this.database = MemoryDBForTests.NewDB();
-
-
-            database.Store(new ClassWithoutFields());
-            database.Store(new ClassWithFields());
-            database.Store(new RecursiveClass());
-            database.Store(new WithBuiltInGeneric());
-            database.Store(new Generic<string>());
-            database.Store(new Generic<string, List<string>>());
-            database.Store(new Base());
-            database.Store(new SubClass());
+            var dbContainer = MultiContainerMemoryDB.Create();
+            using (var db = dbContainer.NewDB())
+            {
+                db.Store(new ClassWithoutFields());
+                db.Store(new ClassWithFields());
+                db.Store(new RecursiveClass());
+                db.Store(new WithBuiltInGeneric());
+                db.Store(new Generic<string>());
+                db.Store(new Generic<string, List<string>>());
+                db.Store(new Base());
+                db.Store(new SubClass());
+                db.Store(new ClassWithArrays());
+            }
+            database = dbContainer.NewDB();
 
             this.generatedClassses = MetaDataReader.Read(database);
         }
-
 
         [Test]
         public void ClassWithoutFields()
@@ -112,6 +117,14 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             Assert.IsTrue(classMeta.Fields.Any(f => f.Name == "subClassField"));
             Assert.IsTrue(classMeta.BaseClass.Fields.Any(f => f.Name == FieldName));
         }
+        [Test]
+        public void TypeWithArrays()
+        {
+            var classMeta = For<ClassWithArrays>();
+            Assert.NotNull(classMeta);
+            Assert.IsTrue(classMeta.Fields.Single(f=>f.Name=="strings").Type.IsArray);
+            Assert.IsTrue(classMeta.Fields.Single(f => f.Name == "withfields").Type.IsArray);
+        }
 
         [Test]
         public void CanHandleSameTypeTwiceScenario()
@@ -125,6 +138,18 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
                 Assert.IsTrue(generatedClassses.Any());
             }
 
+        }
+
+        [Test]
+        public void DBWithoutAllTypesInList()
+        {
+            var reflector = new NetReflector();
+            var colorHolderType = reflector.ForClass(typeof (ColorHolder));
+
+            var dbMock = new Mock<IObjectContainer>();
+            dbMock.Setup(c => c.Ext().KnownClasses()).Returns(new[] {colorHolderType});
+            var classInfos = MetaDataReader.Read(dbMock.Object);
+            Assert.IsTrue(1<classInfos.Count());
         }
 
         private void StoreAPerson(MultiContainerMemoryDB contex)

@@ -47,7 +47,7 @@ namespace Gamlor.Db4oPad.Tests
             var toTest = NewTestInstance();
             var types = toTest.ListTypes();
             Assert.IsTrue(types.Where(c=>c.Children.Count>0)
-                .Any(c => c.Children.Single().Text == "aField"));
+                .Any(c => c.Children.Single().Text == "aField:String"));
         }
         [Test]
         public void HasWrittenAssembly()

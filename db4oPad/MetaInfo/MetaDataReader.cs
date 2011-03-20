@@ -8,11 +8,11 @@ using Gamlor.Db4oPad.Utils;
 
 namespace Gamlor.Db4oPad.MetaInfo
 {
-    class MetaDataReader
+    internal class MetaDataReader
     {
         public static IEnumerable<ITypeDescription> Read(IObjectContainer database)
         {
-            new { database }.CheckNotNull();
+            new {database}.CheckNotNull();
 
             var allKnownClasses = database.Ext().KnownClasses().Distinct().ToArray();
             return CreateTypes(allKnownClasses);
@@ -23,13 +23,13 @@ namespace Gamlor.Db4oPad.MetaInfo
             var typeMap = new Dictionary<string, ITypeDescription>();
             foreach (var classInfo in allClasses)
             {
-                CreateType(classInfo, allClasses, typeMap);
+                CreateType(classInfo, typeMap);
             }
             return typeMap.Select(t => t.Value);
         }
+
         private static ITypeDescription CreateType(IReflectClass classInfo,
-            IEnumerable<IReflectClass> allClasses,
-            IDictionary<string, ITypeDescription> knownTypes)
+                                                   IDictionary<string, ITypeDescription> knownTypes)
         {
             var name = TypeNameParser.ParseString(classInfo.GetName());
             if (IsSystemType(name))
@@ -38,58 +38,73 @@ namespace Gamlor.Db4oPad.MetaInfo
                 knownTypes[name.FullName] = systemType;
                 return systemType;
             }
-            return SimpleClassDescription.Create(name, GetOrCreateType(classInfo.GetSuperclass(),knownTypes, allClasses),
-                t =>
-                {
-                    knownTypes[name.FullName] = t;
-                    return ExtractFields(TypeByName(name, allClasses), typeName => GetOrCreateType(typeName, knownTypes, allClasses));
-                });
+            return name.ArrayOf.Convert(
+                n => CreateArrayType(name, n, knownTypes))
+                .GetValue(() =>
+                    CreateType(name, classInfo, knownTypes));
+        }
+
+        private static SimpleClassDescription CreateType(TypeName name,
+                                                         IReflectClass classInfo,
+                                                         IDictionary<string, ITypeDescription> knownTypes)
+        {
+            return SimpleClassDescription.Create(name,
+                    GetOrCreateType(classInfo.GetSuperclass(), knownTypes),
+                    t =>
+                        {
+                            knownTypes[name.FullName] = t;
+                            return ExtractFields(classInfo,
+                                                typeName =>
+                                                GetOrCreateType(typeName, knownTypes));
+                        });
+        }
+
+        private static ITypeDescription CreateArrayType(TypeName fullName, TypeName innerTypeName,
+                                                        IDictionary<string, ITypeDescription> knownTypes)
+        {
+            var innerType = knownTypes[innerTypeName.FullName];
+            var type = ArrayDescription.Create(innerType, fullName.OrderOfArray);
+            knownTypes[fullName.FullName] = type;
+            return type;
         }
 
         private static Type ResolveType(TypeName nameAndAssembly)
         {
-
             var assembly = Assembly.LoadWithPartialName(nameAndAssembly.AssemblyName);
             return assembly.GetType(BuildName(nameAndAssembly));
         }
 
         private static string BuildName(TypeName name)
         {
-            return name.IsGeneric 
-                ? string.Format("{0}`{1}", name.Name, name.GenericArguments.Count())
-                : string.Format("{0}", name.Name);
+            return name.IsGeneric
+                       ? string.Format("{0}`{1}", name.Name, name.GenericArguments.Count())
+                       : string.Format("{0}", name.Name);
         }
 
         private static bool IsSystemType(TypeName name)
         {
-            return name.Name.StartsWith("System.") || name.Name.StartsWith("Db4objects.Db4o.");
+            return (name.Name.StartsWith("System.") 
+                || name.Name.StartsWith("Db4objects.Db4o.")) && name.OrderOfArray==0;
         }
 
         private static ITypeDescription GetOrCreateType(IReflectClass typeToFind,
-            IDictionary<string, ITypeDescription> knownTypes,
-            IEnumerable<IReflectClass> allClasses)
+                                                        IDictionary<string, ITypeDescription> knownTypes)
         {
-
             return knownTypes.TryGet(typeToFind.GetName())
-                .GetValue(() => CreateType(typeToFind, allClasses, knownTypes));
-        }
-
-        private static IReflectClass TypeByName(TypeName typeName, IEnumerable<IReflectClass> allClasses)
-        {
-            return allClasses.Where(t => t.GetName() == typeName.FullName).Single();
+                .GetValue(() => CreateType(typeToFind, knownTypes));
         }
 
         private static IEnumerable<SimpleFieldDescription> ExtractFields(IReflectClass classInfo,
-            Func<IReflectClass, ITypeDescription> typeLookUp)
+                                                                         Func<IReflectClass, ITypeDescription>
+                                                                             typeLookUp)
         {
             return classInfo.GetDeclaredFields().Select(f => CreateField(f, typeLookUp));
         }
 
         private static SimpleFieldDescription CreateField(IReflectField field,
-            Func<IReflectClass, ITypeDescription> typeLookUp)
+                                                          Func<IReflectClass, ITypeDescription> typeLookUp)
         {
             return SimpleFieldDescription.Create(field.GetName(), typeLookUp(field.GetFieldType()));
         }
     }
-
 }

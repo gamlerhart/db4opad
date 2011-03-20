@@ -34,6 +34,11 @@ namespace Gamlor.Db4oPad.Tests.TestTypes
     {
         private Dictionary<T1, T2> aField;
     }
+    class ClassWithArrays
+    {
+        private string[] strings = new string[0];
+        private ClassWithFields[] withfields = new[]{new ClassWithFields()};
+    }
 
 
     class Base

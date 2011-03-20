@@ -12,5 +12,7 @@ namespace Gamlor.Db4oPad.MetaInfo
         int GenericParametersCount { get; }
         Maybe<Type> KnowsType { get; }
         ITypeDescription BaseClass { get;}
+        bool IsArray { get; }
+        Maybe<ITypeDescription> ArrayOf { get; }
     }
 }

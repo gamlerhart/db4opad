@@ -10,6 +10,8 @@ namespace Gamlor.Db4oPad.MetaInfo
         private readonly Type typeInfo;
 
         public readonly static ITypeDescription Object = new SystemType(typeof (object));
+        public readonly static ITypeDescription Array = new SystemType(typeof(Array));
+
         public SystemType(Type typeInfo)
         {
             new { typeInfo }.CheckNotNull();
@@ -31,16 +33,6 @@ namespace Gamlor.Db4oPad.MetaInfo
             get { return CreateTypeName(typeInfo); }
         }
 
-        private static TypeName CreateTypeName(Type type)
-        {
-            return TypeName.Create(type.FullName, type.Assembly.GetName().Name, GenericNameArguments(type));
-        }
-
-        private static IEnumerable<TypeName> GenericNameArguments(Type type)
-        {
-            return type.GetGenericArguments().Select(CreateTypeName);
-        }
-
         public IEnumerable<SimpleFieldDescription> Fields
         {
             get { return new SimpleFieldDescription[0]; }
@@ -59,6 +51,26 @@ namespace Gamlor.Db4oPad.MetaInfo
         public ITypeDescription BaseClass
         {
             get { return typeInfo==typeof(object) ?this:new SystemType(typeInfo.BaseType); }
+        }
+
+        public bool IsArray
+        {
+            get { return false; }
+        }
+
+        public Maybe<ITypeDescription> ArrayOf
+        {
+            get { return Maybe<ITypeDescription>.Empty; }
+        }
+
+        private static TypeName CreateTypeName(Type type)
+        {
+            return TypeName.Create(type.FullName, type.Assembly.GetName().Name, GenericNameArguments(type));
+        }
+
+        private static IEnumerable<TypeName> GenericNameArguments(Type type)
+        {
+            return type.GetGenericArguments().Select(CreateTypeName);
         }
 
         public bool Equals(SystemType other)

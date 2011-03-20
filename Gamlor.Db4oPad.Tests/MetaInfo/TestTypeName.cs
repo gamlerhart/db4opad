@@ -40,6 +40,11 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             HashCodeAsserts.AssertEquals(CreateComplexType(), CreateComplexType());
         }
         [Test]
+        public void ArrayEquals()
+        {
+            HashCodeAsserts.AssertEquals(CreateArrayType(), CreateArrayType());
+        }
+        [Test]
         public void NotEqual()
         {
             HashCodeAsserts.AssertNotEquals(CreateSimpleType(), CreateComplexType());
@@ -49,6 +54,10 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         {
             var simple = TypeName.Create("Type.Name", "Assembly.Name");
             return TypeName.Create("Type.Map", "Assembly.Name", new[] { simple, simple });
+        }
+        private TypeName CreateArrayType()
+        {
+            return TypeName.Create("Type.Map", "Assembly.Name", new TypeName[0],1);
         }
 
         private TypeName CreateSimpleType()

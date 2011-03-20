@@ -5,36 +5,34 @@ using Gamlor.Db4oPad.Utils;
 
 namespace Gamlor.Db4oPad.MetaInfo
 {
-    internal class SimpleClassDescription : ITypeDescription
+    internal class SimpleClassDescription : TypeDescriptionBase
     {
+        private int genericCount;
+        private IEnumerable<SimpleFieldDescription> fields;
 
 
         private SimpleClassDescription(string name,
             TypeName fullName, 
-            int genericParams,ITypeDescription baseClass)
+            int genericParams,ITypeDescription baseClass) : base(name,fullName,baseClass)
         {
-            this.Name = name;
-            this.TypeName = fullName;
-            this.GenericParametersCount = genericParams;
-            this.BaseClass = baseClass;
+            this.genericCount = genericParams;
         }
 
-        public string Name { get; private set; }
-        public TypeName TypeName { get; private set; }
+
+        public override IEnumerable<SimpleFieldDescription> Fields { get { return fields; } }
 
 
+        public override int GenericParametersCount { get { return genericCount; } }
 
-        public IEnumerable<SimpleFieldDescription> Fields { get; private set; }
-
-
-        public int GenericParametersCount { get; private set; }
-
-        public Maybe<Type> KnowsType
+        public override Maybe<Type> KnowsType
         {
             get { return Maybe<Type>.Empty; }
         }
 
-        public ITypeDescription BaseClass { get; private set; }
+        public override Maybe<ITypeDescription> ArrayOf
+        {
+            get { return Maybe<ITypeDescription>.Empty; }
+        }
 
         public static SimpleClassDescription Create(TypeName fullName, ITypeDescription baseClass)
         {
@@ -47,18 +45,19 @@ namespace Gamlor.Db4oPad.MetaInfo
         public static SimpleClassDescription Create(TypeName fullName,
             Func<ITypeDescription, IEnumerable<SimpleFieldDescription>> fieldGenerator)
         {
-            var toConstruct = new SimpleClassDescription(ExtractName(fullName), fullName,
-                fullName.GenericArguments.Count(), SystemType.Object);
-            toConstruct.Fields = fieldGenerator(toConstruct).ToArray();
-            return toConstruct;
+            return Create(fullName,SystemType.Object,fieldGenerator);
         }
 
         public static SimpleClassDescription Create(TypeName fullName,ITypeDescription baseClass,
             Func<ITypeDescription, IEnumerable<SimpleFieldDescription>> fieldGenerator)
         {
+            if (fullName.OrderOfArray != 0)
+            {
+                throw new ArgumentException("Cannot be an array-type " + fullName.FullName);
+            }
             var toConstruct = new SimpleClassDescription(ExtractName(fullName), fullName,
                 fullName.GenericArguments.Count(), baseClass);
-            toConstruct.Fields = fieldGenerator(toConstruct).ToArray();
+            toConstruct.fields = fieldGenerator(toConstruct).ToArray();
             return toConstruct;
         }
 

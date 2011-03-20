@@ -8,30 +8,58 @@ namespace Gamlor.Db4oPad.MetaInfo
 {
     class TypeName
     {
+        private string rawName;
         private TypeName(string name,
                          string assemblyName,
+                         int array,
                          IEnumerable<TypeName> genericArguments)
         {
             new { name, assemblyName, genericArguments }.CheckNotNull();
-            Name = name;
+            this.rawName = name;
+            Name = WithArray(name,array);
             AssemblyName = assemblyName;
+            this.OrderOfArray = array;
             GenericArguments = genericArguments;
+        }
+
+        private string WithArray(string name,int array)
+        {
+            return name + ArrayParentesis(array);
         }
 
         public static TypeName Create(string name, string assemblyName)
         {
-            return new TypeName(name, assemblyName, new TypeName[0]);
+            return new TypeName(name, assemblyName,0, new TypeName[0]);
+        }
+
+        public static TypeName CreateArrayOf(TypeName type, int array)
+        {
+            return new TypeName(type.rawName, type.AssemblyName, array, type.GenericArguments);
         }
 
         public static TypeName Create(string name, string assemblyName,
                                       IEnumerable<TypeName> genericArguments)
         {
-            return new TypeName(name, assemblyName, genericArguments.ToList());
+            return new TypeName(name, assemblyName,0, genericArguments.ToList());
+        }
+        public static TypeName Create(string name, string assemblyName,
+                                      IEnumerable<TypeName> genericArguments,int array)
+        {
+            return new TypeName(name, assemblyName, array, genericArguments.ToList());
         }
 
         public string Name { get; private set; }
         public string AssemblyName { get; private set; }
         public IEnumerable<TypeName> GenericArguments { get; private set; }
+        
+        public Maybe<TypeName> ArrayOf { get
+        {
+            if(0==OrderOfArray)
+            {
+                return Maybe<TypeName>.Empty;
+            }
+            return Create(rawName, AssemblyName, GenericArguments, OrderOfArray - 1);
+        } }
 
         public bool IsGeneric
         {
@@ -44,6 +72,7 @@ namespace Gamlor.Db4oPad.MetaInfo
         {
             get { return BuildNameWithGenerics(); }
         }
+        public int OrderOfArray { get; private set; }
 
         public bool Equals(TypeName other)
         {
@@ -51,6 +80,7 @@ namespace Gamlor.Db4oPad.MetaInfo
             if (ReferenceEquals(this, other)) return true;
             return Equals(other.Name, Name)
                 && Equals(other.AssemblyName, AssemblyName)
+                && Equals(other.OrderOfArray, OrderOfArray)
                 && other.GenericArguments.SequenceEqual(GenericArguments);
         }
 
@@ -70,6 +100,15 @@ namespace Gamlor.Db4oPad.MetaInfo
                 result = (result * 397) ^ (AssemblyName != null ? AssemblyName.GetHashCode() : 0);
                 return result;
             }
+        }
+
+        private string ArrayParentesis(int array)
+        {
+            if (array >= 1)
+            {
+                return "[" + ArrayParentesis(array - 1) + "]";
+            }
+            return "";
         }
 
         private string BuildFullName()
