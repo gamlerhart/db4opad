@@ -1,7 +1,5 @@
-using System;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using Db4objects.Db4o;
 using Gamlor.Db4oPad.Tests.TestTypes;
 using NUnit.Framework;
@@ -15,7 +13,6 @@ namespace Gamlor.Db4oPad.Tests
         protected override void FixtureSetup(IObjectContainer db)
         {
             db.Store(new ClassWithoutFields());
-            db.Store(new SystemTypeArrays());
         }
 
         [Test]
@@ -39,7 +36,7 @@ namespace Gamlor.Db4oPad.Tests
         {
             var toTest = NewTestInstance();
             var types = toTest.ListTypes();
-            Assert.AreEqual("ClassWithoutFields", types.Single().Text);
+            Assert.IsTrue(types.Any(t => t.Text == "ClassWithoutFields"));
         }
         [Test]
         public void HasFields()
@@ -62,6 +59,7 @@ namespace Gamlor.Db4oPad.Tests
         [Test]
         public void QueryForTypeWithSystemArray()
         {
+            DB.Store(new SystemTypeArrays());
             var name = TestUtils.NewName();
             name.CodeBase = Path.GetTempFileName();
             var context = DatabaseContext.Create(DB, name);

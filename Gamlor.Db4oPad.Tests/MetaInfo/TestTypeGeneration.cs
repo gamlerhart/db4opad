@@ -32,7 +32,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
                                        Version = new Version(1, 0, 0, 1),
                                        CultureInfo = CultureInfo.InvariantCulture
                                    };
-            var type = CodeGenerator.Create(metaInfo, assemblyName).Single(t=>t.Key!=SystemType.Object);
+            var type = CodeGenerator.Create(metaInfo, assemblyName).Single(t => SingleNotObject(t));
 
             var generatedAssembly = type.Value.Assembly.GetName();
             Assert.AreEqual(assemblyName.Name, generatedAssembly.Name);
@@ -277,7 +277,12 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
 
         private KeyValuePair<ITypeDescription, Type> SingleNotObject(IEnumerable<ITypeDescription> metaInfo)
         {
-            return NewTestInstance(metaInfo).Single(t => t.Key != SystemType.Object);
+            return NewTestInstance(metaInfo).Single(SingleNotObject);
+        }
+
+        private bool SingleNotObject(KeyValuePair<ITypeDescription, Type> t)
+        {
+            return t.Key != SystemType.Object && t.Key != SystemType.Array;
         }
     }
 }

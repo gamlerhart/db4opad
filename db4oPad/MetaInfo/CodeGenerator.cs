@@ -100,7 +100,12 @@ namespace Gamlor.Db4oPad.MetaInfo
         private static Type GetOrCreateType(IDictionary<ITypeDescription, Maybe<Type>> typeBuildMap,
                                             ModuleBuilder modBuilder, ITypeDescription typeInfo)
         {
-            return typeBuildMap[typeInfo]
+            return typeBuildMap.TryGet(typeInfo)
+                .GetValue(()=>
+                              {
+                                  typeBuildMap[typeInfo] = Maybe<Type>.Empty;
+                                  return Maybe<Type>.Empty;
+                              })
                 .GetValue(() => CreateType(typeBuildMap, modBuilder, typeInfo));
         }
 
@@ -147,7 +152,7 @@ namespace Gamlor.Db4oPad.MetaInfo
         private static void CreateFields(TypeBuilder typeBuilder, SimpleFieldDescription field, ModuleBuilder modBuilder,
                                          IDictionary<ITypeDescription, Maybe<Type>> typeBuildMap)
         {
-            var type = GetType(field, typeBuildMap, modBuilder);
+            var type = GetOrCreateType(typeBuildMap, modBuilder,field.Type);
             var generatedField = typeBuilder.DefineField(field.Name,
                                                          type,
                                                          FieldAttributes.Public);
