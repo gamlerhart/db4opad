@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace Gamlor.Db4oPad.Tests.TestTypes
@@ -61,5 +62,14 @@ namespace Gamlor.Db4oPad.Tests.TestTypes
             get { return subClassField; }
             set { subClassField = value; }
         }
+    }
+
+    class SystemTypeArrays
+    {
+        private DayOfWeek[] aField = new[]
+                                       {
+                                           DayOfWeek.Monday,
+                                           DayOfWeek.Sunday,
+                                       };
     }
 }

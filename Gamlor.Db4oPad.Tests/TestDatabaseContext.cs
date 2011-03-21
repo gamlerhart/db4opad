@@ -15,6 +15,7 @@ namespace Gamlor.Db4oPad.Tests
         protected override void FixtureSetup(IObjectContainer db)
         {
             db.Store(new ClassWithoutFields());
+            db.Store(new SystemTypeArrays());
         }
 
         [Test]
@@ -52,11 +53,22 @@ namespace Gamlor.Db4oPad.Tests
         [Test]
         public void HasWrittenAssembly()
         {
-            var name = NewName();
+            var name = TestUtils.NewName();
             name.CodeBase = Path.GetTempFileName();
             var context = DatabaseContext.Create(DB, name);
             Assert.IsTrue(File.Exists(name.CodeBase));
             Assert.IsTrue(new FileInfo(name.CodeBase).Length>0);
+        }
+        [Test]
+        public void QueryForTypeWithSystemArray()
+        {
+            var name = TestUtils.NewName();
+            name.CodeBase = Path.GetTempFileName();
+            var context = DatabaseContext.Create(DB, name);
+            var type = context.MetaInfo
+                .DyanmicTypesRepresentation
+                .First(c => c.Key.Name.Equals(typeof (SystemTypeArrays).Name));
+            Assert.NotNull(type);
         }
         [Test]
         public void DisposesDB()
@@ -77,14 +89,8 @@ namespace Gamlor.Db4oPad.Tests
 
         private DatabaseContext NewTestInstance()
         {
-            var name = NewName();
-            name.CodeBase = Path.GetTempFileName();
+            var name = TestUtils.NewName();
             return DatabaseContext.Create(DB, name);
-        }
-
-        private AssemblyName NewName()
-        {
-            return new AssemblyName("Gamlor.Tests.Dynamic");
         }
     }
 }
