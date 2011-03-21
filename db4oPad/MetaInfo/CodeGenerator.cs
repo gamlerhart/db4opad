@@ -109,6 +109,15 @@ namespace Gamlor.Db4oPad.MetaInfo
         {
             return typeInfo.KnowsType
                 .Convert(t => AddNativeType(typeInfo, t, typeBuildMap))
+                .GetValue(() => ArrayOrNewType(typeInfo, typeBuildMap, modBuilder));
+        }
+
+        private static Type ArrayOrNewType(ITypeDescription typeInfo,
+            IDictionary<ITypeDescription, Maybe<Type>> typeBuildMap,
+            ModuleBuilder modBuilder)
+        {
+            return typeInfo.ArrayOf
+                .Convert(elementType => BuildArrayType(typeBuildMap, elementType,typeInfo,modBuilder))
                 .GetValue(() => AddNoNativeType(typeInfo, typeBuildMap, modBuilder));
         }
 
@@ -216,15 +225,18 @@ namespace Gamlor.Db4oPad.MetaInfo
                                     IDictionary<ITypeDescription, Maybe<Type>> typeBuildMap,
             ModuleBuilder modBuilder)
         {
-            if (field.Type.IsArray)
-            {
-                var arrayType = field.Type.ArrayOf.Value;
-                var type = typeBuildMap[arrayType].GetValue(
-                    () => GetOrCreateType(typeBuildMap, modBuilder, arrayType));
-                return type.MakeArrayType(1);
-            }
             return typeBuildMap[field.Type].GetValue(
                 () => GetOrCreateType(typeBuildMap, modBuilder, field.Type));
+        }
+
+        private static Type BuildArrayType(IDictionary<ITypeDescription, Maybe<Type>> typeBuildMap,
+            ITypeDescription elementDescription, ITypeDescription arrayType, ModuleBuilder modBuilder)
+        {
+            var elementType = typeBuildMap[elementDescription].GetValue(
+                () => GetOrCreateType(typeBuildMap, modBuilder, elementDescription));
+            var type = elementType.MakeArrayType(1);
+            typeBuildMap[arrayType] = type;
+            return type;
         }
 
         private static TypeBuilder CreateType(ModuleBuilder modBuilder,
