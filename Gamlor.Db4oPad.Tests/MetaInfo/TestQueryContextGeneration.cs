@@ -51,7 +51,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
                     {
                         var metaInfo = GenericType();
                         var infos = NewTestInstance(metaInfo);
-                        var property = infos.DataContext.GetProperty("SingleField_1");
+                        var property = infos.DataContext.GetProperty("SingleField_1_String");
                     Assert.NotNull(property);
                 });
         }
