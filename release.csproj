@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Publish" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<Import Project="$(MSBuildExtensionsPath)\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets"/>
+	<PropertyGroup>
+		<ProjectLocation>.\db4oPad</ProjectLocation>
+		<ProjectRelasedDir>.\release</ProjectRelasedDir>
+		<ProjectFile>$(ProjectLocation)/db4oPad.csproj</ProjectFile>
+	</PropertyGroup>
+	
+	<Target Name="Publish" DependsOnTargets="Clean">
+		<MSBuild Projects="$(ProjectFile)" 
+		Properties="Configuration=Release"
+		Targets="Rebuild"/>	
+	      <ItemGroup>
+			<!-- All files from build -->
+			<ZipFiles Include="$(ProjectLocation)\bin\Release\*.dll" />
+			<ZipFiles Include="$(ProjectLocation)\bin\Release\header.xml" />
+			</ItemGroup>
+			
+			<MakeDir Directories="$(ProjectRelasedDir)\" />
+			<Zip Files="@(ZipFiles)"
+				WorkingDirectory="$(ProjectLocation)\bin\Release" 
+				ZipFileName="$(ProjectRelasedDir)\db4oPad.lpx"
+				ZipLevel="9" />
+	</Target>
+	<Target Name="Clean">	
+		<Message Text="Clean project:" />
+		<MSBuild Projects="$(ProjectFile)" Properties="Configuration=Release" Targets="Clean"/>
+	</Target>
+</Project>
