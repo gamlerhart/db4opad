@@ -44,7 +44,7 @@ namespace Gamlor.Db4oPad
         public IEnumerable<ExplorerItem> ListTypes()
         {
             return (from t in metaInfo.Types
-                       where !t.KnowsType.HasValue
+                       where t is SimpleClassDescription
                        select ToExplorerItem(t)).ToList();
         }
 

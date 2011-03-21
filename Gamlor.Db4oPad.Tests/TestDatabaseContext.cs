@@ -57,7 +57,7 @@ namespace Gamlor.Db4oPad.Tests
             Assert.IsTrue(new FileInfo(name.CodeBase).Length>0);
         }
         [Test]
-        public void QueryForTypeWithSystemArray()
+        public void WorksWithArrayTypes()
         {
             DB.Store(new SystemTypeArrays());
             var name = TestUtils.NewName();
@@ -67,6 +67,16 @@ namespace Gamlor.Db4oPad.Tests
                 .DyanmicTypesRepresentation
                 .First(c => c.Key.Name.Equals(typeof (SystemTypeArrays).Name));
             Assert.NotNull(type);
+        }
+        [Test]
+        public void NoEntryForArrays()
+        {
+            DB.Store(new SystemTypeArrays());
+            var name = TestUtils.NewName();
+            name.CodeBase = Path.GetTempFileName();
+            var context = DatabaseContext.Create(DB, name);
+            var type = context.ListTypes();
+            Assert.AreEqual(2,type.Count());
         }
         [Test]
         public void DisposesDB()

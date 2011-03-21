@@ -9,7 +9,8 @@ namespace Gamlor.Db4oPad.Tests.TestTypes
     internal static class TestMetaData
     {
         public const string AssemblyName = "AAssembly";
-        public const string SingleFieldTypeName = "ANamespace.SingleField";
+        public const string SingleFieldClassName = "SingleField";
+        public const string SingleFieldTypeName = "ANamespace." + SingleFieldClassName;
         public const string FieldName = "data";
         public readonly static ITypeDescription StringType = new SystemType(typeof(string));
 

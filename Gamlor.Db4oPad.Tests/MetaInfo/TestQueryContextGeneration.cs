@@ -55,6 +55,19 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
                     Assert.NotNull(property);
                 });
         }
+        [Test]
+        public void NoContextForArrayTypes()
+        {
+            TestUtils.WithTestContext(
+                () =>
+                {
+                    var metaInfo = TestMetaData.CreateClassWithArrayField();
+                    var infos = NewTestInstance(metaInfo);
+                    var properties = infos.DataContext.GetProperties();
+                    Assert.AreEqual(1,properties.Length);
+                });
+        }
+
 
         private Type SingleTypeQueryContext()
         {
