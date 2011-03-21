@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Gamlor.Db4oPad.Utils;
 
 namespace Gamlor.Db4oPad.MetaInfo
@@ -63,16 +64,27 @@ namespace Gamlor.Db4oPad.MetaInfo
 
         private static string ExtractName(TypeName name)
         {
-            return name.Name.Split('.').Last() + GenericCount(name.GenericArguments.Count());
+            var buffer = new StringBuilder(name.Name.Split('.').Last());
+            AppendGenericCount(buffer, name.GenericArguments.Count());
+            AppendGenericList(buffer,name.GenericArguments);
+            return buffer.ToString();
+
         }
 
-        private static string GenericCount(int count)
+        private static void AppendGenericList(StringBuilder buffer, IEnumerable<TypeName> genericArguments)
+        {
+            foreach (var arg in genericArguments)
+            {
+                buffer.Append("_").Append(ExtractName(arg));
+            }
+        }
+
+        private static void AppendGenericCount(StringBuilder buffer, int count)
         {
             if (count != 0)
             {
-                return "_" + count;
+                buffer.Append("_").Append(count);
             }
-            return "";
         }
     }
 
