@@ -39,7 +39,7 @@ namespace Gamlor.Db4oPad.MetaInfo
                 return systemType;
             }
             return name.ArrayOf.Convert(
-                n => CreateArrayType(name, n, knownTypes))
+                n => CreateArrayType(name, classInfo, knownTypes))
                 .GetValue(() =>
                     CreateType(name, classInfo, knownTypes));
         }
@@ -59,10 +59,11 @@ namespace Gamlor.Db4oPad.MetaInfo
                         });
         }
 
-        private static ITypeDescription CreateArrayType(TypeName fullName, TypeName innerTypeName,
+        private static ITypeDescription CreateArrayType(TypeName fullName,
+            IReflectClass classInfo,
                                                         IDictionary<string, ITypeDescription> knownTypes)
         {
-            var innerType = knownTypes[innerTypeName.FullName];
+            var innerType = GetOrCreateType(classInfo.GetComponentType(),knownTypes);
             var type = ArrayDescription.Create(innerType, fullName.OrderOfArray);
             knownTypes[fullName.FullName] = type;
             return type;

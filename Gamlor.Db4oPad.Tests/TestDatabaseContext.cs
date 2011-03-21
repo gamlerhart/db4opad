@@ -1,7 +1,5 @@
-using System;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using Db4objects.Db4o;
 using Gamlor.Db4oPad.Tests.TestTypes;
 using NUnit.Framework;
@@ -38,7 +36,7 @@ namespace Gamlor.Db4oPad.Tests
         {
             var toTest = NewTestInstance();
             var types = toTest.ListTypes();
-            Assert.AreEqual("ClassWithoutFields", types.Single().Text);
+            Assert.IsTrue(types.Any(t => t.Text == "ClassWithoutFields"));
         }
         [Test]
         public void HasFields()
@@ -52,11 +50,23 @@ namespace Gamlor.Db4oPad.Tests
         [Test]
         public void HasWrittenAssembly()
         {
-            var name = NewName();
+            var name = TestUtils.NewName();
             name.CodeBase = Path.GetTempFileName();
             var context = DatabaseContext.Create(DB, name);
             Assert.IsTrue(File.Exists(name.CodeBase));
             Assert.IsTrue(new FileInfo(name.CodeBase).Length>0);
+        }
+        [Test]
+        public void QueryForTypeWithSystemArray()
+        {
+            DB.Store(new SystemTypeArrays());
+            var name = TestUtils.NewName();
+            name.CodeBase = Path.GetTempFileName();
+            var context = DatabaseContext.Create(DB, name);
+            var type = context.MetaInfo
+                .DyanmicTypesRepresentation
+                .First(c => c.Key.Name.Equals(typeof (SystemTypeArrays).Name));
+            Assert.NotNull(type);
         }
         [Test]
         public void DisposesDB()
@@ -77,14 +87,8 @@ namespace Gamlor.Db4oPad.Tests
 
         private DatabaseContext NewTestInstance()
         {
-            var name = NewName();
-            name.CodeBase = Path.GetTempFileName();
+            var name = TestUtils.NewName();
             return DatabaseContext.Create(DB, name);
-        }
-
-        private AssemblyName NewName()
-        {
-            return new AssemblyName("Gamlor.Tests.Dynamic");
         }
     }
 }
