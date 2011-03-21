@@ -11,7 +11,26 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         public void GenericName()
         {
             var theType = CreateGenericType();
-            Assert.AreEqual("TheType_1",theType.Name);
+            Assert.AreEqual("TheType_1_Int32",theType.Name);
+        }
+        [Test]
+        public void GenericNameWithTwoParams()
+        {
+            var complex = CreateGenericType(
+                TypeName.Create("System.Int32", "mscorelib"),TypeName.Create("System.Int64", "mscorelib"));
+
+            Assert.AreEqual("TheType_2_Int32_Int64",
+                complex.Name);
+        }
+        [Test]
+        public void CascadedGenericsName()
+        {
+            var theType = CreateGenericType();
+            var complex = CreateGenericType(
+                TypeName.Create("System.Int32", "mscorelib"), theType.TypeName);
+
+            Assert.AreEqual("TheType_2_Int32_TheType_1_Int32",
+                complex.Name);
         }
 
         [Test]
@@ -59,7 +78,12 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         private SimpleClassDescription CreateGenericType()
         {
             TypeName genericArg = TypeName.Create("System.Int32", "mscorelib");
-            TypeName theName = TypeName.Create("TheType", "TheAssembly", new[] { genericArg });
+            return CreateGenericType(genericArg);
+        }
+
+        private SimpleClassDescription CreateGenericType(params TypeName[] genericArg)
+        {
+            TypeName theName = TypeName.Create("TheType", "TheAssembly", genericArg);
             return SimpleClassDescription.Create(theName, f => new SimpleFieldDescription[0]);
         }
 
