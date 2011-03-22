@@ -21,8 +21,7 @@ namespace Gamlor.Db4oPad.MetaInfo
         {
             var assemblyBuilder = CreateAssembly(intoAssembly);
             var builder = CreateModule(assemblyBuilder);
-            var dictionary = metaInfo.Union(new[]{SystemType.Object,SystemType.Array}).ToDictionary(mi => mi, mi => Maybe<Type>.Empty);
-            var types = CreateTypes(builder, dictionary);
+            var types = CreateTypes(builder, metaInfo);
             var contextType = CreateContextType(builder, types);
             assemblyBuilder.Save(Path.GetFileName(intoAssembly.CodeBase));
             return new Result(contextType, types);
@@ -54,11 +53,8 @@ namespace Gamlor.Db4oPad.MetaInfo
                                                           PropertyAttributes.HasDefault, 
                                                           querableType, null);
                 property.SetGetMethod(CreateQueryGetter(type.Value,querableType, type.Key.Name, typeBuilder));
-               
             }
-
             return typeBuilder.CreateType();
-
         }
 
         private static MethodBuilder CreateQueryGetter(Type type, Type queryableType,
@@ -83,13 +79,18 @@ namespace Gamlor.Db4oPad.MetaInfo
         }
 
         private static IDictionary<ITypeDescription, Type> CreateTypes(ModuleBuilder modBuilder,
-            IDictionary<ITypeDescription, Maybe<Type>> typeBuildMap)
+            IEnumerable<ITypeDescription> typesToBuild)
         {
-            foreach (var typeInfo in typeBuildMap.Keys.ToArray())
+            var typeBuildMap = new Dictionary<ITypeDescription, Type>
+                                 {
+                                     {SystemType.Object,typeof(object)},
+                                     {SystemType.Array,typeof(Array)},
+                                 };
+            foreach (var typeInfo in typesToBuild)
             {
                 GetOrCreateType(typeBuildMap, modBuilder, typeInfo);
             }
-            return typeBuildMap.ToDictionary(c => c.Key, c => BuildType(c.Value.Value));
+            return typeBuildMap.ToDictionary(c => c.Key, c => BuildType(c.Value));
         }
 
         private static Type BuildType(Type value)
@@ -97,19 +98,14 @@ namespace Gamlor.Db4oPad.MetaInfo
             return value.MaybeCast<TypeBuilder>().Convert(tb => tb.CreateType()).GetValue(value);
         }
 
-        private static Type GetOrCreateType(IDictionary<ITypeDescription, Maybe<Type>> typeBuildMap,
+        private static Type GetOrCreateType(IDictionary<ITypeDescription, Type> typeBuildMap,
                                             ModuleBuilder modBuilder, ITypeDescription typeInfo)
         {
             return typeBuildMap.TryGet(typeInfo)
-                .GetValue(()=>
-                              {
-                                  typeBuildMap[typeInfo] = Maybe<Type>.Empty;
-                                  return Maybe<Type>.Empty;
-                              })
                 .GetValue(() => CreateType(typeBuildMap, modBuilder, typeInfo));
         }
 
-        private static Type CreateType(IDictionary<ITypeDescription, Maybe<Type>> typeBuildMap,
+        private static Type CreateType(IDictionary<ITypeDescription, Type> typeBuildMap,
                                        ModuleBuilder modBuilder, ITypeDescription typeInfo)
         {
             return typeInfo.KnowsType
@@ -118,7 +114,7 @@ namespace Gamlor.Db4oPad.MetaInfo
         }
 
         private static Type ArrayOrNewType(ITypeDescription typeInfo,
-            IDictionary<ITypeDescription, Maybe<Type>> typeBuildMap,
+            IDictionary<ITypeDescription, Type> typeBuildMap,
             ModuleBuilder modBuilder)
         {
             return typeInfo.ArrayOf
@@ -127,7 +123,7 @@ namespace Gamlor.Db4oPad.MetaInfo
         }
 
         private static Type AddNoNativeType(ITypeDescription typeInfo,
-                                            IDictionary<ITypeDescription, Maybe<Type>> typeBuildMap,
+                                            IDictionary<ITypeDescription, Type> typeBuildMap,
                                             ModuleBuilder modBuilder)
         {
             var baseType = GetOrCreateType(typeBuildMap, modBuilder, typeInfo.BaseClass);
@@ -143,14 +139,15 @@ namespace Gamlor.Db4oPad.MetaInfo
         }
 
         private static Type AddNativeType(ITypeDescription typeInfo, Type type,
-                                          IDictionary<ITypeDescription, Maybe<Type>> typeBuildMap)
+                                          IDictionary<ITypeDescription, Type> typeBuildMap)
         {
             typeBuildMap[typeInfo] = type;
             return type;
         }
 
-        private static void CreateFields(TypeBuilder typeBuilder, SimpleFieldDescription field, ModuleBuilder modBuilder,
-                                         IDictionary<ITypeDescription, Maybe<Type>> typeBuildMap)
+        private static void CreateFields(TypeBuilder typeBuilder, SimpleFieldDescription field,
+            ModuleBuilder modBuilder,
+            IDictionary<ITypeDescription, Type> typeBuildMap)
         {
             var type = GetOrCreateType(typeBuildMap, modBuilder,field.Type);
             var generatedField = typeBuilder.DefineField(field.Name,
@@ -226,19 +223,11 @@ namespace Gamlor.Db4oPad.MetaInfo
             return setterMethod;
         }
 
-        private static Type GetType(SimpleFieldDescription field,
-                                    IDictionary<ITypeDescription, Maybe<Type>> typeBuildMap,
-            ModuleBuilder modBuilder)
-        {
-            return typeBuildMap[field.Type].GetValue(
-                () => GetOrCreateType(typeBuildMap, modBuilder, field.Type));
-        }
-
-        private static Type BuildArrayType(IDictionary<ITypeDescription, Maybe<Type>> typeBuildMap,
+        private static Type BuildArrayType(IDictionary<ITypeDescription, Type> typeBuildMap,
             ITypeDescription elementDescription, ITypeDescription arrayType, ModuleBuilder modBuilder)
         {
-            var elementType = typeBuildMap[elementDescription].GetValue(
-                () => GetOrCreateType(typeBuildMap, modBuilder, elementDescription));
+            var elementType = typeBuildMap.TryGet(elementDescription)
+                .GetValue(() => GetOrCreateType(typeBuildMap, modBuilder, elementDescription));
             var type = elementType.MakeArrayType(1);
             typeBuildMap[arrayType] = type;
             return type;
@@ -264,10 +253,9 @@ namespace Gamlor.Db4oPad.MetaInfo
 
         private static AssemblyBuilder CreateAssembly(AssemblyName theName)
         {
-            var assembly = AppDomain.CurrentDomain
+            return AppDomain.CurrentDomain
                 .DefineDynamicAssembly(theName, AssemblyBuilderAccess.RunAndSave,
                                        Path.GetDirectoryName(theName.CodeBase));
-            return assembly;
         }
 
         public class Result : IEnumerable<KeyValuePair<ITypeDescription, Type>>
@@ -290,11 +278,6 @@ namespace Gamlor.Db4oPad.MetaInfo
             IEnumerator IEnumerable.GetEnumerator()
             {
                 return GetEnumerator();
-            }
-
-            public Type this[ITypeDescription key]
-            {
-                get { return types[key]; }
             }
 
             public IDictionary<ITypeDescription, Type> Types
