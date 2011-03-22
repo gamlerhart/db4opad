@@ -6,6 +6,12 @@ namespace Gamlor.Db4oPad.Utils
 {
     public static class MayExtensions
     {
+        /// <summary>
+        /// View a reference type as maybe-monad. If it is null we get an empty instance
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="refObject"></param>
+        /// <returns></returns>
         public static Maybe<T> AsMaybe<T>(this T refObject) where T : class
         {
             return null == refObject ? Maybe<T>.Empty : Maybe.From(refObject);

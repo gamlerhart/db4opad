@@ -88,6 +88,7 @@
     <Compile Include="TestDatabaseConfigurator.cs" />
     <Compile Include="TestDatabaseContext.cs" />
     <Compile Include="TestDb4oAssumptions.cs" />
+    <Compile Include="TestMemberProviders.cs" />
     <Compile Include="TestTypes\Color.cs" />
     <Compile Include="TestTypes\ColorHolder.cs" />
     <Compile Include="TestTypes\Person.cs" />

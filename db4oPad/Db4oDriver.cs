@@ -7,6 +7,7 @@ using Db4objects.Db4o;
 using Db4objects.Db4o.Config;
 using Gamlor.Db4oPad.GUI;
 using Gamlor.Db4oPad.MetaInfo;
+using LINQPad;
 using LINQPad.Extensibility.DataContext;
 
 namespace Gamlor.Db4oPad
@@ -66,6 +67,17 @@ namespace Gamlor.Db4oPad
             CurrentContext.NewContext(ctx);
         }
 
+        public override ICustomMemberProvider GetCustomDisplayMemberProvider(object objectToWrite)
+        {
+            return MemberProvider.Create(objectToWrite)
+                .GetValue(()=>GetDefaultVisualisation(objectToWrite));
+        }
+
+        private ICustomMemberProvider GetDefaultVisualisation(object objectToWrite)
+        {
+            return base.GetCustomDisplayMemberProvider(objectToWrite);
+        }
+
         private DatabaseConfigurator Configurator(IConnectionInfo cxInfo, Assembly assembly)
         {
             using (var tmpDb = OpenDB(cxInfo))
@@ -113,7 +125,5 @@ namespace Gamlor.Db4oPad
 
 
     }
-
-
 }
 

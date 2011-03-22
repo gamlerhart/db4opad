@@ -65,6 +65,7 @@
   <ItemGroup>
     <Compile Include="CurrentContext.cs" />
     <Compile Include="DatabaseConfigurator.cs" />
+    <Compile Include="MemberProvider.cs" />
     <Compile Include="MetaInfo\ArrayDescription.cs" />
     <Compile Include="MetaInfo\DynamicGeneratedTypesReflector.cs" />
     <Compile Include="MetaInfo\CodeGenerator.cs" />
