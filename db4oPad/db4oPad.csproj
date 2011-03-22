@@ -67,6 +67,7 @@
     <Compile Include="DatabaseConfigurator.cs" />
     <Compile Include="MemberProvider.cs" />
     <Compile Include="MetaInfo\ArrayDescription.cs" />
+    <Compile Include="MetaInfo\CodeGenerationResult.cs" />
     <Compile Include="MetaInfo\DynamicGeneratedTypesReflector.cs" />
     <Compile Include="MetaInfo\CodeGenerator.cs" />
     <Compile Include="MetaInfo\DatabaseMetaInfo.cs" />
