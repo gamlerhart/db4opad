@@ -18,7 +18,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
                        };
         }
 
-        internal CodeGenerator.Result NewTestInstance(IEnumerable<ITypeDescription> metaInfo)
+        internal CodeGenerationResult NewTestInstance(IEnumerable<ITypeDescription> metaInfo)
         {
             return CodeGenerator.Create(metaInfo, NewName());
         }

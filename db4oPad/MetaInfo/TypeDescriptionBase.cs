@@ -16,7 +16,10 @@ namespace Gamlor.Db4oPad.MetaInfo
         public string Name { get; private set; }
         public TypeName TypeName { get; private set; }
 
-        public abstract Maybe<Type> KnowsType { get; }
+        public virtual Maybe<Type> KnowsType
+        {
+            get { return Maybe<Type>.Empty; }
+        }
 
         public abstract IEnumerable<SimpleFieldDescription> Fields { get; }
 

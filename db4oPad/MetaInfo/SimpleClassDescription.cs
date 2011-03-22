@@ -25,10 +25,6 @@ namespace Gamlor.Db4oPad.MetaInfo
 
         public override int GenericParametersCount { get { return genericCount; } }
 
-        public override Maybe<Type> KnowsType
-        {
-            get { return Maybe<Type>.Empty; }
-        }
 
         public override Maybe<ITypeDescription> ArrayOf
         {

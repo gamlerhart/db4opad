@@ -21,11 +21,6 @@ namespace Gamlor.Db4oPad.MetaInfo
             return new ArrayDescription(name.Name, name, innerType);
         }
 
-        public override Maybe<Type> KnowsType
-        {
-            get { return Maybe<Type>.Empty; }
-        }
-
         public override IEnumerable<SimpleFieldDescription> Fields
         {
             get { return new SimpleFieldDescription[0]; }
