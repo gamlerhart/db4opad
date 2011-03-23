@@ -23,8 +23,6 @@ namespace Gamlor.Db4oPad.MetaInfo
 
         public abstract IEnumerable<SimpleFieldDescription> Fields { get; }
 
-        public abstract int GenericParametersCount { get; }
-
         public ITypeDescription BaseClass { get; private set; }
 
         public bool IsArray
@@ -33,6 +31,18 @@ namespace Gamlor.Db4oPad.MetaInfo
         }
 
         public abstract Maybe<ITypeDescription> ArrayOf { get; }
+
+        public bool IsBusinessEntity
+        {
+            get {
+                return IsBusinessType(this);
+            }
+        }
+
+        public override string ToString()
+        {
+            return Name;
+        }
 
         public bool Equals(TypeDescriptionBase other)
         {
@@ -52,6 +62,14 @@ namespace Gamlor.Db4oPad.MetaInfo
         public override int GetHashCode()
         {
             return (TypeName != null ? TypeName.GetHashCode() : 0);
+        }
+
+        internal static bool IsBusinessType(ITypeDescription description)
+        {
+            var name = description.TypeName.FullName;
+            return !description.IsArray &&
+                   !name.StartsWith("System.")
+                   && !name.StartsWith("Db4objects.");
         }
     }
 }

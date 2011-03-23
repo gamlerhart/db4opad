@@ -45,7 +45,7 @@ namespace Gamlor.Db4oPad.MetaInfo
         {
             var typeBuilder = builder.DefineType(QueryContextClassName,
                                          TypeAttributes.Class | TypeAttributes.Public);
-            foreach (var type in types.Where(t=>t.Key is SimpleClassDescription))
+            foreach (var type in types.Where(t=>t.Key.IsBusinessEntity))
             {
                 var querableType = typeof (IQueryable<>).MakeGenericType(type.Value);
                 var property = typeBuilder.DefineProperty(type.Key.Name,

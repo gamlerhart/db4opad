@@ -26,11 +26,6 @@ namespace Gamlor.Db4oPad.MetaInfo
             get { return new SimpleFieldDescription[0]; }
         }
 
-        public override int GenericParametersCount
-        {
-            get { return 0; }
-        }
-
         public override Maybe<ITypeDescription> ArrayOf
         {
             get { return Maybe.From(innerType); }

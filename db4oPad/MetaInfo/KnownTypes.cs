@@ -33,11 +33,6 @@ namespace Gamlor.Db4oPad.MetaInfo
             get { return new SimpleFieldDescription[0]; }
         }
 
-        public int GenericParametersCount
-        {
-            get { return typeInfo.GetGenericArguments().Length; }
-        }
-
         public Maybe<Type> KnowsType
         {
             get { return typeInfo; }
@@ -56,6 +51,11 @@ namespace Gamlor.Db4oPad.MetaInfo
         public Maybe<ITypeDescription> ArrayOf
         {
             get { return Maybe<ITypeDescription>.Empty; }
+        }
+
+        public bool IsBusinessEntity
+        {
+            get { return TypeDescriptionBase.IsBusinessType(this); }
         }
 
         private static TypeName CreateTypeName(Type type)

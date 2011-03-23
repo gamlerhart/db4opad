@@ -40,7 +40,7 @@ namespace Gamlor.Db4oPad.Tests
         /// For some tests we need to simulate the case where we don't have the required assemblies.
         /// </summary>
         /// <returns></returns>
-        internal static Func<TypeName, Maybe<Type>> TestTypeResolver()
+        internal static TypeResolver TestTypeResolver()
         {
             var defaultResolver = MetaDataReader.DefaultTypeResolver();
             return n => n.FullName.StartsWith("Gamlor.Db4oPad.Tests")

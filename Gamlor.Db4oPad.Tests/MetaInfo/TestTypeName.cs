@@ -49,6 +49,13 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         {
             HashCodeAsserts.AssertNotEquals(CreateSimpleType(), CreateComplexType());
         }
+        [Test]
+        public void HasToString()
+        {
+            var name = CreateSimpleType();
+
+            Assert.AreEqual("Type.Name",name.ToString());
+        }
 
         private TypeName CreateComplexType()
         {

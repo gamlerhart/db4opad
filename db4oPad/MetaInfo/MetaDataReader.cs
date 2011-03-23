@@ -8,18 +8,19 @@ using Gamlor.Db4oPad.Utils;
 
 namespace Gamlor.Db4oPad.MetaInfo
 {
+    internal delegate Maybe<Type> TypeResolver(TypeName toFind);
     internal class MetaDataReader
     {
-        private readonly Func<TypeName, Maybe<Type>> typeResolver;
+        private readonly TypeResolver typeResolver;
 
-        internal static Func<TypeName, Maybe<Type>> DefaultTypeResolver()
+        internal static TypeResolver DefaultTypeResolver()
         {
             var resolver = new NetReflector();
             return n => resolver.ForName(n.FullName)
                 .AsMaybe().Combine(c => c.MaybeCast<NetClass>()).Convert(rc => rc.GetNetType());
         }
 
-        private MetaDataReader(Func<TypeName, Maybe<Type>> typeResolver)
+        private MetaDataReader(TypeResolver typeResolver)
         {
             this.typeResolver = typeResolver;
         }
@@ -29,7 +30,7 @@ namespace Gamlor.Db4oPad.MetaInfo
         }
 
         public static IEnumerable<ITypeDescription> Read(IObjectContainer database,
-            Func<TypeName, Maybe<Type>> typeResolver)
+            TypeResolver typeResolver)
         {
             new { database, typeResolver }.CheckNotNull();
             

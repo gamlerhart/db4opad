@@ -27,13 +27,13 @@ namespace Gamlor.Db4oPad
         {
             return new DatabaseContext(db,DatabaseMetaInfo.Create(db, theAssembly));
         }
-        public static DatabaseContext Create(IObjectContainer db, Assembly theAssembly)
+        public static DatabaseContext Create(IObjectContainer db, AssemblyName theAssembly, TypeResolver resolver)
         {
-            return new DatabaseContext(db, DatabaseMetaInfo.Create(db, theAssembly));
+            return new DatabaseContext(db, DatabaseMetaInfo.Create(db,resolver, theAssembly));
         }
         public static DatabaseContext Create(IObjectContainer db, DatabaseMetaInfo metaInfo)
         {
-            return new DatabaseContext(db, metaInfo);
+            return new DatabaseContext(db,metaInfo);
         }
 
         public void Dispose()
@@ -44,7 +44,7 @@ namespace Gamlor.Db4oPad
         public IEnumerable<ExplorerItem> ListTypes()
         {
             return (from t in metaInfo.Types
-                       where t is SimpleClassDescription
+                       where t.IsBusinessEntity
                        select ToExplorerItem(t)).ToList();
         }
 

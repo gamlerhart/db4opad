@@ -20,16 +20,14 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         protected override void FixtureSetup(IObjectContainer db)
         {
             db.Store(new Person("Roman", "Stoffel", 24));
-            this.toTest = DatabaseMetaInfo.Create(db,new AssemblyName("Gamlor.Dynamic")
-                                                                              {
-                                                                                  CodeBase = Path.GetTempFileName()
-                                                                              });
+            this.toTest = DatabaseMetaInfo.Create(db,TestUtils.TestTypeResolver(),
+                TestUtils.NewName());
         }
 
         [Test]
         public void ListsMetaInfo()
         {
-            var classes = toTest.Types;
+            var classes = toTest.EntityTypes;
             Assert.AreEqual(1, classes.Count());
         }
 
@@ -40,28 +38,21 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             Assert.NotNull(dataContext);
             Assert.NotNull(CodeGenerator.QueryContextClassName, dataContext.Name);
         }
-        [Test]
-        public void PrintsItself()
-        {
-            var printLabel = toTest.ToString();
-            var expectedText = "Meta-Info";
-            Assert.AreEqual(expectedText, printLabel);
-        }
 
         [Test]
         public void NamesClasses()
         {
-            var classes = toTest.Types;
+            var classes = toTest.EntityTypes;
             Assert.AreEqual(className, classes.Single().ToString());
             Assert.AreEqual(className, classes.Single().Name);
-            Assert.AreEqual(classNameSpace, classes.Single().TypeName);
+            Assert.AreEqual(classNameSpace, classes.Single().TypeName.ToString());
         }
 
         [Test]
         public void CanReuseAssembly()
         {
-            var theClass = this.toTest.DataContext;
-            var result = DatabaseMetaInfo.Create(DB, theClass.Assembly);
+            var theClass = QueryForPersonClass(toTest);
+            var result = DatabaseMetaInfo.Create(DB,TestUtils.TestTypeResolver(), theClass.Assembly);
             var theClassAsSencondTime = QueryForPersonClass(result);
             Assert.AreEqual(theClass.Assembly,theClassAsSencondTime.Assembly);
             Assert.AreEqual(theClass,theClassAsSencondTime);

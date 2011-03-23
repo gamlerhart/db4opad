@@ -102,6 +102,11 @@ namespace Gamlor.Db4oPad.MetaInfo
             }
         }
 
+        public override string ToString()
+        {
+            return rawName;
+        }
+
         private string ArrayParentesis(int array)
         {
             if (array >= 1)

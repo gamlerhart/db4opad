@@ -63,7 +63,7 @@ namespace Gamlor.Db4oPad
             var assembly = LoadAssembly(cxInfo);
             var configurator = Configurator(cxInfo, assembly);
 
-            var ctx = DatabaseContext.Create(OpenDB(cxInfo, configurator.Configure), assembly);
+            var ctx = DatabaseContext.Create(OpenDB(cxInfo, configurator.Item1.Configure),configurator.Item2);
             CurrentContext.NewContext(ctx);
         }
 
@@ -78,12 +78,12 @@ namespace Gamlor.Db4oPad
             return base.GetCustomDisplayMemberProvider(objectToWrite);
         }
 
-        private DatabaseConfigurator Configurator(IConnectionInfo cxInfo, Assembly assembly)
+        private Tuple<DatabaseConfigurator,DatabaseMetaInfo> Configurator(IConnectionInfo cxInfo, Assembly assembly)
         {
             using (var tmpDb = OpenDB(cxInfo))
             {
                 var meta = DatabaseMetaInfo.Create(tmpDb, assembly);
-                return DatabaseConfigurator.Create(meta);
+                return Tuple.Create(DatabaseConfigurator.Create(meta),meta);
             }
         }
 

@@ -74,7 +74,7 @@ namespace Gamlor.Db4oPad.Tests
             DB.Store(new SystemTypeArrays());
             var name = TestUtils.NewName();
             name.CodeBase = Path.GetTempFileName();
-            var context = DatabaseContext.Create(DB, name);
+            var context = DatabaseContext.Create(DB, name,TestUtils.TestTypeResolver());
             var type = context.ListTypes();
             Assert.AreEqual(2,type.Count());
         }
@@ -98,7 +98,7 @@ namespace Gamlor.Db4oPad.Tests
         private DatabaseContext NewTestInstance()
         {
             var name = TestUtils.NewName();
-            return DatabaseContext.Create(DB, name);
+            return DatabaseContext.Create(DB, name,TestUtils.TestTypeResolver());
         }
     }
 }
