@@ -10,9 +10,17 @@ namespace Gamlor.Db4oPad.MetaInfo
 {
     internal class MetaDataReader
     {
+        private readonly Func<TypeName, Maybe<Type>> typeResolver;
+
+        public MetaDataReader(Func<TypeName, Maybe<Type>> typeResolver)
+        {
+            this.typeResolver = typeResolver;
+        }
+
         public static IEnumerable<ITypeDescription> Read(IObjectContainer database)
         {
-            new {database}.CheckNotNull();
+            new { database }.CheckNotNull();
+
 
             var allKnownClasses = database.Ext().KnownClasses().Distinct().ToArray();
             return CreateTypes(allKnownClasses);
