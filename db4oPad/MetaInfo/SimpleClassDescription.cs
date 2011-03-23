@@ -37,12 +37,12 @@ namespace Gamlor.Db4oPad.MetaInfo
         }
         public static SimpleClassDescription Create(TypeName fullName)
         {
-            return Create(fullName, SystemType.Object, t => new SimpleFieldDescription[0]);
+            return Create(fullName, KnownTypes.Object, t => new SimpleFieldDescription[0]);
         }
         public static SimpleClassDescription Create(TypeName fullName,
             Func<ITypeDescription, IEnumerable<SimpleFieldDescription>> fieldGenerator)
         {
-            return Create(fullName,SystemType.Object,fieldGenerator);
+            return Create(fullName,KnownTypes.Object,fieldGenerator);
         }
 
         public static SimpleClassDescription Create(TypeName fullName,ITypeDescription baseClass,

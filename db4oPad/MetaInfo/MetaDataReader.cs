@@ -42,7 +42,7 @@ namespace Gamlor.Db4oPad.MetaInfo
             var name = TypeNameParser.ParseString(classInfo.GetName());
             if (IsSystemType(name))
             {
-                var systemType = new SystemType(ResolveType(name));
+                var systemType = new KnownTypes(ResolveType(name));
                 knownTypes[name.FullName] = systemType;
                 return systemType;
             }

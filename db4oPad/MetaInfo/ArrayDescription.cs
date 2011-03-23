@@ -10,7 +10,7 @@ namespace Gamlor.Db4oPad.MetaInfo
 
         public ArrayDescription(string name,
             TypeName typeName, ITypeDescription innerType)
-            : base(name, typeName, SystemType.Array)
+            : base(name, typeName, KnownTypes.Array)
         {
             this.innerType = innerType;
         }

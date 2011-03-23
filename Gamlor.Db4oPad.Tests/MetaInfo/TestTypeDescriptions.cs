@@ -69,8 +69,8 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         [Test]
         public void SystemTypeEquals()
         {
-            var t1 = new SystemType(typeof(string));
-            var t2 = new SystemType(typeof(string));
+            var t1 = new KnownTypes(typeof(string));
+            var t2 = new KnownTypes(typeof(string));
 
             Assert.AreEqual(t1, t2);
         }
@@ -97,7 +97,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         [Test]
         public void ObjectIsRecursive()
         {
-            var type = SystemType.Object;
+            var type = KnownTypes.Object;
             Assert.AreEqual(type,type.BaseClass);
         }
     }

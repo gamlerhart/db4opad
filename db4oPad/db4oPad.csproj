@@ -81,7 +81,7 @@
     <Compile Include="MetaInfo\MetaDataReader.cs" />
     <Compile Include="MetaInfo\MetaInfoProvider.cs" />
     <Compile Include="MetaInfo\SimpleClassDescription.cs" />
-    <Compile Include="MetaInfo\SystemType.cs" />
+    <Compile Include="MetaInfo\KnownTypes.cs" />
     <Compile Include="MetaInfo\TypeDescriptionBase.cs" />
     <Compile Include="MetaInfo\TypeName.cs" />
     <Compile Include="MetaInfo\TypeNameParser.cs" />

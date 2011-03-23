@@ -12,7 +12,7 @@ namespace Gamlor.Db4oPad.Tests.TestTypes
         public const string SingleFieldClassName = "SingleField";
         public const string SingleFieldTypeName = "ANamespace." + SingleFieldClassName;
         public const string FieldName = "data";
-        public readonly static ITypeDescription StringType = new SystemType(typeof(string));
+        public readonly static ITypeDescription StringType = new KnownTypes(typeof(string));
 
 
         internal static IEnumerable<ITypeDescription> CreateEmptyClassMetaInfo()

@@ -5,14 +5,14 @@ using Gamlor.Db4oPad.Utils;
 
 namespace Gamlor.Db4oPad.MetaInfo
 {
-    class SystemType : ITypeDescription
+    class KnownTypes : ITypeDescription
     {
         private readonly Type typeInfo;
 
-        public readonly static ITypeDescription Object = new SystemType(typeof (object));
-        public readonly static ITypeDescription Array = new SystemType(typeof(Array));
+        public readonly static ITypeDescription Object = new KnownTypes(typeof (object));
+        public readonly static ITypeDescription Array = new KnownTypes(typeof(Array));
 
-        public SystemType(Type typeInfo)
+        public KnownTypes(Type typeInfo)
         {
             new { typeInfo }.CheckNotNull();
             this.typeInfo = typeInfo;
@@ -50,7 +50,7 @@ namespace Gamlor.Db4oPad.MetaInfo
 
         public ITypeDescription BaseClass
         {
-            get { return typeInfo==typeof(object) ?this:new SystemType(typeInfo.BaseType); }
+            get { return typeInfo==typeof(object) ?this:new KnownTypes(typeInfo.BaseType); }
         }
 
         public bool IsArray
@@ -73,7 +73,7 @@ namespace Gamlor.Db4oPad.MetaInfo
             return type.GetGenericArguments().Select(CreateTypeName);
         }
 
-        public bool Equals(SystemType other)
+        public bool Equals(KnownTypes other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
@@ -84,8 +84,8 @@ namespace Gamlor.Db4oPad.MetaInfo
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != typeof (SystemType)) return false;
-            return Equals((SystemType) obj);
+            if (obj.GetType() != typeof (KnownTypes)) return false;
+            return Equals((KnownTypes) obj);
         }
 
         public override int GetHashCode()
@@ -93,12 +93,12 @@ namespace Gamlor.Db4oPad.MetaInfo
             return (typeInfo != null ? typeInfo.GetHashCode() : 0);
         }
 
-        public static bool operator ==(SystemType left, SystemType right)
+        public static bool operator ==(KnownTypes left, KnownTypes right)
         {
             return Equals(left, right);
         }
 
-        public static bool operator !=(SystemType left, SystemType right)
+        public static bool operator !=(KnownTypes left, KnownTypes right)
         {
             return !Equals(left, right);
         }
