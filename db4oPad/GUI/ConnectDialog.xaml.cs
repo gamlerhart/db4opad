@@ -20,12 +20,12 @@ namespace Gamlor.Db4oPad.GUI
     /// </summary>
     public partial class ConnectDialog : Window
     {
-        private IConnectionInfo contextInfo;
+        private ConnectionViewModel model;
 
-        public ConnectDialog(IConnectionInfo cxInfo)
+        public ConnectDialog(ConnectionViewModel model)
         {
-            DataContext = cxInfo.CustomTypeInfo;
-            this.contextInfo = cxInfo;
+            DataContext = model;
+            this.model = model;
             InitializeComponent();
         }
 
@@ -41,7 +41,7 @@ namespace Gamlor.Db4oPad.GUI
 
             if (result == true)
             {
-                contextInfo.CustomTypeInfo.CustomMetadataPath = dialog.FileName;
+                model.DatabasePath = dialog.FileName;
             }
         }
 
