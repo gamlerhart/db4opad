@@ -81,7 +81,6 @@
     <Compile Include="MetaInfo\TestMetaInfoProvider.cs" />
     <Compile Include="MetaInfo\TestTypeName.cs" />
     <Compile Include="MetaInfo\TestTypeNameParser.cs" />
-    <Compile Include="MetaInfo\TestUtils.cs" />
     <Compile Include="MetaInfo\TypeGenerationBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestCurrentContext.cs" />

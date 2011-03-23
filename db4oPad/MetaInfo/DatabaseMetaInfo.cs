@@ -24,17 +24,13 @@ namespace Gamlor.Db4oPad.MetaInfo
             var dynamicRepresentaton = CodeGenerator.Create(types, intoAssembly);
             return new DatabaseMetaInfo(types, dynamicRepresentaton.Types,dynamicRepresentaton.DataContext);
         }
-        public static DatabaseMetaInfo Create(IEnumerable<ITypeDescription> types,
-            Assembly candidateAssembly)
-        {
-            var dynamicRepresentaton = CodeGenerator.Create(types, candidateAssembly);
-            return new DatabaseMetaInfo(types, dynamicRepresentaton.Types, dynamicRepresentaton.DataContext);
-        }
+
         public static DatabaseMetaInfo Create(IObjectContainer db,
             Assembly candidateAssembly)
         {
             var metaInfo = MetaDataReader.Read(db);
-            return Create(metaInfo, candidateAssembly);
+            var dynamicRepresentaton = CodeGenerator.Create(metaInfo, candidateAssembly);
+            return new DatabaseMetaInfo(metaInfo, dynamicRepresentaton.Types, dynamicRepresentaton.DataContext);
         }
         public static DatabaseMetaInfo Create(IObjectContainer db,
             AssemblyName intoAssembly)

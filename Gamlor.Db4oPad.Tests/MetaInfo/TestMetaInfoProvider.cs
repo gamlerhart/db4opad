@@ -12,7 +12,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
     [TestFixture]
     public class TestMetaInfoProvider : AbstractDatabaseFixture
     {
-        private IMetaInfo toTest;
+        private DatabaseMetaInfo toTest;
         private readonly string className = typeof (Person).Name;
         private readonly string classNameSpace = typeof (Person).Namespace + "." + typeof (Person).Name;
 
@@ -20,17 +20,16 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         protected override void FixtureSetup(IObjectContainer db)
         {
             db.Store(new Person("Roman", "Stoffel", 24));
-            this.toTest = MetaInfoProvider.Create(DatabaseMetaInfo.Create(db,
-                                                                          new AssemblyName("Gamlor.Dynamic")
+            this.toTest = DatabaseMetaInfo.Create(db,new AssemblyName("Gamlor.Dynamic")
                                                                               {
                                                                                   CodeBase = Path.GetTempFileName()
-                                                                              }));
+                                                                              });
         }
 
         [Test]
         public void ListsMetaInfo()
         {
-            var classes = toTest.Classes;
+            var classes = toTest.Types;
             Assert.AreEqual(1, classes.Count());
         }
 
@@ -52,23 +51,23 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         [Test]
         public void NamesClasses()
         {
-            var classes = toTest.Classes;
+            var classes = toTest.Types;
             Assert.AreEqual(className, classes.Single().ToString());
             Assert.AreEqual(className, classes.Single().Name);
-            Assert.AreEqual(classNameSpace, classes.Single().FullName);
+            Assert.AreEqual(classNameSpace, classes.Single().TypeName);
         }
 
         [Test]
         public void CanReuseAssembly()
         {
-            var theClass = QueryForPersonClass(this.toTest);
-            var result = MetaInfoProvider.Create(DatabaseMetaInfo.Create(DB, theClass.Assembly));
+            var theClass = this.toTest.DataContext;
+            var result = DatabaseMetaInfo.Create(DB, theClass.Assembly);
             var theClassAsSencondTime = QueryForPersonClass(result);
             Assert.AreEqual(theClass.Assembly,theClassAsSencondTime.Assembly);
             Assert.AreEqual(theClass,theClassAsSencondTime);
         }
 
-        private Type QueryForPersonClass(IMetaInfo theInfoSource)
+        private Type QueryForPersonClass(DatabaseMetaInfo theInfoSource)
         {
             return (from t in theInfoSource.DyanmicTypesRepresentation.Values
                     where t.Name.Contains("Person")
