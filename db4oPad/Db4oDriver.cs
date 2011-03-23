@@ -22,7 +22,7 @@ namespace Gamlor.Db4oPad
 
         public override bool ShowConnectionDialog(IConnectionInfo cxInfo, bool isNewConnection)
         {
-            var dialog = new ConnectDialog(cxInfo);
+            var dialog = new ConnectDialog(new ConnectionViewModel(cxInfo));
             var result = dialog.ShowDialog();
             return result.HasValue && result.Value;
         }
