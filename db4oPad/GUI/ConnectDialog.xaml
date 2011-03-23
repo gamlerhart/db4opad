@@ -15,7 +15,8 @@
             </Label>
             <Label Padding="0,0,0,1">Path to database:</Label>
         </DockPanel>
-        <TextBox Name="PathToAssembly" Margin="0,0,0,6" Text="{Binding CustomTypeInfo.CustomMetadataPath}"/>
+        <TextBox Name="PathToAssembly"
+                 Margin="0,0,0,6" Text="{Binding DatabasePath}"/>
 
         <CheckBox IsChecked="{Binding Persist}">Remember this connection</CheckBox>
         <DockPanel LastChildFill="False" Margin="0,10,0,0">
@@ -35,7 +36,8 @@
                     MinWidth="60"
                     IsDefault="True"
                     TabIndex="1" 
-                    Click="OpenDB" />
+                    Click="OpenDB"
+                    IsEnabled="{Binding CanBeOpened}"/>
         </DockPanel>
     </StackPanel>
 </Window>

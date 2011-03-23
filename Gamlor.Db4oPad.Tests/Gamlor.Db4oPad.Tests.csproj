@@ -71,6 +71,7 @@
     <Compile Include="Db4oDriverIntegrationTest.cs" />
     <Compile Include="ExampleDatabaseTests.cs" />
     <Compile Include="GenerateTestDatabase.cs" />
+    <Compile Include="GUI\TestConnectionViewModel.cs" />
     <Compile Include="HashCodeAsserts.cs" />
     <Compile Include="MemoryDBForTests.cs" />
     <Compile Include="MetaInfo\TestDynamicGeneratedTypesReflector.cs" />
@@ -98,6 +99,7 @@
     <Compile Include="Utils\TestDisposer.cs" />
     <Compile Include="Utils\TestMaybe.cs" />
     <Compile Include="Utils\TestMaybeExtensions.cs" />
+    <Compile Include="Utils\TestNotifyExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="db4oPad.pfx" />
