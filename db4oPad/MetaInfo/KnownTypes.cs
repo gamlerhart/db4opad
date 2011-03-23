@@ -18,11 +18,6 @@ namespace Gamlor.Db4oPad.MetaInfo
             this.typeInfo = typeInfo;
         }
 
-        public Type NativeType
-        {
-            get { return typeInfo; }
-        }
-
         public string Name
         {
             get { return typeInfo.Name; }

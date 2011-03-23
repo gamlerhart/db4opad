@@ -1,9 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Db4objects.Db4o;
 using Db4objects.Db4o.Reflect.Net;
 using Gamlor.Db4oPad.MetaInfo;
 using Gamlor.Db4oPad.Tests.TestTypes;
+using Gamlor.Db4oPad.Utils;
 using Moq;
 using NUnit.Framework;
 
@@ -36,7 +38,15 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             }
             database = dbContainer.NewDB();
 
-            this.generatedClassses = MetaDataReader.Read(database);
+            this.generatedClassses = MetaDataReader.Read(database,TestTypeResolver());
+        }
+
+        private static Func<TypeName, Maybe<Type>> TestTypeResolver()
+        {
+            var defaultResolver = MetaDataReader.DefaultTypeResolver();
+            return n => n.FullName.StartsWith("Gamlor.Db4oPad.Tests") 
+                ? Maybe<Type>.Empty 
+                : defaultResolver(n);
         }
 
         [Test]
@@ -158,7 +168,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
 
             var dbMock = new Mock<IObjectContainer>();
             dbMock.Setup(c => c.Ext().KnownClasses()).Returns(new[] {colorHolderType});
-            var classInfos = MetaDataReader.Read(dbMock.Object);
+            var classInfos = MetaDataReader.Read(dbMock.Object, TestTypeResolver());
             Assert.IsTrue(1<classInfos.Count());
         }
 

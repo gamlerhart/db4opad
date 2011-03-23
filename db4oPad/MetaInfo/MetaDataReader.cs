@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Db4objects.Db4o;
 using Db4objects.Db4o.Reflect;
+using Db4objects.Db4o.Reflect.Net;
 using Gamlor.Db4oPad.Utils;
 
 namespace Gamlor.Db4oPad.MetaInfo
@@ -12,21 +12,33 @@ namespace Gamlor.Db4oPad.MetaInfo
     {
         private readonly Func<TypeName, Maybe<Type>> typeResolver;
 
-        public MetaDataReader(Func<TypeName, Maybe<Type>> typeResolver)
+        internal static Func<TypeName, Maybe<Type>> DefaultTypeResolver()
+        {
+            var resolver = new NetReflector();
+            return n => resolver.ForName(n.FullName)
+                .AsMaybe().Combine(c => c.MaybeCast<NetClass>()).Convert(rc => rc.GetNetType());
+        }
+
+        private MetaDataReader(Func<TypeName, Maybe<Type>> typeResolver)
         {
             this.typeResolver = typeResolver;
         }
-
         public static IEnumerable<ITypeDescription> Read(IObjectContainer database)
         {
-            new { database }.CheckNotNull();
-
-
-            var allKnownClasses = database.Ext().KnownClasses().Distinct().ToArray();
-            return CreateTypes(allKnownClasses);
+            return Read(database, DefaultTypeResolver());
         }
 
-        private static IEnumerable<ITypeDescription> CreateTypes(IEnumerable<IReflectClass> allClasses)
+        public static IEnumerable<ITypeDescription> Read(IObjectContainer database,
+            Func<TypeName, Maybe<Type>> typeResolver)
+        {
+            new { database, typeResolver }.CheckNotNull();
+            
+            var allKnownClasses = database.Ext().KnownClasses().Distinct().ToArray();
+            var reader = new MetaDataReader(typeResolver);
+            return reader.CreateTypes(allKnownClasses);
+        }
+
+        private IEnumerable<ITypeDescription> CreateTypes(IEnumerable<IReflectClass> allClasses)
         {
             var typeMap = new Dictionary<string, ITypeDescription>();
             foreach (var classInfo in allClasses)
@@ -36,26 +48,27 @@ namespace Gamlor.Db4oPad.MetaInfo
             return typeMap.Select(t => t.Value);
         }
 
-        private static ITypeDescription CreateType(IReflectClass classInfo,
+        private ITypeDescription CreateType(IReflectClass classInfo,
                                                    IDictionary<string, ITypeDescription> knownTypes)
         {
             var name = TypeNameParser.ParseString(classInfo.GetName());
-            if (IsSystemType(name))
-            {
-                var systemType = new KnownTypes(ResolveType(name));
-                knownTypes[name.FullName] = systemType;
-                return systemType;
-            }
             return name.ArrayOf.Convert(
                 n => CreateArrayType(name, classInfo, knownTypes))
                 .GetValue(() =>
                     CreateType(name, classInfo, knownTypes));
         }
 
-        private static SimpleClassDescription CreateType(TypeName name,
+        private ITypeDescription CreateType(TypeName name,
                                                          IReflectClass classInfo,
                                                          IDictionary<string, ITypeDescription> knownTypes)
         {
+            var knownType = typeResolver(name);
+            if (knownType.HasValue)
+            {
+                var systemType = new KnownTypes(knownType.Value);
+                knownTypes[name.FullName] = systemType;
+                return systemType;
+            }
             return SimpleClassDescription.Create(name,
                     GetOrCreateType(classInfo.GetSuperclass(), knownTypes),
                     t =>
@@ -67,7 +80,7 @@ namespace Gamlor.Db4oPad.MetaInfo
                         });
         }
 
-        private static ITypeDescription CreateArrayType(TypeName fullName,
+        private ITypeDescription CreateArrayType(TypeName fullName,
             IReflectClass classInfo,
                                                         IDictionary<string, ITypeDescription> knownTypes)
         {
@@ -75,12 +88,6 @@ namespace Gamlor.Db4oPad.MetaInfo
             var type = ArrayDescription.Create(innerType, fullName.OrderOfArray);
             knownTypes[fullName.FullName] = type;
             return type;
-        }
-
-        private static Type ResolveType(TypeName nameAndAssembly)
-        {
-            var assembly = Assembly.LoadWithPartialName(nameAndAssembly.AssemblyName);
-            return assembly.GetType(BuildName(nameAndAssembly));
         }
 
         private static string BuildName(TypeName name)
@@ -96,7 +103,7 @@ namespace Gamlor.Db4oPad.MetaInfo
                 || name.Name.StartsWith("Db4objects.Db4o.")) && name.OrderOfArray==0;
         }
 
-        private static ITypeDescription GetOrCreateType(IReflectClass typeToFind,
+        private ITypeDescription GetOrCreateType(IReflectClass typeToFind,
                                                         IDictionary<string, ITypeDescription> knownTypes)
         {
             return knownTypes.TryGet(typeToFind.GetName())
