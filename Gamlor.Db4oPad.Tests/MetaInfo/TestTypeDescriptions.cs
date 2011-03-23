@@ -71,8 +71,8 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         [Test]
         public void SystemTypeEquals()
         {
-            var t1 = new KnownTypes(typeof(string));
-            var t2 = new KnownTypes(typeof(string));
+            var t1 = new KnownType(typeof(string));
+            var t2 = new KnownType(typeof(string));
 
             Assert.AreEqual(t1, t2);
         }
@@ -80,7 +80,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         [Test]
         public void ObjectIsRecursive()
         {
-            var type = KnownTypes.Object;
+            var type = KnownType.Object;
             Assert.AreEqual(type, type.BaseClass);
         }
 
@@ -99,19 +99,19 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         [Test]
         public void SystemTypeIsNotBusinessType()
         {
-            var theType = new KnownTypes(typeof(string));
+            var theType = new KnownType(typeof(string));
             Assert.IsFalse(theType.IsBusinessEntity);
         }
         [Test]
         public void Db4oTypeIsNotBusinessType()
         {
-            var theType = new KnownTypes(typeof(ActivatableList<string>));
+            var theType = new KnownType(typeof(ActivatableList<string>));
             Assert.IsFalse(theType.IsBusinessEntity);
         }
         [Test]
         public void KnownTypeIsBusinessType()
         {
-            var theType = new KnownTypes(typeof(ClassWithFields));
+            var theType = new KnownType(typeof(ClassWithFields));
             Assert.IsTrue(theType.IsBusinessEntity);
         }
         [Test]

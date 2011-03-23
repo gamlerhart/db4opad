@@ -73,7 +73,7 @@ namespace Gamlor.Db4oPad
 
         private List<ExplorerItem> Fields(ITypeDescription type)
         {
-            if(type.Equals(KnownTypes.Object))
+            if(type.Equals(KnownType.Object))
             {
                 return new List<ExplorerItem>();
             }

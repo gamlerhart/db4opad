@@ -28,7 +28,7 @@ namespace Gamlor.Db4oPad.MetaInfo
         public static SimpleClassDescription Create(TypeName fullName,
             Func<ITypeDescription, IEnumerable<SimpleFieldDescription>> fieldGenerator)
         {
-            return Create(fullName,KnownTypes.Object,fieldGenerator);
+            return Create(fullName,KnownType.Object,fieldGenerator);
         }
 
         public static SimpleClassDescription Create(TypeName fullName,ITypeDescription baseClass,

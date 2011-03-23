@@ -63,7 +63,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         [Test]
         public void CanHandleBuiltInType()
         {
-            var metaInfo = new[] { new KnownTypes(typeof(string)) };
+            var metaInfo = new[] { new KnownType(typeof(string)) };
 
             var type = GenerateSingle(metaInfo);
             Assert.AreEqual(typeof(string), type);
@@ -204,7 +204,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         private IEnumerable<ITypeDescription> SubClassType()
         {
             var baseClasses = TestMetaData.CreateSingleFieldClass();
-            var intType = new KnownTypes(typeof(int));
+            var intType = new KnownType(typeof(int));
             var baseClass = baseClasses.Single(b=>!b.KnowsType.HasValue);
             var subType = SimpleClassDescription.Create(
                 TypeName.Create("ANamespace.SubClass", TestMetaData.AssemblyName), baseClass,
@@ -230,7 +230,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         }
         private IEnumerable<ITypeDescription> CreateSingleIntFieldClass()
         {
-            var stringType = new KnownTypes(typeof(int));
+            var stringType = new KnownType(typeof(int));
             var type = SimpleClassDescription.Create(TestMetaData.SingleFieldType(),
                                                              f => TestMetaData.CreateField(stringType));
             return new ITypeDescription[] { type, stringType };
@@ -246,13 +246,13 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
 
         private static IEnumerable<ITypeDescription> TwoGenericInstances()
         {
-            var stringList = new KnownTypes(typeof(List<string>));
+            var stringList = new KnownType(typeof(List<string>));
             var stringType = typeof(string);
             var stringGenericArgs = GenericArg(stringType);
             var stringInstance = SimpleClassDescription.Create(TypeName.Create(TestMetaData.SingleFieldTypeName, TestMetaData.AssemblyName, stringGenericArgs),
                                                      f => TestMetaData.CreateField(stringList));
 
-            var intList = new KnownTypes(typeof(List<int>));
+            var intList = new KnownType(typeof(List<int>));
             var intType = typeof(int);
             var intGenericArgs = GenericArg(intType);
             var intInstance = SimpleClassDescription.Create(TypeName.Create(TestMetaData.SingleFieldTypeName, TestMetaData.AssemblyName, intGenericArgs),
@@ -282,7 +282,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
 
         private bool SingleNotObject(KeyValuePair<ITypeDescription, Type> t)
         {
-            return t.Key != KnownTypes.Object && t.Key != KnownTypes.Array;
+            return t.Key != KnownType.Object && t.Key != KnownType.Array;
         }
     }
 }

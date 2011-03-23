@@ -79,7 +79,7 @@
     <Compile Include="MetaInfo\ITypeDescription.cs" />
     <Compile Include="MetaInfo\MetaDataReader.cs" />
     <Compile Include="MetaInfo\SimpleClassDescription.cs" />
-    <Compile Include="MetaInfo\KnownTypes.cs" />
+    <Compile Include="MetaInfo\KnownType.cs" />
     <Compile Include="MetaInfo\TypeDescriptionBase.cs" />
     <Compile Include="MetaInfo\TypeName.cs" />
     <Compile Include="MetaInfo\TypeNameParser.cs" />
