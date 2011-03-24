@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel;
 using System.IO;
 using Gamlor.Db4oPad.Utils;
@@ -12,7 +13,6 @@ namespace Gamlor.Db4oPad.GUI
         public ConnectionViewModel(IConnectionInfo cxInfo)
         {
             this.cxInfo = cxInfo;
-            this.DatabasePath = cxInfo.CustomTypeInfo.CustomMetadataPath;
         }
 
         public string DatabasePath
@@ -35,6 +35,16 @@ namespace Gamlor.Db4oPad.GUI
         public bool CanBeOpened
         {
             get { return null != DatabasePath && File.Exists(DatabasePath); }
+        }
+
+        public string AssemblyPath
+        {
+            get { return cxInfo.CustomTypeInfo.CustomAssemblyPath; }
+            set
+            {
+                cxInfo.CustomTypeInfo.CustomAssemblyPath = value;
+                PropertyChanged.Fire(this,()=>AssemblyPath);
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

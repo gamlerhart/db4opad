@@ -18,6 +18,7 @@ namespace Gamlor.Db4oPad.Tests.GUI
             this.mock = new Mock<IConnectionInfo>();
             mock.Setup(c => c.Persist).Returns(true);
             mock.Setup(c => c.CustomTypeInfo.CustomMetadataPath).Returns("");
+            mock.Setup(c => c.CustomTypeInfo.CustomAssemblyPath).Returns("");
             this.toTest = new ConnectionViewModel(this.mock.Object);
         }
 
@@ -82,6 +83,26 @@ namespace Gamlor.Db4oPad.Tests.GUI
             var existing = Path.GetTempFileName();
             mock.Setup(c => c.CustomTypeInfo.CustomMetadataPath).Returns(existing);
             Assert.IsTrue(NewTestInstance().CanBeOpened);
+        }
+        [Test]
+        public void HasAssemblyPath()
+        {
+            mock.Setup(c => c.CustomTypeInfo.CustomAssemblyPath).Returns("AssemblyPath");
+            Assert.AreEqual("AssemblyPath",NewTestInstance().AssemblyPath);
+        }
+        [Test]
+        public void CanSetAssemblyPath()
+        {
+            toTest.AssemblyPath = "AssemblyPath";
+            mock.VerifySet(c => c.CustomTypeInfo.CustomAssemblyPath = "AssemblyPath");
+        }
+        [Test]
+        public void SettingAssembliesFiresEvent()
+        {
+            var wasFired = false;
+            toTest.PropertyChanged += (sender, args) => wasFired = true;
+            toTest.AssemblyPath = "AssemblyPath";
+            Assert.IsTrue(wasFired);
         }
 
         private ConnectionViewModel NewTestInstance()
