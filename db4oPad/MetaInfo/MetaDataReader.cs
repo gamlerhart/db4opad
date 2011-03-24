@@ -66,7 +66,7 @@ namespace Gamlor.Db4oPad.MetaInfo
             var knownType = typeResolver(name);
             if (knownType.HasValue)
             {
-                var systemType = new KnownType(knownType.Value);
+                var systemType = KnownType.Create(knownType.Value);
                 knownTypes[name.FullName] = systemType;
                 return systemType;
             }

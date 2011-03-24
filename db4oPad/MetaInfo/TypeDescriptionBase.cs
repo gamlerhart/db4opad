@@ -16,12 +16,14 @@ namespace Gamlor.Db4oPad.MetaInfo
         public string Name { get; private set; }
         public TypeName TypeName { get; private set; }
 
-        public virtual Maybe<Type> KnowsType
+        public Maybe<Type> KnowsType
         {
             get { return Maybe<Type>.Empty; }
         }
 
         public abstract IEnumerable<SimpleFieldDescription> Fields { get; }
+
+        public abstract Maybe<ITypeDescription> ArrayOf { get; }
 
         public ITypeDescription BaseClass { get; private set; }
 
@@ -29,8 +31,6 @@ namespace Gamlor.Db4oPad.MetaInfo
         {
             get { return ArrayOf.HasValue; }
         }
-
-        public abstract Maybe<ITypeDescription> ArrayOf { get; }
 
         public bool IsBusinessEntity
         {

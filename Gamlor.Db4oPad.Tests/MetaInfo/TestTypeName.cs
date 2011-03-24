@@ -56,6 +56,12 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
 
             Assert.AreEqual("Type.Name",name.ToString());
         }
+        [Test]
+        public void ToStringPrintsName()
+        {
+            var theType = TypeName.Create("System.Int32", "mscorelib");
+            Assert.AreEqual("System.Int32", theType.ToString());
+        }
 
         private TypeName CreateComplexType()
         {

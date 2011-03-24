@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Db4objects.Db4o.Collections;
 using Gamlor.Db4oPad.MetaInfo;
 using Gamlor.Db4oPad.Tests.TestTypes;
@@ -71,8 +72,8 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         [Test]
         public void SystemTypeEquals()
         {
-            var t1 = new KnownType(typeof(string));
-            var t2 = new KnownType(typeof(string));
+            var t1 = KnownType.Create(typeof(string));
+            var t2 = KnownType.Create(typeof(string));
 
             Assert.AreEqual(t1, t2);
         }
@@ -99,26 +100,32 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         [Test]
         public void SystemTypeIsNotBusinessType()
         {
-            var theType = new KnownType(typeof(string));
+            var theType = KnownType.String;
             Assert.IsFalse(theType.IsBusinessEntity);
         }
         [Test]
         public void Db4oTypeIsNotBusinessType()
         {
-            var theType = new KnownType(typeof(ActivatableList<string>));
+            var theType = KnownType.Create(typeof(ActivatableList<string>));
             Assert.IsFalse(theType.IsBusinessEntity);
         }
         [Test]
         public void KnownTypeIsBusinessType()
         {
-            var theType = new KnownType(typeof(ClassWithFields));
+            var theType = KnownType.Create(typeof(ClassWithFields));
             Assert.IsTrue(theType.IsBusinessEntity);
         }
         [Test]
-        public void ToStringPrintsName()
+        public void KnownTypeReturnsPublicFields()
         {
-            var theType = TypeName.Create("System.Int32", "mscorelib");
-            Assert.AreEqual("System.Int32",theType.ToString());
+            var theType = KnownType.Create(typeof(ClassWithPublicField));
+            Assert.AreEqual(1,theType.Fields.Count());
+        }
+        [Test]
+        public void KnownTypeReturnsPropertyFields()
+        {
+            var theType = KnownType.Create(typeof(ClassWithProperty));
+            Assert.AreEqual(1, theType.Fields.Count());
         }
 
         private SimpleClassDescription CreateGenericType()
@@ -138,6 +145,20 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             TypeName theName = TypeName.Create("System.Int32", "mscorelib", new TypeName[0], 0);
             var innerType = SimpleClassDescription.Create(theName, f => new SimpleFieldDescription[0]);
             return ArrayDescription.Create(innerType, 1);
+        }
+
+        class ClassWithPublicField
+        {
+            public string theField;
+        }
+        class ClassWithProperty
+        {
+            private string theField;
+
+            public string TheField
+            {
+                get { return theField; }
+            }
         }
     }
 }

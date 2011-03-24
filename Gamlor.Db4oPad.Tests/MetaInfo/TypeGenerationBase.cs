@@ -24,20 +24,20 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         }
         internal static IEnumerable<ITypeDescription> TypeWithGenericList()
         {
-            var stringList = new KnownType(typeof(List<string>));
+            var stringList = KnownType.Create(typeof(List<string>));
             var type = SimpleClassDescription.Create(TestMetaData.SingleFieldType(),
                                                      f => TestMetaData.CreateField(stringList));
-            return new ITypeDescription[] { type, stringList };
+            return new[] { type, stringList };
         }
         internal static IEnumerable<ITypeDescription> GenericType()
         {
-            var stringList = new KnownType(typeof(List<string>));
+            var stringList = KnownType.Create(typeof(List<string>));
             var stringType = typeof(string);
             var genericArguments = GenericArg(stringType);
             var type = SimpleClassDescription.Create(TypeName.Create(TestMetaData.SingleFieldTypeName,
                 TestMetaData.AssemblyName, genericArguments),
                                                      f => TestMetaData.CreateField(stringList));
-            return new ITypeDescription[] { type, stringList };
+            return new[] { type, stringList };
         }
 
         internal static IEnumerable<TypeName> GenericArg(Type intType)
