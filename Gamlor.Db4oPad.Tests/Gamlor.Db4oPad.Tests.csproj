@@ -80,6 +80,7 @@
     <Compile Include="MetaInfo\TestTypeGeneration.cs" />
     <Compile Include="MetaInfo\TestDb4oMetaDataToClassDescription.cs" />
     <Compile Include="MetaInfo\TestMetaInfoProvider.cs" />
+    <Compile Include="MetaInfo\TestTypeLoader.cs" />
     <Compile Include="MetaInfo\TestTypeName.cs" />
     <Compile Include="MetaInfo\TestTypeNameParser.cs" />
     <Compile Include="MetaInfo\TypeGenerationBase.cs" />
