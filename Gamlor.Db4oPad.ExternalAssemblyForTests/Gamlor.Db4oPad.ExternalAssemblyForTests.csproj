@@ -6,7 +6,7 @@
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{E23756A0-89E7-42DA-B6E8-AB3A111372B5}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Gamlor.Db4oPad.ExternalAssemblyForTests</RootNamespace>
     <AssemblyName>Gamlor.Db4oPad.ExternalAssemblyForTests</AssemblyName>
@@ -30,7 +30,13 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Db4objects.Db4o">
+      <HintPath>..\libs\db4o\Db4objects.Db4o.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />

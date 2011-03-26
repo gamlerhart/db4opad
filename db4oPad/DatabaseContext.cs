@@ -23,10 +23,6 @@ namespace Gamlor.Db4oPad
             theContainer = container;
         }
 
-        public static DatabaseContext Create(IObjectContainer db, AssemblyName theAssembly)
-        {
-            return new DatabaseContext(db,DatabaseMetaInfo.Create(db, theAssembly));
-        }
         public static DatabaseContext Create(IObjectContainer db, AssemblyName theAssembly, TypeResolver resolver)
         {
             return new DatabaseContext(db, DatabaseMetaInfo.Create(db,resolver, theAssembly));

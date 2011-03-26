@@ -64,10 +64,7 @@ namespace Gamlor.Db4oPad.Tests
 
         private DatabaseContext NewContext(IObjectContainer db)
         {
-            return DatabaseContext.Create(db, new AssemblyName("temp")
-                                                  {
-                                                      CodeBase = Path.GetTempFileName()
-                                                  });
+            return DatabaseContext.Create(db, TestUtils.NewName(),TestUtils.TestTypeResolver());
         }
     }
 

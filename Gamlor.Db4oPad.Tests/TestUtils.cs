@@ -12,10 +12,7 @@ namespace Gamlor.Db4oPad.Tests
         public static void WithTestContext(Action action)
         {
             var db = MemoryDBForTests.NewDB();
-            using (var ctx = DatabaseContext.Create(db, new AssemblyName("test")
-            {
-                CodeBase = Path.GetTempFileName()
-            }))
+            using (var ctx = DatabaseContext.Create(db,NewName(),TestTypeResolver()))
             {
                 CurrentContext.NewContext(ctx);
                 action();

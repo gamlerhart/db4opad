@@ -17,7 +17,7 @@ namespace Gamlor.Db4oPad.Tests
             CopyTestDB();
             var name = TestUtils.NewName();
             DatabaseMetaInfo meta = null;
-            using(var ctx = DatabaseContext.Create(Db4oEmbedded.OpenFile(Databasename),name))
+            using(var ctx = DatabaseContext.Create(Db4oEmbedded.OpenFile(Databasename),name,TypeLoader.Create("")))
             {
                 meta = ctx.MetaInfo;
                 Assert.NotNull(meta);

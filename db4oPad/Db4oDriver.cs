@@ -43,7 +43,7 @@ namespace Gamlor.Db4oPad
         {
             using (var context = DatabaseContext.Create(
                 OpenDB(cxInfo),
-                assemblyToBuild))
+                assemblyToBuild,TypeLoader.Create(cxInfo.CustomTypeInfo.CustomAssemblyPath)))
             {
                 cxInfo.SessionData[AssemblyLocation] = assemblyToBuild.CodeBase;
                 nameSpace = context.MetaInfo.DataContext.Namespace;
@@ -82,7 +82,7 @@ namespace Gamlor.Db4oPad
         {
             using (var tmpDb = OpenDB(cxInfo))
             {
-                var meta = DatabaseMetaInfo.Create(tmpDb, assembly);
+                var meta = DatabaseMetaInfo.Create(tmpDb,TypeLoader.Create(cxInfo.CustomTypeInfo.CustomAssemblyPath), assembly);
                 return Tuple.Create(DatabaseConfigurator.Create(meta),meta);
             }
         }
