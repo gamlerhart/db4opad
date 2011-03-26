@@ -74,7 +74,7 @@ namespace Gamlor.Db4oPad.MetaInfo
             }
         }
 
-        private static Maybe<Type> FindInCurrentAppDomain(TypeName toFind)
+        private Maybe<Type> FindInCurrentAppDomain(TypeName toFind)
         {
             var assembly = from a in AppDomain.CurrentDomain.GetAssemblies()
                            where a.GetName().Name == toFind.AssemblyName
@@ -83,10 +83,39 @@ namespace Gamlor.Db4oPad.MetaInfo
                 .Combine(a => LoadTypeFromAssembly(a,toFind));
         }
 
-        private static Maybe<Type> LoadTypeFromAssembly(Assembly assembly, TypeName toFind)
+        private Maybe<Type> LoadTypeFromAssembly(Assembly assembly, TypeName toFind)
         {
-            var name = toFind.NameAndNamespace;
-            return assembly.GetType(name).AsMaybe();
+            var name = Generify(toFind);
+            return assembly.GetType(name).AsMaybe().Convert(t=>InstantiateGeneric(t,toFind));
+        }
+
+        private Type InstantiateGeneric(Type type, TypeName toFind)
+        {
+            if (IsGeneric(toFind))
+            {
+                var types = toFind.GenericArguments.Select(n => Resolve(n).Value);
+                return type.MakeGenericType(types.ToArray());
+            }
+            return type;
+        }
+
+        private static string Generify(TypeName toFind)
+        {
+            return toFind.NameAndNamespace + GenericNumber(toFind);
+        }
+
+        private static string GenericNumber(TypeName toFind)
+        {
+            if(IsGeneric(toFind))
+            {
+                return "`" + toFind.GenericArguments.Count();
+            }
+            return "";
+        }
+
+        private static bool IsGeneric(TypeName toFind)
+        {
+            return toFind.GenericArguments.Any();
         }
     }
 }

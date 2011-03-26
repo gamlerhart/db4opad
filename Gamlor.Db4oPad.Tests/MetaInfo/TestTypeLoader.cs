@@ -52,6 +52,14 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             Assert.IsNotNull(found.Value);
         }
         [Test]
+        public void LoadGenericType()
+        {
+            var found = TypeLoader.Create(new[] { @"..\..\Gamlor.Db4oPad.ExternalAssemblyForTests.dll" })
+                (TypeNameParser.ParseString("Gamlor.Db4oPad.ExternalAssemblyForTests.AGeneric`1[[System.Int32, mscorlib]], Gamlor.Db4oPad.ExternalAssemblyForTests"));
+            Assert.IsNotNull(found.Value);
+            Assert.IsNotNull(found.Value.GetConstructors().Single().Invoke(new object[0]));
+        }
+        [Test]
         public void DontCrashOnBogusAssemblies()
         {
             var found = TypeLoader.Create(new[] {Path.GetTempFileName() })(TypeName.Create("DoesNotExist.ClassName", "DoesNotExist"));
