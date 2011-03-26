@@ -203,6 +203,20 @@ namespace Gamlor.Db4oPad.Utils
         }
 
         /// <summary>
+        /// If this value is empty, it will get the value of the given closure. 
+        /// </summary>
+        /// <param name="alternative"></param>
+        /// <returns></returns>
+        public Maybe<T> Otherwise(Func<Maybe<T>> alternative)
+        {
+            if(HasValue)
+            {
+                return this;
+            }
+            return alternative();   
+        } 
+
+        /// <summary>
         /// Determines whether the specified <see cref="T:System.Object"/> is equal to the current <see cref="T:System.Object"/>.
         /// </summary>
         /// <param name="obj">The <see cref="T:System.Object"/> to compare with the current <see cref="T:System.Object"/>.</param>

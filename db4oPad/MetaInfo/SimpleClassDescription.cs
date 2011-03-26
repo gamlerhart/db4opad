@@ -11,8 +11,7 @@ namespace Gamlor.Db4oPad.MetaInfo
         private IEnumerable<SimpleFieldDescription> fields;
 
 
-        private SimpleClassDescription(string name,
-            TypeName fullName, ITypeDescription baseClass) : base(name,fullName,baseClass)
+        private SimpleClassDescription(TypeName fullName, ITypeDescription baseClass) : base(fullName,baseClass)
         {
         }
 
@@ -38,34 +37,9 @@ namespace Gamlor.Db4oPad.MetaInfo
             {
                 throw new ArgumentException("Cannot be an array-type " + fullName.FullName);
             }
-            var toConstruct = new SimpleClassDescription(ExtractName(fullName), fullName, baseClass);
+            var toConstruct = new SimpleClassDescription(fullName, baseClass);
             toConstruct.fields = fieldGenerator(toConstruct).ToArray();
             return toConstruct;
-        }
-
-        private static string ExtractName(TypeName name)
-        {
-            var buffer = new StringBuilder(name.Name.Split('.').Last());
-            AppendGenericCount(buffer, name.GenericArguments.Count());
-            AppendGenericList(buffer,name.GenericArguments);
-            return buffer.ToString();
-
-        }
-
-        private static void AppendGenericList(StringBuilder buffer, IEnumerable<TypeName> genericArguments)
-        {
-            foreach (var arg in genericArguments)
-            {
-                buffer.Append("_").Append(ExtractName(arg));
-            }
-        }
-
-        private static void AppendGenericCount(StringBuilder buffer, int count)
-        {
-            if (count != 0)
-            {
-                buffer.Append("_").Append(count);
-            }
         }
     }
 

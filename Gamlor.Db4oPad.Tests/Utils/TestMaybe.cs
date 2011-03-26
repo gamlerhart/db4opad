@@ -7,6 +7,7 @@ namespace Gamlor.Db4oPad.Tests.Utils
     [TestFixture]
     public class TestMaybe
     {
+        private const string Value = "value";
         private readonly Maybe<string> testInstance;
 
         [Test]
@@ -123,7 +124,7 @@ namespace Gamlor.Db4oPad.Tests.Utils
         [Test]
         public void ConvertChainValue()
         {
-            var value = Maybe.From("value")
+            var value = Maybe.From(Value)
                 .Convert(s => s.ToUpper())
                 .GetValue("default");
             Assert.AreEqual("VALUE", value);
@@ -155,6 +156,29 @@ namespace Gamlor.Db4oPad.Tests.Utils
         {
             var value = Maybe.OutToMaybe<object>(UnsuccessFulOut);
             Assert.IsFalse(value.HasValue);
+        }
+        [Test]
+        public void OtherwiseReturnsOrignalValue()
+        {
+            var value = Maybe.From(Value);
+            var orCombined = value.Otherwise(() => "otherValue");
+            Assert.IsTrue(orCombined.HasValue);
+            Assert.AreEqual(Value, orCombined.Value);
+        }
+        [Test]
+        public void OtherwiseReturnsAlternativeValue()
+        {
+            var value = this.testInstance;
+            var orCombined = value.Otherwise(() => Value);
+            Assert.IsTrue(orCombined.HasValue);
+            Assert.AreEqual(Value, orCombined.Value);
+        }
+        [Test]
+        public void OtherwiseReturnsEmptyValue()
+        {
+            var value = this.testInstance;
+            var orCombined = value.Otherwise(() => Maybe<string>.Empty);
+            Assert.IsFalse(orCombined.HasValue);
         }
 
         private bool SuccessFulOut(out object outData)

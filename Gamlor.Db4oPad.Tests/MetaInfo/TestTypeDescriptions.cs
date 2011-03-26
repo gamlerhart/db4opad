@@ -13,13 +13,13 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         [Test]
         public void GenericName()
         {
-            var theType = CreateGenericType();
+            var theType = TestMetaData.CreateGenericType();
             Assert.AreEqual("TheType_1_Int32",theType.Name);
         }
         [Test]
         public void GenericNameWithTwoParams()
         {
-            var complex = CreateGenericType(
+            var complex = TestMetaData.CreateGenericType(
                 TypeName.Create("System.Int32", "mscorelib"),TypeName.Create("System.Int64", "mscorelib"));
 
             Assert.AreEqual("TheType_2_Int32_Int64",
@@ -28,8 +28,8 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         [Test]
         public void CascadedGenericsName()
         {
-            var theType = CreateGenericType();
-            var complex = CreateGenericType(
+            var theType = TestMetaData.CreateGenericType();
+            var complex = TestMetaData.CreateGenericType(
                 TypeName.Create("System.Int32", "mscorelib"), theType.TypeName);
 
             Assert.AreEqual("TheType_2_Int32_TheType_1_Int32",
@@ -64,8 +64,8 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         [Test]
         public void GenericEquals()
         {
-            var t1 = CreateGenericType();
-            var t2 = CreateGenericType();
+            var t1 = TestMetaData.CreateGenericType();
+            var t2 = TestMetaData.CreateGenericType();
 
             Assert.AreEqual(t1, t2);
         }
@@ -88,13 +88,13 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         [Test]
         public void GeneratedIsBusinessType()
         {
-            var theType = CreateGenericType();
+            var theType = TestMetaData.CreateGenericType();
             Assert.IsTrue(theType.IsBusinessEntity);
         }
         [Test]
         public void ArrayIsNotBusinessType()
         {
-            var theType = ArrayDescription.Create(CreateGenericType(), 1);
+            var theType = ArrayDescription.Create(TestMetaData.CreateGenericType(), 1);
             Assert.IsFalse(theType.IsBusinessEntity);
         }
         [Test]
@@ -126,18 +126,6 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         {
             var theType = KnownType.Create(typeof(ClassWithProperty));
             Assert.AreEqual(1, theType.Fields.Count());
-        }
-
-        private SimpleClassDescription CreateGenericType()
-        {
-            TypeName genericArg = TypeName.Create("System.Int32", "mscorelib");
-            return CreateGenericType(genericArg);
-        }
-
-        private SimpleClassDescription CreateGenericType(params TypeName[] genericArg)
-        {
-            TypeName theName = TypeName.Create("TheType", "TheAssembly", genericArg);
-            return SimpleClassDescription.Create(theName, f => new SimpleFieldDescription[0]);
         }
 
         private ITypeDescription CreateArrayType()

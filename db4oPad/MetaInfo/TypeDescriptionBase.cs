@@ -1,14 +1,15 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Gamlor.Db4oPad.Utils;
 
 namespace Gamlor.Db4oPad.MetaInfo
 {
     internal abstract class TypeDescriptionBase : ITypeDescription
     {
-        protected TypeDescriptionBase(string name, TypeName typeName, ITypeDescription baseClass)
+        protected TypeDescriptionBase(TypeName typeName, ITypeDescription baseClass)
         {
-            Name = name;
+            Name = typeName.NameWithGenerics.Split('.').Last();
             TypeName = typeName;
             BaseClass = baseClass;
         }

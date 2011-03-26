@@ -94,14 +94,14 @@ namespace Gamlor.Db4oPad.MetaInfo
         private static string BuildName(TypeName name)
         {
             return name.IsGeneric
-                       ? string.Format("{0}`{1}", name.Name, name.GenericArguments.Count())
-                       : string.Format("{0}", name.Name);
+                       ? string.Format("{0}`{1}", name.NameAndNamespace, name.GenericArguments.Count())
+                       : string.Format("{0}", name.NameAndNamespace);
         }
 
         private static bool IsSystemType(TypeName name)
         {
-            return (name.Name.StartsWith("System.") 
-                || name.Name.StartsWith("Db4objects.Db4o.")) && name.OrderOfArray==0;
+            return (name.NameAndNamespace.StartsWith("System.") 
+                || name.NameAndNamespace.StartsWith("Db4objects.Db4o.")) && name.OrderOfArray==0;
         }
 
         private ITypeDescription GetOrCreateType(IReflectClass typeToFind,

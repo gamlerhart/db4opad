@@ -56,14 +56,6 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             Assert.NotNull(classMeta);
             Assert.IsFalse(classMeta.Fields.Any());
         }
-        [Test]
-        public void FullNameSimpleClass()
-        {
-            var classMeta = For<ClassWithoutFields>();
-            var type = typeof(ClassWithoutFields);
-            var assembly = type.Assembly.GetName().Name;
-            Assert.AreEqual(typeof(ClassWithoutFields).FullName, classMeta.TypeName.NameWithGenerics);
-        }
 
         [Test]
         public void ClassWithFields()
@@ -182,7 +174,9 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
 
         private ITypeDescription For<T>()
         {
-            return generatedClassses.Where(c => c.Name.StartsWith(typeof(T).Name.Replace('`','_'))).Single();
+            return generatedClassses
+                .Where(c=>!c.Name.EndsWith("[]"))
+                .Single(c => c.Name.StartsWith(typeof(T).Name.Replace('`', '_')));
         }
     }
 

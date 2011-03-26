@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gamlor.Db4oPad.Tests", "Gam
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sprache", "Sprache\Sprache.csproj", "{DF5FE6F0-5ABE-4363-9184-EB6EF64F0F61}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gamlor.Db4oPad.ExternalAssemblyForTests", "Gamlor.Db4oPad.ExternalAssemblyForTests\Gamlor.Db4oPad.ExternalAssemblyForTests.csproj", "{E23756A0-89E7-42DA-B6E8-AB3A111372B5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,6 +37,12 @@ Global
 		{DF5FE6F0-5ABE-4363-9184-EB6EF64F0F61}.Release|Any CPU.Build.0 = Release|Any CPU
 		{DF5FE6F0-5ABE-4363-9184-EB6EF64F0F61}.Release|x86.ActiveCfg = Release|x86
 		{DF5FE6F0-5ABE-4363-9184-EB6EF64F0F61}.Release|x86.Build.0 = Release|x86
+		{E23756A0-89E7-42DA-B6E8-AB3A111372B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E23756A0-89E7-42DA-B6E8-AB3A111372B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E23756A0-89E7-42DA-B6E8-AB3A111372B5}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E23756A0-89E7-42DA-B6E8-AB3A111372B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E23756A0-89E7-42DA-B6E8-AB3A111372B5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E23756A0-89E7-42DA-B6E8-AB3A111372B5}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

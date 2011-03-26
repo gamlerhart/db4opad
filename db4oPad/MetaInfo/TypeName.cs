@@ -9,6 +9,7 @@ namespace Gamlor.Db4oPad.MetaInfo
     class TypeName
     {
         private string rawName;
+
         private TypeName(string name,
                          string assemblyName,
                          int array,
@@ -16,11 +17,14 @@ namespace Gamlor.Db4oPad.MetaInfo
         {
             new { name, assemblyName, genericArguments }.CheckNotNull();
             this.rawName = name;
-            Name = WithArray(name,array);
+            NameAndNamespace = WithArray(name, array);
+            Name = WithArray(name, array).Split('.').Last();
             AssemblyName = assemblyName;
             this.OrderOfArray = array;
             GenericArguments = genericArguments;
         }
+
+        public string Name { get; private set; }
 
         private string WithArray(string name,int array)
         {
@@ -48,7 +52,7 @@ namespace Gamlor.Db4oPad.MetaInfo
             return new TypeName(name, assemblyName, array, genericArguments.ToList());
         }
 
-        public string Name { get; private set; }
+        public string NameAndNamespace { get; private set; }
         public string AssemblyName { get; private set; }
         public IEnumerable<TypeName> GenericArguments { get; private set; }
         
@@ -70,7 +74,7 @@ namespace Gamlor.Db4oPad.MetaInfo
 
         public string NameWithGenerics
         {
-            get { return BuildNameWithGenerics(); }
+            get { return SanatizeGenericName(NameAndNamespace); }
         }
         public int OrderOfArray { get; private set; }
 
@@ -78,7 +82,7 @@ namespace Gamlor.Db4oPad.MetaInfo
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return Equals(other.Name, Name)
+            return Equals(other.NameAndNamespace, NameAndNamespace)
                 && Equals(other.AssemblyName, AssemblyName)
                 && Equals(other.OrderOfArray, OrderOfArray)
                 && other.GenericArguments.SequenceEqual(GenericArguments);
@@ -96,7 +100,7 @@ namespace Gamlor.Db4oPad.MetaInfo
         {
             unchecked
             {
-                int result = (Name != null ? Name.GetHashCode() : 0);
+                int result = (NameAndNamespace != null ? NameAndNamespace.GetHashCode() : 0);
                 result = (result * 397) ^ (AssemblyName != null ? AssemblyName.GetHashCode() : 0);
                 return result;
             }
@@ -115,31 +119,47 @@ namespace Gamlor.Db4oPad.MetaInfo
             }
             return "";
         }
-
-        private string BuildFullName()
+        private string SanatizeGenericName(string name)
         {
-            var builder = new StringBuilder();
-            BuildFullName(builder, this);
-            return builder.ToString();
+            var buffer = new StringBuilder(name);
+            AppendGenericCount(buffer, GenericArguments.Count());
+            AppendGenericList(buffer, GenericArguments);
+            return buffer.ToString();
         }
-        private string BuildNameWithGenerics()
+
+        private static void AppendGenericList(StringBuilder buffer, IEnumerable<TypeName> genericArguments)
         {
-            var builder = new StringBuilder();
-            BuildNameWithGenerics(builder, this);
-            return builder.ToString();
+            foreach (var arg in genericArguments)
+            {
+                buffer.Append("_").Append(arg.SanatizeGenericName(arg.Name));
+            }
+        }
+
+        private static void AppendGenericCount(StringBuilder buffer, int count)
+        {
+            if (count != 0)
+            {
+                buffer.Append("_").Append(count);
+            }
         }
 
         internal static void BuildFullName(StringBuilder toBuild, TypeName typeName)
         {
-            toBuild.Append(typeName.Name);
+            toBuild.Append(typeName.NameAndNamespace);
             BuildGenericArguments(toBuild, typeName, BuildFullName);
             toBuild.Append(", ");
             toBuild.Append(typeName.AssemblyName);
         }
         internal static void BuildNameWithGenerics(StringBuilder toBuild, TypeName typeName)
         {
-            toBuild.Append(typeName.Name);
+            toBuild.Append(typeName.NameAndNamespace);
             BuildGenericArguments(toBuild, typeName, BuildNameWithGenerics);
+        }
+        private string BuildFullName()
+        {
+            var builder = new StringBuilder();
+            BuildFullName(builder, this);
+            return builder.ToString();
         }
 
         private static void BuildGenericArguments(StringBuilder toBuild, TypeName typeName, Action<StringBuilder, TypeName> typeNameBuilder)
@@ -173,5 +193,8 @@ namespace Gamlor.Db4oPad.MetaInfo
             typeNameBuilder(toBuild, type);
             toBuild.Append(']');
         }
+
+
+
     }
 }

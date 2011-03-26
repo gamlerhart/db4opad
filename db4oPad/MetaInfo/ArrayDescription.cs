@@ -8,9 +8,8 @@ namespace Gamlor.Db4oPad.MetaInfo
     {
         private readonly ITypeDescription innerType;
 
-        public ArrayDescription(string name,
-            TypeName typeName, ITypeDescription innerType)
-            : base(name, typeName, KnownType.Array)
+        public ArrayDescription(TypeName typeName, ITypeDescription innerType)
+            : base(typeName, KnownType.Array)
         {
             this.innerType = innerType;
         }
@@ -18,7 +17,7 @@ namespace Gamlor.Db4oPad.MetaInfo
         public static ITypeDescription Create(ITypeDescription innerType, int orderOfArray)
         {
             var name = TypeName.CreateArrayOf(innerType.TypeName, orderOfArray);
-            return new ArrayDescription(name.Name, name, innerType);
+            return new ArrayDescription(name, innerType);
         }
 
         public override IEnumerable<SimpleFieldDescription> Fields

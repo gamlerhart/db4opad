@@ -60,6 +60,18 @@ namespace Gamlor.Db4oPad.Tests.TestTypes
             return CreateField(FieldName, type);
         }
 
+        internal static SimpleClassDescription CreateGenericType()
+        {
+            TypeName genericArg = TypeName.Create("System.Int32", "mscorelib");
+            return CreateGenericType(genericArg);
+        }
+
+        internal static SimpleClassDescription CreateGenericType(params TypeName[] genericArg)
+        {
+            TypeName theName = TypeName.Create("ANamespace.TheType", "TheAssembly", genericArg);
+            return SimpleClassDescription.Create(theName, f => new SimpleFieldDescription[0]);
+        }
+
         private class AutoPropertyName
         {
             public string Data { get; set; }

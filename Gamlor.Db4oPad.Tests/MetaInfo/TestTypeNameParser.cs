@@ -75,13 +75,21 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             var result = TypeNameParser.AssemblyName.Parse(input);
             Assert.AreEqual(AsseblyName, result);
         }
+        [Test]
+        public void AssemblyNameCanContainsUnderline()
+        {
+            var input = ", Assembly_random";
+
+            var result = TypeNameParser.AssemblyName.Parse(input);
+            Assert.AreEqual("Assembly_random", result);
+        }
 
         [Test]
         public void GenericArgument()
         {
 
             var result = TypeNameParser.GenericArgument.Parse(GenericArg);
-            Assert.AreEqual(TypeName, result.Name);
+            Assert.AreEqual(TypeName, result.NameAndNamespace);
             Assert.AreEqual(AsseblyName, result.AssemblyName);
         }
         [Test]
@@ -90,7 +98,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             var input = GenericArg + ", ";
 
             var result = TypeNameParser.GenericArgumentWithFollower.Parse(input);
-            Assert.AreEqual(TypeName, result.Name);
+            Assert.AreEqual(TypeName, result.NameAndNamespace);
             Assert.AreEqual(AsseblyName, result.AssemblyName);
         }
         [Test]
@@ -115,7 +123,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         {
 
             var result = TypeNameParser.TypeDefinition.Parse(SimleType);
-            Assert.AreEqual(TypeName, result.Name);
+            Assert.AreEqual(TypeName, result.NameAndNamespace);
             Assert.AreEqual(AsseblyName, result.AssemblyName);
         }
 
@@ -125,7 +133,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             var input = string.Format("Namespace.List`1[{0}], {1}", GenericArg, AsseblyName);
 
             var result = TypeNameParser.TypeDefinition.Parse(input);
-            Assert.AreEqual("Namespace.List", result.Name);
+            Assert.AreEqual("Namespace.List", result.NameAndNamespace);
             Assert.AreEqual(AsseblyName, result.AssemblyName);
             ValidateGenericArgs(result.GenericArguments);
         }
@@ -135,7 +143,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             var input = string.Format("Namespace.Map`2[{0}, {0}], {1}", GenericArg, AsseblyName);
 
             var result = TypeNameParser.TypeDefinition.Parse(input);
-            Assert.AreEqual("Namespace.Map", result.Name);
+            Assert.AreEqual("Namespace.Map", result.NameAndNamespace);
             Assert.AreEqual(AsseblyName, result.AssemblyName);
             ValidateGenericArgs(result.GenericArguments);
         }
@@ -145,7 +153,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             var input = string.Format("Namespace.Map`2[{0}, [Namespace.List`1[{0}], {1}]], {1}", GenericArg, AsseblyName);
 
             var result = TypeNameParser.TypeDefinition.Parse(input);
-            Assert.AreEqual("Namespace.Map", result.Name);
+            Assert.AreEqual("Namespace.Map", result.NameAndNamespace);
             Assert.AreEqual(AsseblyName, result.AssemblyName);
             ValidateGenericArgs(result.GenericArguments.Take(1));
             ValidateGenericArgs(result.GenericArguments.Last().GenericArguments);
@@ -158,7 +166,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             var input = string.Format("Namespace.Map`2[{0}, [Namespace.List`1[{0}], {1}]], {1}", GenericArg, AsseblyName);
 
             var result = TypeNameParser.ParseString(input);
-            Assert.AreEqual("Namespace.Map", result.Name);
+            Assert.AreEqual("Namespace.Map", result.NameAndNamespace);
             Assert.AreEqual(AsseblyName, result.AssemblyName);
             ValidateGenericArgs(result.GenericArguments.Take(1));
             ValidateGenericArgs(result.GenericArguments.Last().GenericArguments);
@@ -171,7 +179,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
 
 
             var result = TypeNameParser.ParseString(input);
-            Assert.AreEqual("Gamlor.Db4oPad.Tests.TypeGeneration.Generic", result.Name);
+            Assert.AreEqual("Gamlor.Db4oPad.Tests.TypeGeneration.Generic", result.NameAndNamespace);
             Assert.AreEqual("Gamlor.Db4oPad.Tests", result.AssemblyName);
         }
         [Test]
@@ -181,7 +189,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
 
 
             var result = TypeNameParser.ParseString(input);
-            Assert.AreEqual("System.String[]", result.Name);
+            Assert.AreEqual("System.String[]", result.NameAndNamespace);
             Assert.AreEqual("mscorlib", result.AssemblyName);
             Assert.AreEqual("System.String[], mscorlib", result.FullName);
             Assert.AreEqual(1, result.OrderOfArray);
@@ -193,7 +201,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         {
             foreach (var type in result)
             {
-                Assert.AreEqual(TypeName, type.Name);
+                Assert.AreEqual(TypeName, type.NameAndNamespace);
                 Assert.AreEqual(AsseblyName, type.AssemblyName);
             }
         }

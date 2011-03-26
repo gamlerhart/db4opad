@@ -143,6 +143,14 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             AssertFieldCanBeSet(instance, fieldInstance);
         }
         [Test]
+        public void SaneGenericsName()
+        {
+            var metaInfo = GenericType();
+
+            var type = ExtractSingleFieldType(metaInfo);
+            Assert.AreEqual(TestMetaData.SingleFieldClassName + "_1_String", type.Name);
+        }
+        [Test]
         public void CanInstanteSubClass()
         {
             var metaInfo = SubClassType();

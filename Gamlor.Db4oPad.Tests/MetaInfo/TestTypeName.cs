@@ -12,6 +12,18 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             var name = CreateSimpleType();
             Assert.AreEqual("Type.Name, Assembly.Name", name.FullName);
         }
+        [Test]
+        public void NameWithNamespace()
+        {
+            var name = CreateSimpleType();
+            Assert.AreEqual("Type.Name", name.NameAndNamespace);
+        }
+        [Test]
+        public void NameWithoutNamespace()
+        {
+            var name = CreateSimpleType();
+            Assert.AreEqual("Name", name.Name);
+        }
 
         [Test]
         public void FullName()
@@ -26,7 +38,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         {
             var complex = CreateComplexType();
 
-            Assert.AreEqual("Type.Map`2[[Type.Name], [Type.Name]]",
+            Assert.AreEqual("Type.Map_2_Name_Name",
                 complex.NameWithGenerics);
         }
         [Test]
