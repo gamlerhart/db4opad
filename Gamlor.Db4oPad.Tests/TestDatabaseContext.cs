@@ -54,7 +54,7 @@ namespace Gamlor.Db4oPad.Tests
         {
             var name = TestUtils.NewName();
             name.CodeBase = Path.GetTempFileName();
-            var context = DatabaseContext.Create(DB, name,TypeLoader.Create(""));
+            var context = DatabaseContext.Create(DB, name,TypeLoader.Create(new string[0]));
             Assert.IsTrue(File.Exists(name.CodeBase));
             Assert.IsTrue(new FileInfo(name.CodeBase).Length>0);
         }
@@ -64,7 +64,7 @@ namespace Gamlor.Db4oPad.Tests
             DB.Store(new SystemTypeArrays());
             var name = TestUtils.NewName();
             name.CodeBase = Path.GetTempFileName();
-            var context = DatabaseContext.Create(DB, name, TypeLoader.Create(""));
+            var context = DatabaseContext.Create(DB, name, TypeLoader.Create(new string[0]));
             var type = context.MetaInfo
                 .DyanmicTypesRepresentation
                 .First(c => c.Key.Name.Equals(typeof (SystemTypeArrays).Name));
@@ -103,7 +103,7 @@ namespace Gamlor.Db4oPad.Tests
             using (var db = Db4oEmbedded.OpenFile(DataBaseFile))
             {
                 var ctx = DatabaseContext.Create(db, TestUtils.NewName(),
-                    TypeLoader.Create(@"..\..\Gamlor.Db4oPad.ExternalAssemblyForTests.dll"));
+                    TypeLoader.Create(new[]{@"..\..\Gamlor.Db4oPad.ExternalAssemblyForTests.dll"}));
                 var type = ctx.MetaInfo.EntityTypes.Single(t =>
                     t.TypeName.NameAndNamespace == "Gamlor.Db4oPad.ExternalAssemblyForTests.AType");
                 Assert.IsTrue(type.KnowsType.HasValue);

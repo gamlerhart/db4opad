@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -15,6 +16,7 @@ namespace Gamlor.Db4oPad
     public class Db4oDriver : DynamicDataContextDriver
     {
         internal const string AssemblyLocation = "Db4oDriver.AssemblyLocationKey";
+
         public override string GetConnectionDescription(IConnectionInfo cxInfo)
         {
             return Path.GetFileName(cxInfo.CustomTypeInfo.CustomMetadataPath);
@@ -43,7 +45,7 @@ namespace Gamlor.Db4oPad
         {
             using (var context = DatabaseContext.Create(
                 OpenDB(cxInfo),
-                assemblyToBuild,TypeLoader.Create(cxInfo.CustomTypeInfo.CustomAssemblyPath)))
+                assemblyToBuild,CreateTypeLoader(cxInfo)))
             {
                 cxInfo.SessionData[AssemblyLocation] = assemblyToBuild.CodeBase;
                 nameSpace = context.MetaInfo.DataContext.Namespace;
@@ -51,6 +53,7 @@ namespace Gamlor.Db4oPad
                 return context.ListTypes().ToList();
             }
         }
+
 
         public override void TearDownContext(IConnectionInfo cxInfo, object context, QueryExecutionManager executionManager, object[] constructorArguments)
         {
@@ -73,6 +76,27 @@ namespace Gamlor.Db4oPad
                 .GetValue(()=>GetDefaultVisualisation(objectToWrite));
         }
 
+        public override ParameterDescriptor[] GetContextConstructorParameters(IConnectionInfo cxInfo)
+        {
+            return new ParameterDescriptor[0];
+        }
+
+        public override IEnumerable<string> GetAssembliesToAdd()
+        {
+            return UserAssembliesProvider.Restore().GetAssemblies();
+        }
+
+        public override IEnumerable<string> GetNamespacesToAdd()
+        {
+            return new[] { CodeGenerator.NameSpace };
+        }
+
+        private TypeResolver CreateTypeLoader(IConnectionInfo cxInfo)
+        {
+            var assemblyProvider = UserAssembliesProvider.CreateForCurrentAssemblyContext(cxInfo.CustomTypeInfo.CustomAssemblyPath);
+            return TypeLoader.Create(assemblyProvider.GetAssemblies());
+        }
+
         private ICustomMemberProvider GetDefaultVisualisation(object objectToWrite)
         {
             return base.GetCustomDisplayMemberProvider(objectToWrite);
@@ -82,7 +106,7 @@ namespace Gamlor.Db4oPad
         {
             using (var tmpDb = OpenDB(cxInfo))
             {
-                var meta = DatabaseMetaInfo.Create(tmpDb,TypeLoader.Create(cxInfo.CustomTypeInfo.CustomAssemblyPath), assembly);
+                var meta = DatabaseMetaInfo.Create(tmpDb, CreateTypeLoader(cxInfo), assembly);
                 return Tuple.Create(DatabaseConfigurator.Create(meta),meta);
             }
         }
@@ -115,11 +139,6 @@ namespace Gamlor.Db4oPad
         private string GetAssemblyLocation(IConnectionInfo cxInfo)
         {
             return (string)cxInfo.SessionData[AssemblyLocation];
-        }
-
-        public override IEnumerable<string> GetNamespacesToAdd()
-        {
-            return new[] {CodeGenerator.NameSpace};
         }
 
 

@@ -95,6 +95,7 @@
     <Compile Include="TestTypes\Person.cs" />
     <Compile Include="TestTypes\TestMetaData.cs" />
     <Compile Include="TestTypes\TestTypes.cs" />
+    <Compile Include="TestUserAssembliesProvider.cs" />
     <Compile Include="TestUtils.cs" />
     <Compile Include="Utils\TestDisposer.cs" />
     <Compile Include="Utils\TestMaybe.cs" />

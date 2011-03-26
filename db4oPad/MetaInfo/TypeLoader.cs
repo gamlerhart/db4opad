@@ -20,20 +20,6 @@ namespace Gamlor.Db4oPad.MetaInfo
             new{filePaths}.CheckNotNull();
             this.filePaths = filePaths.ToList();
         }
-        /// <summary>
-        /// Assumes that the different assemblies are seperated by a new line
-        /// </summary>
-        /// <param name="filePaths"></param>
-        /// <returns></returns>
-        public static TypeResolver Create(string filePaths)
-        {
-            return new TypeLoader(ParseFilePatsh(filePaths)).Resolver();
-        }
-
-        private static IEnumerable<string> ParseFilePatsh(string filePaths)
-        {
-            return filePaths.Split(Environment.NewLine.ToCharArray());
-        }
 
         public static TypeResolver Create(IEnumerable<string> filePaths)
         {
