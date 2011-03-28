@@ -91,6 +91,10 @@ namespace Gamlor.Db4oPad.MetaInfo
 
         public void AddType(string name, Type type)
         {
+            if (type.IsArray)
+            {
+                return;
+            }
             lock (sync)
             {
                 specialTypes[name] = type;

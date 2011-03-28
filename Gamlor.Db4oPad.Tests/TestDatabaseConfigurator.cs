@@ -1,6 +1,7 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Db4objects.Db4o;
 using Db4objects.Db4o.Config;
 using Db4objects.Db4o.Reflect;
 using Gamlor.Db4oPad.MetaInfo;
@@ -42,19 +43,31 @@ namespace Gamlor.Db4oPad.Tests
         {
             var meta = TestMetaData.CreateEmptyClassMetaInfo();
             var dynamicClass = meta.Single();
-            var db = MemoryDBForTests.NewDB(
-                config =>
-                    {
-                        var meatInfo =
-                            DatabaseMetaInfo.Create(
-                                TestMetaData.CreateEmptyClassMetaInfo(), AssemblyName());
-
-                        var toTest = new DatabaseConfigurator(meatInfo);
-
-                        toTest.Configure(config);
-                    });
+            var metaInfo =
+                DatabaseMetaInfo.Create(
+                    TestMetaData.CreateEmptyClassMetaInfo(), AssemblyName());
+            var db = Configure(metaInfo);
             var typeInfo = db.Ext().Reflector().ForName(dynamicClass.TypeName.FullName);
             Assert.AreEqual(dynamicClass.TypeName.FullName, typeInfo.GetName());
+        }
+
+        [Test]
+        public void DoesNotAddArrayTypes()
+        {
+            var meta = TestMetaData.CreateClassWithArrayField();
+            var db = Configure(DatabaseMetaInfo.Create(meta, TestUtils.NewName()));
+            Assert.NotNull(db);
+        }
+
+        private IObjectContainer Configure(DatabaseMetaInfo info)
+        {
+            return MemoryDBForTests.NewDB(
+                config =>
+                {
+                    var toTest = new DatabaseConfigurator(info);
+
+                    toTest.Configure(config);
+                });
         }
     }
 }
