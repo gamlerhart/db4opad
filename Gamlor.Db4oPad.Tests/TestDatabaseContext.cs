@@ -50,6 +50,15 @@ namespace Gamlor.Db4oPad.Tests
                 .Any(c => c.Children.Single().Text == "aField:String"));
         }
         [Test]
+        public void FieldsHaveNiceName()
+        {
+            DB.Store(new ClassWithAutoProperty());
+            var toTest = NewTestInstance();
+            var types = toTest.ListTypes();
+            Assert.IsTrue(types.Where(c => c.Children.Count > 0)
+                .Any(c => c.Children.Single().Text == "AField:String"));
+        }
+        [Test]
         public void HasWrittenAssembly()
         {
             var name = TestUtils.NewName();

@@ -13,7 +13,6 @@ namespace Gamlor.Db4oPad.MetaInfo
     {
         public const string NameSpace = "LINQPad.User";
         public const string QueryContextClassName = "LINQPad.User.TypedDataContext";
-        private const string BackingFieldMarker = ">k__BackingField";
 
         internal static CodeGenerationResult Create(IEnumerable<ITypeDescription> metaInfo,
             AssemblyName intoAssembly)
@@ -164,23 +163,13 @@ namespace Gamlor.Db4oPad.MetaInfo
         private static void CreateProperty(TypeBuilder typeBuilder, SimpleFieldDescription field,
             Type type, FieldBuilder generatedField)
         {
-            var propertyName = PropertyName(field);
+            var propertyName = field.AsPropertyName();
             var property = typeBuilder.DefineProperty(propertyName,
                                                       PropertyAttributes.HasDefault,
                                                       type, null);
 
             property.SetGetMethod(CreateGetter(typeBuilder, propertyName, generatedField));
             property.SetSetMethod(CreateSetter(typeBuilder, propertyName, generatedField));
-        }
-
-        private static string PropertyName(SimpleFieldDescription field)
-        {
-            var name = char.ToUpperInvariant(field.Name[0]) + field.Name.Substring(1);
-            if(name.EndsWith(BackingFieldMarker))
-            {
-                return name.Substring(1, name.Length - BackingFieldMarker.Length-1);
-            }
-            return name;
         }
 
         private static MethodBuilder CreateGetter(TypeBuilder typeBuilder, string propertyName,

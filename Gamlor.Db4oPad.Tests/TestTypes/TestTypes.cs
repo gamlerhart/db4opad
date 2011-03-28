@@ -41,6 +41,11 @@ namespace Gamlor.Db4oPad.Tests.TestTypes
         private ClassWithFields[] withfields = new[]{new ClassWithFields()};
     }
 
+    class ClassWithAutoProperty
+    {
+        private string AField { get; set; }
+    }
+
 
     class Base
     {

@@ -241,7 +241,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             var stringType = KnownType.Create(typeof(int));
             var type = SimpleClassDescription.Create(TestMetaData.SingleFieldType(),
                                                              f => TestMetaData.CreateField(stringType));
-            return new ITypeDescription[] { type, stringType };
+            return new[] { type, stringType };
         }
 
 

@@ -33,6 +33,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
                 db.Store(new SubClass());
                 db.Store(new ClassWithArrays());
                 db.Store(new SystemTypeArrays());
+                db.Store(new ClassWithAutoProperty());
             }
             database = dbContainer.NewDB();
 
@@ -62,6 +63,8 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         {
             var classMeta = For<ClassWithFields>();
             Assert.NotNull(classMeta);
+            Assert.IsFalse(classMeta.Fields.Single().IsBackingField);
+            Assert.AreEqual("AField", classMeta.Fields.Single().AsPropertyName());
             Assert.AreEqual(FieldName, classMeta.Fields.Single().Name);
             Assert.AreEqual("String", classMeta.Fields.Single().Type.Name);
         }
@@ -136,6 +139,13 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             var fieldInfo = classMeta.Fields.Single(f => f.Name == "aField").Type;
             Assert.IsTrue(fieldInfo.IsArray);
             Assert.IsTrue(fieldInfo.ArrayOf.Value.KnowsType.HasValue);
+        }
+        [Test]
+        public void AutoPropertyFieldIsMarked()
+        {
+            var classMeta = For<ClassWithAutoProperty>();
+            Assert.IsTrue(classMeta.Fields.Single().IsBackingField);
+            Assert.AreEqual("AField", classMeta.Fields.Single().AsPropertyName());
         }
 
         [Test]
