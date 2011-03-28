@@ -33,11 +33,6 @@ namespace Gamlor.Db4oPad.MetaInfo
             var dynamicRepresentaton = CodeGenerator.Create(types, intoAssembly);
             return new DatabaseMetaInfo(types, dynamicRepresentaton.Types,dynamicRepresentaton.DataContext);
         }
-        public static DatabaseMetaInfo Create(IObjectContainer db,
-            Assembly candidateAssembly)
-        {
-            return Create(db, MetaDataReader.DefaultTypeResolver(), candidateAssembly);
-        }
 
         public static DatabaseMetaInfo Create(IObjectContainer db,
             TypeResolver typeResolver,
