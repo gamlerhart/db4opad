@@ -36,6 +36,13 @@ namespace Gamlor.Db4oPad.MetaInfo
         {
             return typeInfo.KnowsType
                 .Convert(t => t)
+                .GetValue(
+                () => FindTypeOrArray(typeInfo, candidateAssembly));
+        }
+
+        private static Type FindTypeOrArray(ITypeDescription typeInfo, Assembly candidateAssembly)
+        {
+            return typeInfo.ArrayOf.Convert(t => FindType(t, candidateAssembly).MakeArrayType(1))
                 .GetValue(() => candidateAssembly.GetType(BuildName(typeInfo.TypeName.NameWithGenerics)));
         }
 

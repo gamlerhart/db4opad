@@ -46,7 +46,7 @@ namespace Gamlor.Db4oPad.MetaInfo
             {
                 CreateType(classInfo, typeMap);
             }
-            return typeMap.Select(t => t.Value);
+            return typeMap.Select(t => t.Value).ToList();
         }
 
         private ITypeDescription CreateType(IReflectClass classInfo,
@@ -89,19 +89,6 @@ namespace Gamlor.Db4oPad.MetaInfo
             var type = ArrayDescription.Create(innerType, fullName.OrderOfArray);
             knownTypes[fullName.FullName] = type;
             return type;
-        }
-
-        private static string BuildName(TypeName name)
-        {
-            return name.IsGeneric
-                       ? string.Format("{0}`{1}", name.NameAndNamespace, name.GenericArguments.Count())
-                       : string.Format("{0}", name.NameAndNamespace);
-        }
-
-        private static bool IsSystemType(TypeName name)
-        {
-            return (name.NameAndNamespace.StartsWith("System.") 
-                || name.NameAndNamespace.StartsWith("Db4objects.Db4o.")) && name.OrderOfArray==0;
         }
 
         private ITypeDescription GetOrCreateType(IReflectClass typeToFind,
