@@ -46,6 +46,13 @@ namespace Gamlor.Db4oPad.Tests
 
             Assert.IsFalse(showInfo.HasValue);
         }
+        [Test]
+        public void EnumerablesAreNotVisualized()
+        {
+            var showInfo = MemberProvider.Create(new []{new FieldsAndProperties()});
+
+            Assert.IsFalse(showInfo.HasValue);
+        }
 
         private void AssertInfo(ICustomMemberProvider showInfo)
         {

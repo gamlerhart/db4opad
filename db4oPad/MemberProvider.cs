@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -39,6 +40,10 @@ namespace Gamlor.Db4oPad
         public static Maybe<ICustomMemberProvider> Create(object objectToWrite)
         {
             if(null==objectToWrite)
+            {
+                return Maybe<ICustomMemberProvider>.Empty;
+            }
+            if (objectToWrite is IEnumerable)
             {
                 return Maybe<ICustomMemberProvider>.Empty;
             }
