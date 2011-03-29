@@ -44,5 +44,13 @@ namespace Gamlor.Db4oPad.Tests
                 ? Maybe<Type>.Empty
                 : defaultResolver(n);
         }
+
+
+
+        internal static void CopyTestDB(string dbName)
+        {
+            File.Delete(dbName);
+            File.Copy("../../" + dbName, dbName);
+        }
     }
 }

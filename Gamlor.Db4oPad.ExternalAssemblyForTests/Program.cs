@@ -1,4 +1,5 @@
-﻿using Db4objects.Db4o;
+﻿using System;
+using Db4objects.Db4o;
 
 namespace Gamlor.Db4oPad.ExternalAssemblyForTests
 {
@@ -15,7 +16,7 @@ namespace Gamlor.Db4oPad.ExternalAssemblyForTests
     {
         public static void Main(string[] args)
         {
-            using(var db = Db4oEmbedded.OpenFile("withKnownTypes.db4o"))
+            using (var db = Db4oEmbedded.OpenFile("withKnownTypes.db4o"))
             {
                 db.Store(new AType());
             }   

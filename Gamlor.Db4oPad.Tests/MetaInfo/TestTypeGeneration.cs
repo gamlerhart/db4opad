@@ -32,7 +32,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
                                        Version = new Version(1, 0, 0, 1),
                                        CultureInfo = CultureInfo.InvariantCulture
                                    };
-            var type = CodeGenerator.Create(metaInfo, assemblyName).Single(t => SingleNotObject(t));
+            var type = CodeGenerator.Create(metaInfo, assemblyName).Single(SingleNotObject);
 
             var generatedAssembly = type.Value.Assembly.GetName();
             Assert.AreEqual(assemblyName.Name, generatedAssembly.Name);
@@ -97,6 +97,16 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             Assert.AreEqual(SingleFieldMeta(metaInfo).Name, type.Name);
             dynamic instance = CreateInstance(type);
             AssertFieldCanBeSet(instance, new []{"1","2"});
+        }
+        [Test]
+        public void ArraysAreLowerBoundZero()
+        {
+            var arrayType = TestMetaData.CreateEmptyClassMetaInfo().Single();
+            var metaInfo = SimpleClassDescription.Create(TestMetaData.SingleFieldType(),
+                                                         f => TestMetaData.CreateArrayField(arrayType));
+            var type = ExtractSingleFieldType(new[]{metaInfo});
+            var fieldType= type.GetField("data").FieldType;
+            Assert.IsTrue(fieldType.AssemblyQualifiedName.Contains("[]"));
         }
 
         [Test]
@@ -208,6 +218,18 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             Assert.IsTrue(File.Exists(name.CodeBase));
 
         }
+        [Test]
+        public void CanAccessExistingArrayType()
+        {
+            var knownType = KnownType.Create(typeof(ClassWithFields));
+            var knownTypeArray = ArrayDescription.Create(knownType,1);
+            var metaInfo = new[] { knownType, knownTypeArray };
+
+            var result = CodeGenerator.Create(metaInfo,
+                Assembly.GetAssembly(typeof(TestTypeGeneration)));
+            var arrayType = result.Types[knownTypeArray];
+            Assert.NotNull(arrayType);
+        }
 
         private IEnumerable<ITypeDescription> SubClassType()
         {
@@ -265,7 +287,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             var intGenericArgs = GenericArg(intType);
             var intInstance = SimpleClassDescription.Create(TypeName.Create(TestMetaData.SingleFieldTypeName, TestMetaData.AssemblyName, intGenericArgs),
                                                      f => TestMetaData.CreateField(intList));
-            return new ITypeDescription[] { stringInstance, intInstance, stringList, intList };
+            return new[] { stringInstance, intInstance, stringList, intList };
         }
 
         private static Type ExtractSingleFieldType(IEnumerable<ITypeDescription> metaInfo)

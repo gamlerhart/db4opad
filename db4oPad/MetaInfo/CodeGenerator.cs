@@ -36,6 +36,13 @@ namespace Gamlor.Db4oPad.MetaInfo
         {
             return typeInfo.KnowsType
                 .Convert(t => t)
+                .GetValue(
+                () => FindTypeOrArray(typeInfo, candidateAssembly));
+        }
+
+        private static Type FindTypeOrArray(ITypeDescription typeInfo, Assembly candidateAssembly)
+        {
+            return typeInfo.ArrayOf.Convert(t =>FindType(t, candidateAssembly).MakeArrayType())
                 .GetValue(() => candidateAssembly.GetType(BuildName(typeInfo.TypeName.NameWithGenerics)));
         }
 
@@ -212,7 +219,7 @@ namespace Gamlor.Db4oPad.MetaInfo
         {
             var elementType = typeBuildMap.TryGet(elementDescription)
                 .GetValue(() => GetOrCreateType(typeBuildMap, modBuilder, elementDescription));
-            var type = elementType.MakeArrayType(1);
+            var type = elementType.MakeArrayType();
             typeBuildMap[arrayType] = type;
             return type;
         }

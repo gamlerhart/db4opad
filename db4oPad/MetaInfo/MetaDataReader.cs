@@ -46,13 +46,13 @@ namespace Gamlor.Db4oPad.MetaInfo
             {
                 CreateType(classInfo, typeMap);
             }
-            return typeMap.Select(t => t.Value);
+            return typeMap.Select(t => t.Value).ToList();
         }
 
         private ITypeDescription CreateType(IReflectClass classInfo,
                                                    IDictionary<string, ITypeDescription> knownTypes)
         {
-            var name = TypeNameParser.ParseString(classInfo.GetName());
+            var name = NameOf(classInfo);
             return name.ArrayOf.Convert(
                 n => CreateArrayType(name, classInfo, knownTypes))
                 .GetValue(() =>
@@ -91,25 +91,23 @@ namespace Gamlor.Db4oPad.MetaInfo
             return type;
         }
 
-        private static string BuildName(TypeName name)
-        {
-            return name.IsGeneric
-                       ? string.Format("{0}`{1}", name.NameAndNamespace, name.GenericArguments.Count())
-                       : string.Format("{0}", name.NameAndNamespace);
-        }
-
-        private static bool IsSystemType(TypeName name)
-        {
-            return (name.NameAndNamespace.StartsWith("System.") 
-                || name.NameAndNamespace.StartsWith("Db4objects.Db4o.")) && name.OrderOfArray==0;
-        }
-
         private ITypeDescription GetOrCreateType(IReflectClass typeToFind,
                                                         IDictionary<string, ITypeDescription> knownTypes)
         {
-            return knownTypes.TryGet(typeToFind.GetName())
+            return knownTypes.TryGet(NameOf(typeToFind).FullName)
                 .GetValue(() => CreateType(typeToFind, knownTypes));
         }
+
+        private TypeName NameOf(IReflectClass typeToFind)
+        {
+            var name = TypeNameParser.ParseString(typeToFind.GetName());
+            if (typeToFind.IsArray() && !name.ArrayOf.HasValue)
+            {
+                return TypeName.CreateArrayOf(name, 1);
+            }
+            return name;
+        }
+
 
         private static IEnumerable<SimpleFieldDescription> ExtractFields(IReflectClass classInfo,
                                                                          Func<IReflectClass, ITypeDescription>
