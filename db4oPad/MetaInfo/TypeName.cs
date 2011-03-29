@@ -8,7 +8,7 @@ namespace Gamlor.Db4oPad.MetaInfo
 {
     class TypeName
     {
-        private string rawName;
+        private readonly string rawName;
 
         private TypeName(string name,
                          string assemblyName,
@@ -26,7 +26,7 @@ namespace Gamlor.Db4oPad.MetaInfo
 
         public string Name { get; private set; }
 
-        private string WithArray(string name,int array)
+        private static string WithArray(string name,int array)
         {
             return name + ArrayParentesis(array);
         }
@@ -65,11 +65,6 @@ namespace Gamlor.Db4oPad.MetaInfo
             return Create(rawName, AssemblyName, GenericArguments, OrderOfArray - 1);
         } }
 
-        public bool IsGeneric
-        {
-            get { return GenericArguments.Count() != 0; }
-        }
-
         public string FullName { get { return BuildFullName(); } }
 
         public string NameWithGenerics
@@ -78,7 +73,7 @@ namespace Gamlor.Db4oPad.MetaInfo
         }
         public int OrderOfArray { get; private set; }
 
-        public bool Equals(TypeName other)
+        private bool Equals(TypeName other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
@@ -111,7 +106,7 @@ namespace Gamlor.Db4oPad.MetaInfo
             return rawName;
         }
 
-        private string ArrayParentesis(int array)
+        private static string ArrayParentesis(int array)
         {
             if (array >= 1)
             {
@@ -143,18 +138,14 @@ namespace Gamlor.Db4oPad.MetaInfo
             }
         }
 
-        internal static void BuildFullName(StringBuilder toBuild, TypeName typeName)
+        private static void BuildFullName(StringBuilder toBuild, TypeName typeName)
         {
             toBuild.Append(typeName.NameAndNamespace);
             BuildGenericArguments(toBuild, typeName, BuildFullName);
             toBuild.Append(", ");
             toBuild.Append(typeName.AssemblyName);
         }
-        internal static void BuildNameWithGenerics(StringBuilder toBuild, TypeName typeName)
-        {
-            toBuild.Append(typeName.NameAndNamespace);
-            BuildGenericArguments(toBuild, typeName, BuildNameWithGenerics);
-        }
+
         private string BuildFullName()
         {
             var builder = new StringBuilder();
@@ -182,9 +173,9 @@ namespace Gamlor.Db4oPad.MetaInfo
             }
         }
 
-        private static bool IsNotLastArgument(int i, TypeName[] args)
+        private static bool IsNotLastArgument(int i, ICollection<TypeName> args)
         {
-            return i < args.Length - 1;
+            return i < args.Count - 1;
         }
 
         private static void AddArg(StringBuilder toBuild, TypeName type, Action<StringBuilder, TypeName> typeNameBuilder)

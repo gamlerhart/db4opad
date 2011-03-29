@@ -51,7 +51,7 @@ namespace Gamlor.Db4oPad.MetaInfo
             return Maybe<Type>.Empty;
         }
 
-        private Maybe<Assembly> TryLoad(string assemblyPath)
+        private static Maybe<Assembly> TryLoad(string assemblyPath)
         {
             if(File.Exists(assemblyPath))
             {
@@ -60,7 +60,7 @@ namespace Gamlor.Db4oPad.MetaInfo
             return Maybe<Assembly>.Empty;
         }
 
-        private Maybe<Assembly> TryLoadAssembly(string assemblyPath)
+        private static Maybe<Assembly> TryLoadAssembly(string assemblyPath)
         {
             try
             {

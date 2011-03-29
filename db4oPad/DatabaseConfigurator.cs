@@ -25,8 +25,8 @@ namespace Gamlor.Db4oPad
             ConfigureReflector(configuration, info.DyanmicTypesRepresentation);
         }
 
-        private void ConfigureReflector(IEmbeddedConfiguration configuration,
-            IDictionary<ITypeDescription, Type> types)
+        private static void ConfigureReflector(ICommonConfigurationProvider configuration,
+            IEnumerable<KeyValuePair<ITypeDescription, Type>> types)
         {
             var reflector = DynamicGeneratedTypesReflector.CreateInstance();
             configuration.Common.ReflectWith(reflector);

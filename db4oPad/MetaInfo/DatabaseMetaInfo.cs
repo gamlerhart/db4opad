@@ -10,7 +10,7 @@ namespace Gamlor.Db4oPad.MetaInfo
     class DatabaseMetaInfo
     {
 
-        internal DatabaseMetaInfo(IEnumerable<ITypeDescription> types,
+        private DatabaseMetaInfo(IEnumerable<ITypeDescription> types,
             IDictionary<ITypeDescription, Type> typeMapping,Type contextType)
         {
             new { types, typeMapping, contextType }.CheckNotNull();
@@ -20,7 +20,7 @@ namespace Gamlor.Db4oPad.MetaInfo
             DataContext = contextType;
         }
 
-        private IEnumerable<ITypeDescription> OnlyEntities(IEnumerable<ITypeDescription> types)
+        private static IEnumerable<ITypeDescription> OnlyEntities(IEnumerable<ITypeDescription> types)
         {
             return (from t in types
                    where t.IsBusinessEntity

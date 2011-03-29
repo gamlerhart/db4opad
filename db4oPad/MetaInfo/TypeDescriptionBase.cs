@@ -45,7 +45,7 @@ namespace Gamlor.Db4oPad.MetaInfo
             return Name;
         }
 
-        public bool Equals(TypeDescriptionBase other)
+        private bool Equals(ITypeDescription other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;

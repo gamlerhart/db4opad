@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Gamlor.Db4oPad.Utils;
 
 namespace Gamlor.Db4oPad.MetaInfo
@@ -8,7 +7,7 @@ namespace Gamlor.Db4oPad.MetaInfo
     {
         private readonly ITypeDescription innerType;
 
-        public ArrayDescription(TypeName typeName, ITypeDescription innerType)
+        private ArrayDescription(TypeName typeName, ITypeDescription innerType)
             : base(typeName, KnownType.Array)
         {
             this.innerType = innerType;

@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Db4objects.Db4o.Internal;
@@ -126,10 +125,10 @@ namespace Gamlor.Db4oPad.MetaInfo
 
     internal class RenamedNetClass : NetClass
     {
-        private string name;
+        private readonly string name;
 
         public RenamedNetClass(IReflector parent, 
-            DynamicGeneratedTypesReflector netReflector,
+            NetReflector netReflector,
             Type type, string name) : base(parent,netReflector, type)
         {
             this.name = name;

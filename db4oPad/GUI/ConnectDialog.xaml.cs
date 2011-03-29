@@ -1,17 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using LINQPad.Extensibility.DataContext;
 using Microsoft.Win32;
 
 namespace Gamlor.Db4oPad.GUI
@@ -21,7 +10,7 @@ namespace Gamlor.Db4oPad.GUI
     /// </summary>
     public partial class ConnectDialog : Window
     {
-        private ConnectionViewModel model;
+        private readonly ConnectionViewModel model;
 
         public ConnectDialog(ConnectionViewModel model)
         {
@@ -69,7 +58,7 @@ namespace Gamlor.Db4oPad.GUI
             }
         }
 
-        private string AssemblyPaths(OpenFileDialog dialog)
+        private static string AssemblyPaths(FileDialog dialog)
         {
             return dialog.FileNames.Aggregate("", (e, n) => e + n + Environment.NewLine);
         }

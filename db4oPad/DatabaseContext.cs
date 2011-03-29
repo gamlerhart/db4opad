@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Db4objects.Db4o;
+using Db4objects.Db4o.Linq;
 using Gamlor.Db4oPad.MetaInfo;
 using Gamlor.Db4oPad.Utils;
 using LINQPad.Extensibility.DataContext;
-using Db4objects.Db4o.Linq;
 
 namespace Gamlor.Db4oPad
 {
@@ -27,10 +27,6 @@ namespace Gamlor.Db4oPad
             return new DatabaseContext(db, DatabaseMetaInfo.Create(db,resolver, theAssembly));
         }
 
-        public static DatabaseContext Create(IObjectContainer db, AssemblyName theAssembly)
-        {
-            return new DatabaseContext(db, DatabaseMetaInfo.Create(db, theAssembly));
-        }
         public static DatabaseContext Create(IObjectContainer db, DatabaseMetaInfo metaInfo)
         {
             return new DatabaseContext(db,metaInfo);
@@ -59,19 +55,19 @@ namespace Gamlor.Db4oPad
         }
 
 
-        private ExplorerItem ToExplorerItem(ITypeDescription typeDescription)
+        private static ExplorerItem ToExplorerItem(ITypeDescription typeDescription)
         {
             return new ExplorerItem(typeDescription.Name, 
                 ExplorerItemKind.QueryableObject, 
                 ExplorerIcon.Table) {Children = Fields(typeDescription)};
         }
 
-        private ExplorerItem ToExplorerItem(SimpleFieldDescription field)
+        private static ExplorerItem ToExplorerItem(SimpleFieldDescription field)
         {
             return new ExplorerItem(NameOfField(field)+":"+field.Type.Name,ExplorerItemKind.Property, ExplorerIcon.Column);
         }
 
-        private string NameOfField(SimpleFieldDescription field)
+        private static string NameOfField(SimpleFieldDescription field)
         {
             if(field.IsBackingField)
             {
@@ -80,7 +76,7 @@ namespace Gamlor.Db4oPad
             return field.Name;
         }
 
-        private List<ExplorerItem> Fields(ITypeDescription type)
+        private static List<ExplorerItem> Fields(ITypeDescription type)
         {
             if(type.Equals(KnownType.Object))
             {

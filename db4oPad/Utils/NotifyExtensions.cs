@@ -11,6 +11,7 @@ namespace Gamlor.Db4oPad.Utils
         public static void Fire<TSender, TPropertyValue>(this PropertyChangedEventHandler handler,
                                                          TSender sender,
                                                          Expression<Func<TSender, TPropertyValue>> property)
+            where TSender:class 
         {
             if (null == handler)
             {
@@ -31,6 +32,7 @@ namespace Gamlor.Db4oPad.Utils
         }
 
         private static void FireImpl<TSender>(PropertyChangedEventHandler handler, TSender sender, Expression property)
+            where TSender :class
         {
             if (null == sender)
             {

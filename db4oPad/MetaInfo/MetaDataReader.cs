@@ -98,7 +98,7 @@ namespace Gamlor.Db4oPad.MetaInfo
                 .GetValue(() => CreateType(typeToFind, knownTypes));
         }
 
-        private TypeName NameOf(IReflectClass typeToFind)
+        private static TypeName NameOf(IReflectClass typeToFind)
         {
             var name = TypeNameParser.ParseString(typeToFind.GetName());
             if (typeToFind.IsArray() && !name.ArrayOf.HasValue)

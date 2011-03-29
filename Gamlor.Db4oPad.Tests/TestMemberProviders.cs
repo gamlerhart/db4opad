@@ -1,8 +1,8 @@
 using System;
+using System.Linq;
 using LINQPad;
 using LINQPad.User;
 using NUnit.Framework;
-using System.Linq;
 
 namespace Gamlor.Db4oPad.Tests
 {

@@ -1,7 +1,4 @@
-using System;
-using System.IO;
 using System.Linq;
-using System.Reflection.Emit;
 using Gamlor.Db4oPad.MetaInfo;
 using Gamlor.Db4oPad.Tests.TestTypes;
 using NUnit.Framework;

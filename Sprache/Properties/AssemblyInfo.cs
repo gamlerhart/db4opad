@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 
 [assembly: AssemblyTitle("Sprache Tiny C# Parser Combinators")]
 [assembly: AssemblyProduct("Sprache")]

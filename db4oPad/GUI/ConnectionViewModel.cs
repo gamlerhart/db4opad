@@ -1,4 +1,3 @@
-using System;
 using System.ComponentModel;
 using System.IO;
 using Gamlor.Db4oPad.Utils;

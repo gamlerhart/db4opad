@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Gamlor.Db4oPad.Utils;
 
 namespace Gamlor.Db4oPad.MetaInfo
@@ -20,7 +19,7 @@ namespace Gamlor.Db4oPad.MetaInfo
         {
             new { typeInfo }.CheckNotNull();
             this.typeInfo = typeInfo;
-            this.Fields = fieldsInitializer(this).ToList();;
+            this.Fields = fieldsInitializer(this).ToList();
         }
         public static ITypeDescription Create(Type knownType)
         {
@@ -101,7 +100,7 @@ namespace Gamlor.Db4oPad.MetaInfo
             return type.GetGenericArguments().Select(CreateTypeName);
         }
 
-        public bool Equals(KnownType other)
+        private bool Equals(KnownType other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;

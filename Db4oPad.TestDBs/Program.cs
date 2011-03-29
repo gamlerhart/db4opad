@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Db4objects.Db4o;
+﻿using Db4objects.Db4o;
 
 namespace Db4oPad.TestDBs
 {
@@ -12,7 +8,6 @@ namespace Db4oPad.TestDBs
         {
             using (var db = Db4oEmbedded.OpenFile("databaseWithArrayFields.db4o"))
             {
-
                 StoreADemoDataModel(db);
             }   
         }

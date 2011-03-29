@@ -1,5 +1,4 @@
-﻿using System;
-using Db4objects.Db4o;
+﻿using Db4objects.Db4o;
 
 namespace Gamlor.Db4oPad.ExternalAssemblyForTests
 {

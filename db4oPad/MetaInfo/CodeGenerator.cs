@@ -9,7 +9,7 @@ using Gamlor.Db4oPad.Utils;
 
 namespace Gamlor.Db4oPad.MetaInfo
 {
-    internal class CodeGenerator
+    internal static class CodeGenerator
     {
         public const string NameSpace = "LINQPad.User";
         public const string QueryContextClassName = "LINQPad.User.TypedDataContext";
@@ -47,7 +47,7 @@ namespace Gamlor.Db4oPad.MetaInfo
         }
 
 
-        private static Type CreateContextType(ModuleBuilder builder, IDictionary<ITypeDescription, Type> types)
+        private static Type CreateContextType(ModuleBuilder builder, IEnumerable<KeyValuePair<ITypeDescription, Type>> types)
         {
             var typeBuilder = builder.DefineType(QueryContextClassName,
                                          TypeAttributes.Class | TypeAttributes.Public);
@@ -159,7 +159,7 @@ namespace Gamlor.Db4oPad.MetaInfo
 
         private static void AddOptionalProperty(TypeBuilder typeBuilder,
             SimpleFieldDescription field,
-            Type type, FieldBuilder generatedField)
+            Type type, FieldInfo generatedField)
         {
             if (char.IsLower(field.Name[0]) || char.IsSymbol(field.Name[0]))
             {
@@ -168,7 +168,7 @@ namespace Gamlor.Db4oPad.MetaInfo
         }
 
         private static void CreateProperty(TypeBuilder typeBuilder, SimpleFieldDescription field,
-            Type type, FieldBuilder generatedField)
+            Type type, FieldInfo generatedField)
         {
             var propertyName = field.AsPropertyName();
             var property = typeBuilder.DefineProperty(propertyName,
@@ -180,7 +180,7 @@ namespace Gamlor.Db4oPad.MetaInfo
         }
 
         private static MethodBuilder CreateGetter(TypeBuilder typeBuilder, string propertyName,
-                                                  FieldBuilder generatedField)
+                                                  FieldInfo generatedField)
         {
             var getterMethod = DefineMethod(typeBuilder,
                 "get_" + propertyName, generatedField.FieldType, Type.EmptyTypes);
@@ -193,7 +193,7 @@ namespace Gamlor.Db4oPad.MetaInfo
         }
 
         private static MethodBuilder CreateSetter(TypeBuilder typeBuilder, string propertyName,
-                                                  FieldBuilder generatedField)
+                                                  FieldInfo generatedField)
         {
             var setterMethod = DefineMethod(typeBuilder, "set_" + propertyName,null,new[] { generatedField.FieldType });
 

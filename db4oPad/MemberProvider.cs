@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Gamlor.Db4oPad.MetaInfo;
-using LINQPad;
 using Gamlor.Db4oPad.Utils;
+using LINQPad;
 
 namespace Gamlor.Db4oPad
 {
@@ -15,7 +15,7 @@ namespace Gamlor.Db4oPad
         private readonly IEnumerable<Type> types;
         private readonly IEnumerable<object> values;
 
-        public MemberProvider(IEnumerable<string> names, IEnumerable<Type> types, IEnumerable<object> values)
+        private MemberProvider(IEnumerable<string> names, IEnumerable<Type> types, IEnumerable<object> values)
         {
             this.names = names;
             this.types = types;
