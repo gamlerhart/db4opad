@@ -98,6 +98,16 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             dynamic instance = CreateInstance(type);
             AssertFieldCanBeSet(instance, new []{"1","2"});
         }
+        [Test]
+        public void ArraysAreLowerBoundZero()
+        {
+            var arrayType = TestMetaData.CreateEmptyClassMetaInfo().Single();
+            var metaInfo = SimpleClassDescription.Create(TestMetaData.SingleFieldType(),
+                                                         f => TestMetaData.CreateArrayField(arrayType));
+            var type = ExtractSingleFieldType(new[]{metaInfo});
+            var fieldType= type.GetField("data").FieldType;
+            Assert.IsTrue(fieldType.AssemblyQualifiedName.Contains("[]"));
+        }
 
         [Test]
         public void CanAccessAutoProperty()

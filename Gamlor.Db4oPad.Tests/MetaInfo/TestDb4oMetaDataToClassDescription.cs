@@ -34,6 +34,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
                 db.Store(new ClassWithArrays());
                 db.Store(new SystemTypeArrays());
                 db.Store(new ClassWithAutoProperty());
+                db.Store(new ClassWithSelfUsingArray());
             }
             database = dbContainer.NewDB();
 
@@ -130,6 +131,13 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             Assert.NotNull(classMeta);
             Assert.IsTrue(classMeta.Fields.Single(f=>f.Name=="strings").Type.IsArray);
             Assert.IsTrue(classMeta.Fields.Single(f => f.Name == "withfields").Type.IsArray);
+        }
+        [Test]
+        public void TypeWithSelfArrays()
+        {
+            var classMeta = For<ClassWithSelfUsingArray>();
+            Assert.NotNull(classMeta);
+            Assert.IsTrue(classMeta.Fields.Single().Type.IsArray);
         }
         [Test]
         public void TypeWithSystemArrays()

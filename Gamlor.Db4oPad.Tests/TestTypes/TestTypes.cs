@@ -17,6 +17,7 @@ namespace Gamlor.Db4oPad.Tests.TestTypes
     {
         private RecursiveClass aField;
     }
+
     class WithBuiltInGeneric
     {
         private List<string> aField;
@@ -39,6 +40,10 @@ namespace Gamlor.Db4oPad.Tests.TestTypes
     {
         private string[] strings = new string[0];
         private ClassWithFields[] withfields = new[]{new ClassWithFields()};
+    }
+    class ClassWithSelfUsingArray
+    {
+        private ClassWithSelfUsingArray[] aField = new ClassWithSelfUsingArray[0];
     }
 
     class ClassWithAutoProperty

@@ -52,7 +52,7 @@ namespace Gamlor.Db4oPad.MetaInfo
         private ITypeDescription CreateType(IReflectClass classInfo,
                                                    IDictionary<string, ITypeDescription> knownTypes)
         {
-            var name = TypeNameParser.ParseString(classInfo.GetName());
+            var name = NameOf(classInfo);
             return name.ArrayOf.Convert(
                 n => CreateArrayType(name, classInfo, knownTypes))
                 .GetValue(() =>
@@ -94,9 +94,20 @@ namespace Gamlor.Db4oPad.MetaInfo
         private ITypeDescription GetOrCreateType(IReflectClass typeToFind,
                                                         IDictionary<string, ITypeDescription> knownTypes)
         {
-            return knownTypes.TryGet(typeToFind.GetName())
+            return knownTypes.TryGet(NameOf(typeToFind).FullName)
                 .GetValue(() => CreateType(typeToFind, knownTypes));
         }
+
+        private TypeName NameOf(IReflectClass typeToFind)
+        {
+            var name = TypeNameParser.ParseString(typeToFind.GetName());
+            if (typeToFind.IsArray() && !name.ArrayOf.HasValue)
+            {
+                return TypeName.CreateArrayOf(name, 1);
+            }
+            return name;
+        }
+
 
         private static IEnumerable<SimpleFieldDescription> ExtractFields(IReflectClass classInfo,
                                                                          Func<IReflectClass, ITypeDescription>
