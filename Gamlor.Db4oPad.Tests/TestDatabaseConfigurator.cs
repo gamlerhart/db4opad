@@ -58,6 +58,17 @@ namespace Gamlor.Db4oPad.Tests
             var db = Configure(DatabaseMetaInfo.Create(meta, TestUtils.NewName()));
             Assert.NotNull(db);
         }
+        [Test]
+        public void DoesAddPartialGenerics()
+        {
+            var meta = TestMetaData.CreateClassListGenericOf(TestMetaData.CreateEmptyClassMetaInfo().Single());
+            var db = Configure(DatabaseMetaInfo.Create(meta, TestUtils.NewName()));
+            var typeWithGenericField = meta.First();
+            var fieldType = typeWithGenericField.Fields.Single();
+            var typeInfo = db.Ext().Reflector().ForName(fieldType.Type.TypeName.FullName);
+            Assert.NotNull(typeInfo);
+            Assert.IsTrue(typeInfo.GetName().StartsWith("System.Collections.Generic.List`1[[ANamespace"));
+        }
 
         private IObjectContainer Configure(DatabaseMetaInfo info)
         {

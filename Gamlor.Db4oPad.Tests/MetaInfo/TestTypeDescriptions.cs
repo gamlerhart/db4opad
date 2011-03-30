@@ -1,9 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Db4objects.Db4o.Collections;
 using Gamlor.Db4oPad.MetaInfo;
 using Gamlor.Db4oPad.Tests.TestTypes;
-using Gamlor.Db4oPad.Utils;
 using NUnit.Framework;
 
 namespace Gamlor.Db4oPad.Tests.MetaInfo
@@ -143,6 +143,13 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         {
             var theType = KnownType.Create(typeof(ClassWithProperty));
             Assert.AreEqual(1, theType.Fields.Count());
+        }
+        [Test]
+        public void NameOfGenericInstance()
+        {
+            var listType = KnownType.Create(typeof(List<>), new[] { KnownType.String });
+
+            Assert.IsTrue(listType.TypeName.FullName.StartsWith("System.Collections.Generic.List`1["));
         }
 
         private ITypeDescription CreateArrayType()

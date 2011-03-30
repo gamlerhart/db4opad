@@ -190,13 +190,10 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         [Test]
         public void CreateMixedGenericInstance()
         {
-            var emptyClass = TestMetaData.CreateEmptyClassMetaInfo();
-            var listType = KnownType.Create(typeof(List<>), emptyClass);
-            var metaInfo = SimpleClassDescription.Create(
-                TestMetaData.SingleFieldType(), t => new[] { SimpleFieldDescription.Create("aField", listType) });
+            var metaInfo = TestMetaData.CreateClassListGenericOf(TestMetaData.CreateEmptyClassMetaInfo().First());
 
-            var types = NewTestInstance(new[] { metaInfo, listType }.Union(emptyClass));
-            var genericTypes = types.Types[metaInfo];
+            var types = NewTestInstance(metaInfo);
+            var genericTypes = types.Types[metaInfo.First()];
             var fields = genericTypes.GetFields();
             Assert.AreEqual(typeof(List<>),fields.Single().FieldType.GetGenericTypeDefinition());
         }

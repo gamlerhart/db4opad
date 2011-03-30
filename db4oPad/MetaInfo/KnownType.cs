@@ -111,7 +111,7 @@ namespace Gamlor.Db4oPad.MetaInfo
 
         private TypeName CreateTypeName(Type type)
         {
-            return TypeName.Create(type.FullName, type.Assembly.GetName().Name, GenericNameArguments(type));
+            return TypeName.Create(type.FullName.Split('`').First(), type.Assembly.GetName().Name, GenericNameArguments(type));
         }
 
         protected virtual IEnumerable<TypeName> GenericNameArguments(Type type)

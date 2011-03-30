@@ -33,6 +33,13 @@ namespace Gamlor.Db4oPad.Tests.TestTypes
                                                              f => CreateArrayField(StringType));
             return new[] { type, StringType };
         }
+        public static IEnumerable<ITypeDescription> CreateClassListGenericOf(ITypeDescription typeOfLists)
+        {
+            var listType = KnownType.Create(typeof (List<>), new[]{typeOfLists});
+            var type = SimpleClassDescription.Create(SingleFieldType(),
+                                                             f => CreateField(listType));
+            return new[] { type, listType, typeOfLists };
+        }
         internal static IEnumerable<ITypeDescription> CreateSingleAutoPropertyClass()
         {
             var type = SimpleClassDescription.Create(SingleFieldType(),
