@@ -17,5 +17,7 @@ namespace Gamlor.Db4oPad.MetaInfo
         /// Do we consider this type as a real entity?
         /// </summary>
         bool IsBusinessEntity { get; }
+
+
     }
 }

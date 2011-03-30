@@ -187,6 +187,21 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
                 Assert.NotNull(instance);
             }
         }
+        [Test]
+        public void CreateMixedGenericInstance()
+        {
+            var emptyClass = TestMetaData.CreateEmptyClassMetaInfo();
+            var listTypeName = TypeName.Create("System.Collection.Generic.List",
+                                               "mscorlib", emptyClass.Select(c => c.TypeName));
+            var listType = SimpleClassDescription.Create(listTypeName, t => new SimpleFieldDescription[0]);
+            var metaInfo = SimpleClassDescription.Create(
+                TestMetaData.SingleFieldType(), t => new[] { SimpleFieldDescription.Create("aField", listType) });
+
+            var types = NewTestInstance(new[] { metaInfo, listType }.Union(emptyClass));
+            var genericTypes = types.Types[metaInfo];
+            var fields = genericTypes.GetFields();
+            Assert.AreEqual(typeof(List<>),fields.Single().FieldType.GetGenericTypeDefinition());
+        }
 
         [Test]
         public void HasPublicGetterForLowerCaseBeginners()

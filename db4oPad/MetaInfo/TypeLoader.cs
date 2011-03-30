@@ -86,15 +86,19 @@ namespace Gamlor.Db4oPad.MetaInfo
         private Maybe<Type> LoadTypeFromAssembly(Assembly assembly, TypeName toFind)
         {
             var name = Generify(toFind);
-            return assembly.GetType(name).AsMaybe().Convert(t=>InstantiateGeneric(t,toFind));
+            return assembly.GetType(name).AsMaybe().Combine(t=>InstantiateGeneric(t,toFind));
         }
 
-        private Type InstantiateGeneric(Type type, TypeName toFind)
+        private Maybe<Type> InstantiateGeneric(Type type, TypeName toFind)
         {
             if (IsGeneric(toFind))
             {
-                var types = toFind.GenericArguments.Select(n => Resolve(n).Value);
-                return type.MakeGenericType(types.ToArray());
+                var types = toFind.GenericArguments.Select(Resolve);
+                if(types.All(t=>t.HasValue))
+                {
+                    return type.MakeGenericType(types.Select(t=>t.Value).ToArray());
+                }
+                return Maybe<Type>.Empty;
             }
             return type;
         }

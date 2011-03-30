@@ -35,6 +35,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
                 db.Store(new SystemTypeArrays());
                 db.Store(new ClassWithAutoProperty());
                 db.Store(new ClassWithSelfUsingArray());
+                db.Store(new WithMixedGeneric());
             }
             database = dbContainer.NewDB();
 
@@ -91,6 +92,14 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             Assert.NotNull(classMeta);
             Assert.AreEqual(FieldName, classMeta.Fields.Single().Name);
             Assert.AreEqual(typeof(List<string>).Name, classMeta.Fields.Single().Type.Name);
+        }
+        [Test]
+        public void WithMixedGeneric()
+        {
+            var classMeta = For<WithMixedGeneric>();
+            Assert.NotNull(classMeta);
+            Assert.AreEqual(FieldName, classMeta.Fields.Single().Name);
+            Assert.AreEqual(typeof(List<ClassWithoutFields>).Name, classMeta.Fields.Single().Type.Name);
         }
         [Test]
         public void SimpleGeneric()

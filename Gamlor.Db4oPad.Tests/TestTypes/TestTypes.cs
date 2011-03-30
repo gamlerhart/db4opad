@@ -28,6 +28,10 @@ namespace Gamlor.Db4oPad.Tests.TestTypes
             set { aField = value; }
         }
     }
+    class WithMixedGeneric
+    {
+        private List<ClassWithoutFields> aField;
+    }
     class Generic<T>
     {
         private List<T> aField;
