@@ -13,7 +13,7 @@ namespace Gamlor.Db4oPad.MetaInfo
         private TypeName(string name,
                          string assemblyName,
                          int array,
-                         IEnumerable<TypeName> genericArguments)
+                         IEnumerable<Maybe<TypeName>> genericArguments)
         {
             new { name, assemblyName, genericArguments }.CheckNotNull();
             this.rawName = name;
@@ -22,18 +22,14 @@ namespace Gamlor.Db4oPad.MetaInfo
             AssemblyName = assemblyName;
             this.OrderOfArray = array;
             GenericArguments = genericArguments;
+            FullName = BuildFullName();
         }
 
         public string Name { get; private set; }
 
-        private static string WithArray(string name,int array)
-        {
-            return name + ArrayParentesis(array);
-        }
-
         public static TypeName Create(string name, string assemblyName)
         {
-            return new TypeName(name, assemblyName,0, new TypeName[0]);
+            return new TypeName(name, assemblyName,0, new Maybe<TypeName>[0]);
         }
 
         public static TypeName CreateArrayOf(TypeName type, int array)
@@ -44,17 +40,22 @@ namespace Gamlor.Db4oPad.MetaInfo
         public static TypeName Create(string name, string assemblyName,
                                       IEnumerable<TypeName> genericArguments)
         {
-            return new TypeName(name, assemblyName,0, genericArguments.ToList());
+            return new TypeName(name, assemblyName,0, genericArguments.Select(Maybe.From).ToList());
         }
         public static TypeName Create(string name, string assemblyName,
-                                      IEnumerable<TypeName> genericArguments,int array)
+                                      IEnumerable<TypeName> genericArguments, int array)
+        {
+            return new TypeName(name, assemblyName, array, genericArguments.Select(Maybe.From).ToList());
+        }
+        private static TypeName Create(string name, string assemblyName,
+                                      IEnumerable<Maybe<TypeName>> genericArguments, int array)
         {
             return new TypeName(name, assemblyName, array, genericArguments.ToList());
         }
 
         public string NameAndNamespace { get; private set; }
         public string AssemblyName { get; private set; }
-        public IEnumerable<TypeName> GenericArguments { get; private set; }
+        public IEnumerable<Maybe<TypeName>> GenericArguments { get; private set; }
         
         public Maybe<TypeName> ArrayOf { get
         {
@@ -65,7 +66,7 @@ namespace Gamlor.Db4oPad.MetaInfo
             return Create(rawName, AssemblyName, GenericArguments, OrderOfArray - 1);
         } }
 
-        public string FullName { get { return BuildFullName(); } }
+        public string FullName { get; private set; }
 
         public string NameWithGenerics
         {
@@ -106,6 +107,18 @@ namespace Gamlor.Db4oPad.MetaInfo
             return rawName;
         }
 
+
+        public TypeName GetGenericTypeDefinition()
+        {
+            return Create(rawName, AssemblyName,
+                          GenericArguments.Select(t => Maybe<TypeName>.Empty), OrderOfArray);
+        }
+
+        private static string WithArray(string name, int array)
+        {
+            return name + ArrayParentesis(array);
+        }
+
         private static string ArrayParentesis(int array)
         {
             if (array >= 1)
@@ -122,11 +135,11 @@ namespace Gamlor.Db4oPad.MetaInfo
             return buffer.ToString();
         }
 
-        private static void AppendGenericList(StringBuilder buffer, IEnumerable<TypeName> genericArguments)
+        private static void AppendGenericList(StringBuilder buffer, IEnumerable<Maybe<TypeName>> genericArguments)
         {
             foreach (var arg in genericArguments)
             {
-                buffer.Append("_").Append(arg.SanatizeGenericName(arg.Name));
+                buffer.Append("_").Append(arg.Value.SanatizeGenericName(arg.Value.Name));
             }
         }
 
@@ -138,8 +151,13 @@ namespace Gamlor.Db4oPad.MetaInfo
             }
         }
 
-        private static void BuildFullName(StringBuilder toBuild, TypeName typeName)
+        private static void BuildFullName(StringBuilder toBuild, Maybe<TypeName> eventualType)
         {
+            if (!eventualType.HasValue)
+            {
+                return;
+            }
+            var typeName = eventualType.Value;
             toBuild.Append(typeName.NameAndNamespace);
             BuildGenericArguments(toBuild, typeName, BuildFullName);
             toBuild.Append(", ");
@@ -153,7 +171,8 @@ namespace Gamlor.Db4oPad.MetaInfo
             return builder.ToString();
         }
 
-        private static void BuildGenericArguments(StringBuilder toBuild, TypeName typeName, Action<StringBuilder, TypeName> typeNameBuilder)
+        private static void BuildGenericArguments(StringBuilder toBuild, TypeName typeName,
+            Action<StringBuilder, Maybe<TypeName>> typeNameBuilder)
         {
             var arguments = typeName.GenericArguments.ToArray();
             if (arguments.Any())
@@ -173,19 +192,17 @@ namespace Gamlor.Db4oPad.MetaInfo
             }
         }
 
-        private static bool IsNotLastArgument(int i, ICollection<TypeName> args)
+        private static bool IsNotLastArgument(int i, ICollection<Maybe<TypeName>> args)
         {
             return i < args.Count - 1;
         }
 
-        private static void AddArg(StringBuilder toBuild, TypeName type, Action<StringBuilder, TypeName> typeNameBuilder)
+        private static void AddArg(StringBuilder toBuild,
+            Maybe<TypeName> type, Action<StringBuilder, Maybe<TypeName>> typeNameBuilder)
         {
             toBuild.Append('[');
             typeNameBuilder(toBuild, type);
             toBuild.Append(']');
         }
-
-
-
     }
 }

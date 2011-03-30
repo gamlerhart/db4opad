@@ -91,16 +91,21 @@ namespace Gamlor.Db4oPad.MetaInfo
 
         private Maybe<Type> InstantiateGeneric(Type type, TypeName toFind)
         {
-            if (IsGeneric(toFind))
+            return IsGeneric(toFind) ? TryCreateGenericInstance(toFind, type) : type;
+        }
+
+        private Maybe<Type> TryCreateGenericInstance(TypeName toFind, Type type)
+        {
+            if(toFind.GenericArguments.Any(t=>!t.HasValue))
             {
-                var types = toFind.GenericArguments.Select(Resolve);
-                if(types.All(t=>t.HasValue))
-                {
-                    return type.MakeGenericType(types.Select(t=>t.Value).ToArray());
-                }
-                return Maybe<Type>.Empty;
+                return type;
             }
-            return type;
+            var types = toFind.GenericArguments.Select(t=>Resolve(t.Value));
+            if(types.All(t=>t.HasValue))
+            {
+                return type.MakeGenericType(types.Select(t=>t.Value).ToArray());
+            }
+            return Maybe<Type>.Empty;
         }
 
         private static string Generify(TypeName toFind)

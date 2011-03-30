@@ -34,7 +34,7 @@ namespace Gamlor.Db4oPad.MetaInfo
 
         private static Type FindType(ITypeDescription typeInfo, Assembly candidateAssembly)
         {
-            return typeInfo.KnowsType
+            return typeInfo.TryResolveType(n => FindType(n, candidateAssembly))
                 .Convert(t => t)
                 .GetValue(
                 () => FindTypeOrArray(typeInfo, candidateAssembly));
@@ -42,7 +42,7 @@ namespace Gamlor.Db4oPad.MetaInfo
 
         private static Type FindTypeOrArray(ITypeDescription typeInfo, Assembly candidateAssembly)
         {
-            return typeInfo.ArrayOf.Convert(t =>FindType(t, candidateAssembly).MakeArrayType())
+            return typeInfo.TryResolveType(t =>FindType(t,candidateAssembly))
                 .GetValue(() => candidateAssembly.GetType(BuildName(typeInfo.TypeName.NameWithGenerics)));
         }
 
@@ -109,7 +109,7 @@ namespace Gamlor.Db4oPad.MetaInfo
         private static Type CreateType(IDictionary<ITypeDescription, Type> typeBuildMap,
                                        ModuleBuilder modBuilder, ITypeDescription typeInfo)
         {
-            return typeInfo.KnowsType
+            return typeInfo.TryResolveType(t=>GetOrCreateType(typeBuildMap, modBuilder, t))
                 .Convert(t => AddNativeType(typeInfo, t, typeBuildMap))
                 .GetValue(() => ArrayOrNewType(typeInfo, typeBuildMap, modBuilder));
         }
@@ -118,8 +118,7 @@ namespace Gamlor.Db4oPad.MetaInfo
             IDictionary<ITypeDescription, Type> typeBuildMap,
             ModuleBuilder modBuilder)
         {
-            return typeInfo.ArrayOf
-                .Convert(elementType => BuildArrayType(typeBuildMap, elementType,typeInfo,modBuilder))
+            return typeInfo.TryResolveType(t=>GetOrCreateType(typeBuildMap, modBuilder, t))
                 .GetValue(() => AddNoNativeType(typeInfo, typeBuildMap, modBuilder));
         }
 

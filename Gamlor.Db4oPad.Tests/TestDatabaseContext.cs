@@ -115,7 +115,7 @@ namespace Gamlor.Db4oPad.Tests
                     TypeLoader.Create(new[]{@"..\..\Gamlor.Db4oPad.ExternalAssemblyForTests.dll"}));
                 var type = ctx.MetaInfo.EntityTypes.Single(t =>
                     t.TypeName.NameAndNamespace == "Gamlor.Db4oPad.ExternalAssemblyForTests.AType");
-                Assert.IsTrue(type.KnowsType.HasValue);
+                Assert.IsTrue(type.TryResolveType(TestUtils.FindNothingTypeResolver).HasValue);
                 
             }
         }

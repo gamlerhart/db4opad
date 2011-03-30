@@ -3,6 +3,7 @@ using System.Linq;
 using Db4objects.Db4o.Collections;
 using Gamlor.Db4oPad.MetaInfo;
 using Gamlor.Db4oPad.Tests.TestTypes;
+using Gamlor.Db4oPad.Utils;
 using NUnit.Framework;
 
 namespace Gamlor.Db4oPad.Tests.MetaInfo
@@ -46,12 +47,19 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         [Test]
         public void ArrayType()
         {
-            TypeName theName = TypeName.Create("System.Int32", "mscorelib", new TypeName[0], 0);
+            var theName = TypeName.Create("System.Int32", "mscorelib", new TypeName[0], 0);
             var innerType = SimpleClassDescription.Create(theName, f => new SimpleFieldDescription[0]);
             var arrayType = ArrayDescription.Create(innerType, 1);
             Assert.IsTrue(arrayType.IsArray);
-            Assert.AreEqual(innerType,arrayType.ArrayOf.Value);
-
+        }
+        [Test]
+        public void ArrayCanCreateItself()
+        {
+            TypeName theName = TypeName.Create("System.Int32", "mscorelib", new TypeName[0], 0);
+            var innerType = SimpleClassDescription.Create(theName, f => new SimpleFieldDescription[0]);
+            var arrayType = ArrayDescription.Create(innerType, 1);
+            var intArray = arrayType.TryResolveType(t => typeof (int));
+            Assert.AreEqual(typeof(int[]),intArray.Value);
         }
         [Test]
         public void ArrayEquals()
@@ -122,6 +130,15 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             Assert.AreEqual(1,theType.Fields.Count());
         }
         [Test]
+        public void ResolvesGenericParameters()
+        {
+            var otherType = TestMetaData.CreateEmptyClassMetaInfo();
+            var theType = KnownType.Create(typeof(System.Collections.Generic.List<>),otherType);
+            var resovledType = theType.TryResolveType(t => typeof (string));
+            Assert.AreEqual(typeof(System.Collections.Generic.List<string>), resovledType.Value);
+            Assert.IsTrue(theType.TypeName.FullName.StartsWith("System.Collections.Generic.List"));
+        }
+        [Test]
         public void KnownTypeReturnsPropertyFields()
         {
             var theType = KnownType.Create(typeof(ClassWithProperty));
@@ -135,6 +152,10 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             return ArrayDescription.Create(innerType, 1);
         }
 
+        // Here we're listing test-types. We're not using it. Therefore we can suppress the warnings.
+#pragma warning disable 169
+#pragma warning disable 649
+        // ReSharper disable UnusedMember.Local
         class ClassWithPublicField
         {
             public string theField;
@@ -148,5 +169,8 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
                 get { return theField; }
             }
         }
+        // ReSharper restore UnusedMember.Local
+#pragma warning restore 649
+#pragma warning restore 169
     }
 }

@@ -22,8 +22,6 @@ using System.Runtime.InteropServices;
 [assembly: Guid("76d990ae-baa5-4cbb-b6ed-ddf405c05b91")]
 
 [assembly: AssemblyDelaySign(false)]
-[assembly: AssemblyKeyFile("db4oPad.pfx")]
-[assembly: AssemblyKeyName("Gamlor.Db4oPad.Tests")]
 
 // Version information for an assembly consists of the following four values:
 //

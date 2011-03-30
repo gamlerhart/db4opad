@@ -48,8 +48,8 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             this.generatedClassses = MetaDataReader.Read(database);
             var classMeta = For<ClassWithoutFields>();
             Assert.NotNull(classMeta);
-            Assert.IsTrue(classMeta.KnowsType.HasValue);
-            Assert.AreEqual(typeof(ClassWithoutFields),classMeta.KnowsType.Value);
+            Assert.IsTrue(classMeta.TryResolveType(TestUtils.FindNothingTypeResolver).HasValue);
+            Assert.AreEqual(typeof(ClassWithoutFields), classMeta.TryResolveType(TestUtils.FindNothingTypeResolver).Value);
         }
 
         [Test]
@@ -155,7 +155,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             Assert.NotNull(classMeta);
             var fieldInfo = classMeta.Fields.Single(f => f.Name == "aField").Type;
             Assert.IsTrue(fieldInfo.IsArray);
-            Assert.IsTrue(fieldInfo.ArrayOf.Value.KnowsType.HasValue);
+            Assert.IsTrue(fieldInfo.TryResolveType(t=>t.TryResolveType(TestUtils.FindNothingTypeResolver).Value).HasValue);
         }
         [Test]
         public void AutoPropertyFieldIsMarked()

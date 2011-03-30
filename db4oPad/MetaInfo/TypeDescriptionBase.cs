@@ -17,10 +17,7 @@ namespace Gamlor.Db4oPad.MetaInfo
         public string Name { get; private set; }
         public TypeName TypeName { get; private set; }
 
-        public Maybe<Type> KnowsType
-        {
-            get { return Maybe<Type>.Empty; }
-        }
+        public abstract Maybe<Type> TryResolveType(Func<ITypeDescription, Type> typeResolver);
 
         public abstract IEnumerable<SimpleFieldDescription> Fields { get; }
 

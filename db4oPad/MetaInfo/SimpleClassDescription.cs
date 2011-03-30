@@ -17,7 +17,11 @@ namespace Gamlor.Db4oPad.MetaInfo
 
         public override IEnumerable<SimpleFieldDescription> Fields { get { return fields; } }
 
-        
+        public override Maybe<Type> TryResolveType(Func<ITypeDescription, Type> typeResolver)
+        {
+            return Maybe<Type>.Empty;
+        }
+
         public override Maybe<ITypeDescription> ArrayOf
         {
             get { return Maybe<ITypeDescription>.Empty; }

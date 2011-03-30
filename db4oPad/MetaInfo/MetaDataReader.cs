@@ -12,6 +12,7 @@ namespace Gamlor.Db4oPad.MetaInfo
     internal class MetaDataReader
     {
         private readonly TypeResolver typeResolver;
+        private readonly IEnumerable<IReflectClass> types;
 
         internal static TypeResolver DefaultTypeResolver()
         {
@@ -20,9 +21,10 @@ namespace Gamlor.Db4oPad.MetaInfo
                 .AsMaybe().Combine(c => c.MaybeCast<NetClass>()).Convert(rc => rc.GetNetType());
         }
 
-        private MetaDataReader(TypeResolver typeResolver)
+        private MetaDataReader(TypeResolver typeResolver, IEnumerable<IReflectClass> types)
         {
             this.typeResolver = typeResolver;
+            this.types = types;
         }
         public static IEnumerable<ITypeDescription> Read(IObjectContainer database)
         {
@@ -35,7 +37,7 @@ namespace Gamlor.Db4oPad.MetaInfo
             new { database, typeResolver }.CheckNotNull();
             
             var allKnownClasses = database.Ext().KnownClasses().Distinct().ToArray();
-            var reader = new MetaDataReader(typeResolver);
+            var reader = new MetaDataReader(typeResolver,allKnownClasses);
             return reader.CreateTypes(allKnownClasses);
         }
 
@@ -60,13 +62,15 @@ namespace Gamlor.Db4oPad.MetaInfo
         }
 
         private ITypeDescription CreateType(TypeName name,
-                                                         IReflectClass classInfo,
-                                                         IDictionary<string, ITypeDescription> knownTypes)
+                                            IReflectClass classInfo,
+                                            IDictionary<string, ITypeDescription> knownTypes)
         {
-            var knownType = typeResolver(name);
+            var knownType = typeResolver(name)
+                .Otherwise(()=>typeResolver(name.GetGenericTypeDefinition()));
             if (knownType.HasValue)
             {
-                var systemType = KnownType.Create(knownType.Value);
+                var systemType = KnownType.Create(knownType.Value,
+                    name.GenericArguments.Select(t => GetOrCreateTypeByName(t, knownTypes)));
                 knownTypes[name.FullName] = systemType;
                 return systemType;
             }
@@ -79,6 +83,14 @@ namespace Gamlor.Db4oPad.MetaInfo
                                                 typeName =>
                                                 GetOrCreateType(typeName, knownTypes));
                         });
+        }
+
+        private ITypeDescription GetOrCreateTypeByName(Maybe<TypeName> maybe,
+            IDictionary<string, ITypeDescription> knownTypes)
+        {
+            var name = maybe.Value;
+            return knownTypes.TryGet(name.FullName)
+                .GetValue(() => KnownType.Create(typeResolver(name).Value));
         }
 
         private ITypeDescription CreateArrayType(TypeName fullName,

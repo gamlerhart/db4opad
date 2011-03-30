@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Db4objects.Db4o.Internal;
@@ -77,6 +78,14 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         {
             var found = TypeLoader.Create(new[] { Path.GetRandomFileName() })(TypeName.Create("DoesNotExist.ClassName", "DoesNotExist"));
             Assert.IsFalse(found.HasValue);
+        }
+        [Test]
+        public void CanLoadGenericTypeDefinition()
+        {
+            var genericArgument = TypeName.Create("DoesNotExist.ClassName", "DoesNotExist");
+            var listName = TypeName.Create("System.Collections.Generic.List", "mscorlib", new[] { genericArgument });
+            var type = TypeLoader.Create(new string[0])(listName.GetGenericTypeDefinition());
+            Assert.AreEqual(typeof(List<>), type.Value);
         }
         
     }

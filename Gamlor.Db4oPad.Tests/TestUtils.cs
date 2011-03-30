@@ -4,11 +4,16 @@ using System.IO;
 using System.Reflection;
 using Gamlor.Db4oPad.MetaInfo;
 using Gamlor.Db4oPad.Utils;
+using NUnit.Framework;
 
 namespace Gamlor.Db4oPad.Tests
 {
     public static class TestUtils
     {
+        internal static Func<ITypeDescription, Type> FindNothingTypeResolver =
+            t => { Assert.Fail("Don't expect this call");
+                       return null;
+            };
         public static void WithTestContext(Action action)
         {
             var db = MemoryDBForTests.NewDB();

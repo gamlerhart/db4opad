@@ -68,6 +68,7 @@
     <Compile Include="GUI\ConnectionViewModel.cs" />
     <Compile Include="MemberProvider.cs" />
     <Compile Include="MetaInfo\ArrayDescription.cs" />
+    <Compile Include="MetaInfo\KnownGenericType.cs" />
     <Compile Include="MetaInfo\TypeLoader.cs" />
     <Compile Include="MetaInfo\CodeGenerationResult.cs" />
     <Compile Include="MetaInfo\DynamicGeneratedTypesReflector.cs" />

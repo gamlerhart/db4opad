@@ -1,4 +1,7 @@
+using System;
+using System.Linq;
 using Gamlor.Db4oPad.MetaInfo;
+using Gamlor.Db4oPad.Utils;
 using NUnit.Framework;
 
 namespace Gamlor.Db4oPad.Tests.MetaInfo
@@ -42,6 +45,14 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
                 complex.NameWithGenerics);
         }
         [Test]
+        public void CreateGenericClass()
+        {
+            var genericInstace = CreateComplexType();
+            var genericDefinition = genericInstace.GetGenericTypeDefinition();
+
+            Assert.IsTrue(genericDefinition.GenericArguments.All(a=>!a.HasValue));
+        }
+        [Test]
         public void SimpleEquals()
         {
             HashCodeAsserts.AssertEquals(CreateSimpleType(), CreateSimpleType());
@@ -50,6 +61,11 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         public void ComplexEquals()
         {
             HashCodeAsserts.AssertEquals(CreateComplexType(), CreateComplexType());
+        }
+        [Test]
+        public void GenericTypeDefinition()
+        {
+            HashCodeAsserts.AssertEquals(CreateComplexType().GetGenericTypeDefinition(), CreateComplexType().GetGenericTypeDefinition());
         }
         [Test]
         public void ArrayEquals()
@@ -78,7 +94,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         private TypeName CreateComplexType()
         {
             var simple = TypeName.Create("Type.Name", "Assembly.Name");
-            return TypeName.Create("Type.Map", "Assembly.Name", new[] { simple, simple });
+            return TypeName.Create("Type.Map", "Assembly.Name", new[] {simple,simple });
         }
         private TypeName CreateArrayType()
         {

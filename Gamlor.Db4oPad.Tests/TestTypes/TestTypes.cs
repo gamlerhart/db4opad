@@ -4,6 +4,9 @@ using System.Collections.Generic;
 namespace Gamlor.Db4oPad.Tests.TestTypes
 {
 
+    // Here we're listing test-types. We're not using it. Therefore we can suppress the warnings.
+#pragma warning disable 169
+    // ReSharper disable ConvertToAutoProperty
     class ClassWithoutFields
     {
 
@@ -86,4 +89,6 @@ namespace Gamlor.Db4oPad.Tests.TestTypes
                                            DayOfWeek.Sunday,
                                        };
     }
+// ReSharper restore ConvertToAutoProperty
+#pragma warning restore 169
 }

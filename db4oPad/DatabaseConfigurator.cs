@@ -30,7 +30,7 @@ namespace Gamlor.Db4oPad
         {
             var reflector = DynamicGeneratedTypesReflector.CreateInstance();
             configuration.Common.ReflectWith(reflector);
-            foreach (var typeInfo in types.Where(t=>!t.Key.KnowsType.HasValue))
+            foreach (var typeInfo in types.Where(t=>!(t.Key is KnownType)))
             {
                 reflector.AddType(typeInfo.Key.TypeName.FullName, typeInfo.Value);
             }

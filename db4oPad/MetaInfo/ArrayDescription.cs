@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Gamlor.Db4oPad.Utils;
 
 namespace Gamlor.Db4oPad.MetaInfo
@@ -11,6 +12,11 @@ namespace Gamlor.Db4oPad.MetaInfo
             : base(typeName, KnownType.Array)
         {
             this.innerType = innerType;
+        }
+
+        public override Maybe<Type> TryResolveType(Func<ITypeDescription, Type> typeResolver)
+        {
+            return typeResolver(innerType).MakeArrayType();
         }
 
         public static ITypeDescription Create(ITypeDescription innerType, int orderOfArray)

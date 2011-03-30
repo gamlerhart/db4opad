@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Gamlor.Db4oPad.MetaInfo;
+using Gamlor.Db4oPad.Utils;
 using NUnit.Framework;
 using Sprache;
 
@@ -156,7 +157,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             Assert.AreEqual("Namespace.Map", result.NameAndNamespace);
             Assert.AreEqual(AsseblyName, result.AssemblyName);
             ValidateGenericArgs(result.GenericArguments.Take(1));
-            ValidateGenericArgs(result.GenericArguments.Last().GenericArguments);
+            ValidateGenericArgs(result.GenericArguments.Last().Value.GenericArguments);
         }
 
 
@@ -169,7 +170,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             Assert.AreEqual("Namespace.Map", result.NameAndNamespace);
             Assert.AreEqual(AsseblyName, result.AssemblyName);
             ValidateGenericArgs(result.GenericArguments.Take(1));
-            ValidateGenericArgs(result.GenericArguments.Last().GenericArguments);
+            ValidateGenericArgs(result.GenericArguments.Last().Value.GenericArguments);
         }
 
         [Test]
@@ -204,6 +205,11 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
                 Assert.AreEqual(TypeName, type.NameAndNamespace);
                 Assert.AreEqual(AsseblyName, type.AssemblyName);
             }
+        }
+
+        private void ValidateGenericArgs(IEnumerable<Maybe<TypeName>> result)
+        {
+            ValidateGenericArgs(result.Select(t => t.Value));
         }
     }
 

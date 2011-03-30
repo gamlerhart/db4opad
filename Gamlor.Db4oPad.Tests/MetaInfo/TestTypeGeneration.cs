@@ -191,9 +191,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         public void CreateMixedGenericInstance()
         {
             var emptyClass = TestMetaData.CreateEmptyClassMetaInfo();
-            var listTypeName = TypeName.Create("System.Collection.Generic.List",
-                                               "mscorlib", emptyClass.Select(c => c.TypeName));
-            var listType = SimpleClassDescription.Create(listTypeName, t => new SimpleFieldDescription[0]);
+            var listType = KnownType.Create(typeof(List<>), emptyClass);
             var metaInfo = SimpleClassDescription.Create(
                 TestMetaData.SingleFieldType(), t => new[] { SimpleFieldDescription.Create("aField", listType) });
 
@@ -250,7 +248,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         {
             var baseClasses = TestMetaData.CreateSingleFieldClass();
             var intType = KnownType.Create(typeof(int));
-            var baseClass = baseClasses.Single(b=>!b.KnowsType.HasValue);
+            var baseClass = baseClasses.Single(b => !b.TryResolveType(TestUtils.FindNothingTypeResolver).HasValue);
             var subType = SimpleClassDescription.Create(
                 TypeName.Create("ANamespace.SubClass", TestMetaData.AssemblyName), baseClass,
                 f => TestMetaData.CreateField("subField", intType));

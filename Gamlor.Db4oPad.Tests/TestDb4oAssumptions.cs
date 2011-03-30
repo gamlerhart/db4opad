@@ -64,7 +64,7 @@ namespace Gamlor.Db4oPad.Tests
 
 
                 var type = configurator.Item2.DyanmicTypesRepresentation
-                    .First(t=>!t.Key.KnowsType.HasValue).Value;
+                    .First(t => !t.Key.TryResolveType(TestUtils.FindNothingTypeResolver).HasValue).Value;
                 var query = db.Query(type);
                 Assert.AreEqual(1, query.Count);
             }

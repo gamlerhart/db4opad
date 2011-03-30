@@ -7,14 +7,14 @@ namespace Gamlor.Db4oPad.MetaInfo
 {
     class KnownType : ITypeDescription
     {
-        private readonly Type typeInfo;
+        protected readonly Type typeInfo;
 
         private static readonly List<SimpleFieldDescription> EmptyFieldList = new List<SimpleFieldDescription>();
         public readonly static ITypeDescription Object = new KnownType(typeof (object),f=>EmptyFieldList);
         public readonly static ITypeDescription Array = new KnownType(typeof(Array), f => EmptyFieldList);
         public readonly static ITypeDescription String = new KnownType(typeof(string), f => EmptyFieldList);
 
-        private KnownType(Type typeInfo,
+        protected KnownType(Type typeInfo,
             Func<ITypeDescription,IEnumerable<SimpleFieldDescription>> fieldsInitializer)
         {
             new { typeInfo }.CheckNotNull();
@@ -23,7 +23,12 @@ namespace Gamlor.Db4oPad.MetaInfo
         }
         public static ITypeDescription Create(Type knownType)
         {
-            return Create(knownType,new Dictionary<Type, ITypeDescription>());
+            return Create(knownType, new ITypeDescription[0]);
+        }
+        public static ITypeDescription Create(Type knownType, IEnumerable<ITypeDescription> generics)
+        {
+            new{knownType,generics}.CheckNotNull();
+            return Create(knownType, new Dictionary<Type, ITypeDescription>(), generics);
         }
 
 
@@ -39,9 +44,9 @@ namespace Gamlor.Db4oPad.MetaInfo
 
         public IEnumerable<SimpleFieldDescription> Fields { get; private set; }
 
-        public Maybe<Type> KnowsType
+        public virtual Maybe<Type> TryResolveType(Func<ITypeDescription, Type> typeResolver)
         {
-            get { return typeInfo; }
+            return typeInfo; 
         }
 
         public ITypeDescription BaseClass
@@ -65,14 +70,28 @@ namespace Gamlor.Db4oPad.MetaInfo
         }
 
         static ITypeDescription Create(Type knownType,
-            IDictionary<Type, ITypeDescription> knownTypes)
+            IDictionary<Type, ITypeDescription> knownTypes, IEnumerable<ITypeDescription> generics)
         {
+            if (knownType.IsGenericTypeDefinition &&
+                knownType.GetGenericArguments().Length != generics.Count())
+            {
+                throw new ArgumentException("The generic arguments have to match.");
+            }
+            if(generics.Any())
+            {
+                return new KnownGenericType(knownType, FieldInitializer(knownType, knownTypes), generics);
+            }
             return new KnownType(knownType,
-                t =>
-                {
-                    knownTypes[knownType] = t;
-                    return ListFields(knownType, knownTypes);
-                });
+                FieldInitializer(knownType, knownTypes));
+        }
+
+        private static Func<ITypeDescription, IEnumerable<SimpleFieldDescription>> FieldInitializer(Type knownType, IDictionary<Type, ITypeDescription> knownTypes)
+        {
+            return t =>
+                       {
+                           knownTypes[knownType] = t;
+                           return ListFields(knownType, knownTypes);
+                       };
         }
 
         static IEnumerable<SimpleFieldDescription> ListFields(Type type,
@@ -86,16 +105,16 @@ namespace Gamlor.Db4oPad.MetaInfo
             IDictionary<Type, ITypeDescription> knownTypes)
         {
             var type = knownTypes.TryGet(fieldType)
-                .GetValue(() => Create(fieldType, knownTypes));
+                .GetValue(() => Create(fieldType, knownTypes,new ITypeDescription[0]));
             return SimpleFieldDescription.Create(name, type);
         }
 
-        private static TypeName CreateTypeName(Type type)
+        private TypeName CreateTypeName(Type type)
         {
             return TypeName.Create(type.FullName, type.Assembly.GetName().Name, GenericNameArguments(type));
         }
 
-        private static IEnumerable<TypeName> GenericNameArguments(Type type)
+        protected virtual IEnumerable<TypeName> GenericNameArguments(Type type)
         {
             return type.GetGenericArguments().Select(CreateTypeName);
         }
@@ -130,5 +149,4 @@ namespace Gamlor.Db4oPad.MetaInfo
             return !Equals(left, right);
         }
     }
-
 }
