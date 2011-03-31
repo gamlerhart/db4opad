@@ -111,14 +111,6 @@ namespace Gamlor.Db4oPad.MetaInfo
         {
             return typeInfo.TryResolveType(t=>GetOrCreateType(typeBuildMap, modBuilder, t))
                 .Convert(t => AddNativeType(typeInfo, t, typeBuildMap))
-                .GetValue(() => ArrayOrNewType(typeInfo, typeBuildMap, modBuilder));
-        }
-
-        private static Type ArrayOrNewType(ITypeDescription typeInfo,
-            IDictionary<ITypeDescription, Type> typeBuildMap,
-            ModuleBuilder modBuilder)
-        {
-            return typeInfo.TryResolveType(t=>GetOrCreateType(typeBuildMap, modBuilder, t))
                 .GetValue(() => AddNoNativeType(typeInfo, typeBuildMap, modBuilder));
         }
 
@@ -211,16 +203,6 @@ namespace Gamlor.Db4oPad.MetaInfo
                                             MethodAttributes.Public | MethodAttributes.SpecialName |
                                             MethodAttributes.HideBySig,
                                             returnType, parameterTypes);
-        }
-
-        private static Type BuildArrayType(IDictionary<ITypeDescription, Type> typeBuildMap,
-            ITypeDescription elementDescription, ITypeDescription arrayType, ModuleBuilder modBuilder)
-        {
-            var elementType = typeBuildMap.TryGet(elementDescription)
-                .GetValue(() => GetOrCreateType(typeBuildMap, modBuilder, elementDescription));
-            var type = elementType.MakeArrayType();
-            typeBuildMap[arrayType] = type;
-            return type;
         }
 
         private static TypeBuilder CreateType(ModuleBuilder modBuilder,
