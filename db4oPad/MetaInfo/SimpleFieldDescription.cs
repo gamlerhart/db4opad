@@ -1,18 +1,26 @@
 ﻿namespace Gamlor.Db4oPad.MetaInfo
 {
+    internal enum IndexingState
+    {
+        Unknown,
+        NotIndexed,
+        Indexed,
+    }
     internal class SimpleFieldDescription
     {
         private const string BackingFieldMarker = ">k__BackingField";
         private SimpleFieldDescription(string fieldName, 
-            ITypeDescription type)
+            ITypeDescription type,IndexingState indexState)
         {
             this.Name = fieldName;
             this.Type = type;
             IsBackingField = IsNameBackingField(fieldName);
+            IndexingState = indexState;
         }
 
         public string Name { get; private set; }
         public bool IsBackingField { get; private set; }
+        public IndexingState IndexingState { get; private set; }
 
 
         public ITypeDescription Type
@@ -22,9 +30,9 @@
         }
 
         public static SimpleFieldDescription Create(string fieldName,
-            ITypeDescription type)
+            ITypeDescription type, IndexingState indexState)
         {
-            return new SimpleFieldDescription(fieldName, type);
+            return new SimpleFieldDescription(fieldName, type, indexState);
         }
 
         public string AsPropertyName()

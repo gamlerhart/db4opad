@@ -64,7 +64,8 @@ namespace Gamlor.Db4oPad
 
         private static ExplorerItem ToExplorerItem(SimpleFieldDescription field)
         {
-            return new ExplorerItem(NameOfField(field)+":"+field.Type.Name,ExplorerItemKind.Property, ExplorerIcon.Column);
+            return new ExplorerItem(NameOfField(field)+":"+field.Type.Name,
+                ExplorerItemKind.Property, ExplorerIcon.Column);
         }
 
         private static string NameOfField(SimpleFieldDescription field)

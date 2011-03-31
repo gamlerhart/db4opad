@@ -54,12 +54,12 @@ namespace Gamlor.Db4oPad.Tests.TestTypes
         internal static IEnumerable<SimpleFieldDescription> CreateField(string fieldName,
             ITypeDescription type)
         {
-            return new[] { SimpleFieldDescription.Create(fieldName, type) };
+            return new[] { SimpleFieldDescription.Create(fieldName, type,IndexingState.Unknown) };
         }
         internal static IEnumerable<SimpleFieldDescription> CreateArrayField(ITypeDescription type)
         {
             var arrayType = ArrayDescription.Create(type, 1);
-            return new[] { SimpleFieldDescription.Create(FieldName, arrayType) };
+            return new[] { SimpleFieldDescription.Create(FieldName, arrayType,IndexingState.Unknown) };
         }
         internal static IEnumerable<SimpleFieldDescription> CreateField(ITypeDescription type)
         {

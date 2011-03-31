@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Db4objects.Db4o;
+using Db4objects.Db4o.Ext;
 using Db4objects.Db4o.Reflect;
 using Db4objects.Db4o.Reflect.Net;
 using Gamlor.Db4oPad.Utils;
@@ -12,6 +13,7 @@ namespace Gamlor.Db4oPad.MetaInfo
     internal class MetaDataReader
     {
         private readonly TypeResolver typeResolver;
+        private readonly IExtObjectContainer container;
 
         internal static TypeResolver DefaultTypeResolver()
         {
@@ -20,9 +22,10 @@ namespace Gamlor.Db4oPad.MetaInfo
                 .AsMaybe().Combine(c => c.MaybeCast<NetClass>()).Convert(rc => rc.GetNetType());
         }
 
-        private MetaDataReader(TypeResolver typeResolver)
+        private MetaDataReader(TypeResolver typeResolver, IExtObjectContainer container)
         {
             this.typeResolver = typeResolver;
+            this.container = container;
         }
         public static IEnumerable<ITypeDescription> Read(IObjectContainer database)
         {
@@ -35,7 +38,7 @@ namespace Gamlor.Db4oPad.MetaInfo
             new { database, typeResolver }.CheckNotNull();
             
             var allKnownClasses = database.Ext().KnownClasses().Distinct().ToArray();
-            var reader = new MetaDataReader(typeResolver);
+            var reader = new MetaDataReader(typeResolver, database.Ext());
             return reader.CreateTypes(allKnownClasses);
         }
 
@@ -119,17 +122,32 @@ namespace Gamlor.Db4oPad.MetaInfo
         }
 
 
-        private static IEnumerable<SimpleFieldDescription> ExtractFields(IReflectClass classInfo,
-                                                                         Func<IReflectClass, ITypeDescription>
-                                                                             typeLookUp)
+        private IEnumerable<SimpleFieldDescription> ExtractFields(IReflectClass classInfo,
+                                                                         Func<IReflectClass, ITypeDescription>typeLookUp)
         {
-            return classInfo.GetDeclaredFields().Select(f => CreateField(f, typeLookUp));
+            return classInfo.GetDeclaredFields().Select(f => CreateField(classInfo,f, typeLookUp));
         }
 
-        private static SimpleFieldDescription CreateField(IReflectField field,
+        private SimpleFieldDescription CreateField(IReflectClass declaredOn, IReflectField field,
                                                           Func<IReflectClass, ITypeDescription> typeLookUp)
         {
-            return SimpleFieldDescription.Create(field.GetName(), typeLookUp(field.GetFieldType()));
+            var indexState = FindOutIndexState(field, declaredOn);
+            return SimpleFieldDescription.Create(field.GetName(),
+                typeLookUp(field.GetFieldType()), indexState);
+        }
+
+        private IndexingState FindOutIndexState(IReflectField field, IReflectClass declaredOn)
+        {
+            var classInfo = container.Ext().StoredClass(declaredOn);
+            if(null!=classInfo)
+            {
+                var storedField = classInfo.StoredField(field.GetName(), field.GetFieldType());
+                if(null!=storedField)
+                {
+                    return storedField.HasIndex() ? IndexingState.Indexed : IndexingState.NotIndexed;
+                }
+            }
+            return IndexingState.Unknown;
         }
     }
 }

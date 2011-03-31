@@ -101,7 +101,7 @@ namespace Gamlor.Db4oPad.MetaInfo
         {
             var type = knownTypes.TryGet(fieldType)
                 .GetValue(() => Create(fieldType, knownTypes,new ITypeDescription[0]));
-            return SimpleFieldDescription.Create(name, type);
+            return SimpleFieldDescription.Create(name, type,IndexingState.Unknown);
         }
 
         private TypeName CreateTypeName(Type type)
