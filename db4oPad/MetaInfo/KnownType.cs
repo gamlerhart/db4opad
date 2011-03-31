@@ -59,11 +59,6 @@ namespace Gamlor.Db4oPad.MetaInfo
             get { return false; }
         }
 
-        public Maybe<ITypeDescription> ArrayOf
-        {
-            get { return Maybe<ITypeDescription>.Empty; }
-        }
-
         public bool IsBusinessEntity
         {
             get { return TypeDescriptionBase.IsBusinessType(this); }

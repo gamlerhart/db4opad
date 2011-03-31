@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
 using Gamlor.Db4oPad.MetaInfo;
 using Gamlor.Db4oPad.Tests.TestTypes;
 
@@ -9,18 +7,9 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
 {
     public abstract class TypeGenerationBase
     {
-
-        internal static AssemblyName NewName()
-        {
-            return new AssemblyName("Gamlor.DynamicAssembly")
-                       {
-                           CodeBase = Path.GetTempFileName()
-                       };
-        }
-
         internal CodeGenerationResult NewTestInstance(IEnumerable<ITypeDescription> metaInfo)
         {
-            return CodeGenerator.Create(metaInfo, NewName());
+            return CodeGenerator.Create(metaInfo, TestUtils.NewName());
         }
         internal static IEnumerable<ITypeDescription> TypeWithGenericList()
         {

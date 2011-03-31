@@ -43,7 +43,7 @@ namespace Gamlor.Db4oPad.GUI
 
         private void BrowseAssembly(object sender, RoutedEventArgs e)
         {
-            var dialog = new Microsoft.Win32.OpenFileDialog
+            var dialog = new OpenFileDialog
             {
                 Multiselect = true,
                 FileName = "",

@@ -69,6 +69,8 @@
     <Compile Include="MemberProvider.cs" />
     <Compile Include="MetaInfo\ArrayDescription.cs" />
     <Compile Include="MetaInfo\KnownGenericType.cs" />
+    <Compile Include="MetaInfo\MetaInfoBase.cs" />
+    <Compile Include="MetaInfo\SimpleFieldDescription.cs" />
     <Compile Include="MetaInfo\TypeLoader.cs" />
     <Compile Include="MetaInfo\CodeGenerationResult.cs" />
     <Compile Include="MetaInfo\DynamicGeneratedTypesReflector.cs" />

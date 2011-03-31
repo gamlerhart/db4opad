@@ -12,7 +12,6 @@ namespace Gamlor.Db4oPad.MetaInfo
     internal class MetaDataReader
     {
         private readonly TypeResolver typeResolver;
-        private readonly IEnumerable<IReflectClass> types;
 
         internal static TypeResolver DefaultTypeResolver()
         {
@@ -21,10 +20,9 @@ namespace Gamlor.Db4oPad.MetaInfo
                 .AsMaybe().Combine(c => c.MaybeCast<NetClass>()).Convert(rc => rc.GetNetType());
         }
 
-        private MetaDataReader(TypeResolver typeResolver, IEnumerable<IReflectClass> types)
+        private MetaDataReader(TypeResolver typeResolver)
         {
             this.typeResolver = typeResolver;
-            this.types = types;
         }
         public static IEnumerable<ITypeDescription> Read(IObjectContainer database)
         {
@@ -37,7 +35,7 @@ namespace Gamlor.Db4oPad.MetaInfo
             new { database, typeResolver }.CheckNotNull();
             
             var allKnownClasses = database.Ext().KnownClasses().Distinct().ToArray();
-            var reader = new MetaDataReader(typeResolver,allKnownClasses);
+            var reader = new MetaDataReader(typeResolver);
             return reader.CreateTypes(allKnownClasses);
         }
 

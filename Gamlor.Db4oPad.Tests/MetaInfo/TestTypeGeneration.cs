@@ -223,7 +223,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         {
             var metaInfo = TestMetaData.CreateEmptyClassMetaInfo();
 
-            var name = NewName();
+            var name = TestUtils.NewName();
             var infos = CodeGenerator.Create(metaInfo, name);
             Assert.IsTrue(File.Exists(name.CodeBase));
 
@@ -307,7 +307,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
 
         private static Type ExtractTypeByName(IEnumerable<ITypeDescription> metaInfo, string name)
         {
-            return CodeGenerator.Create(metaInfo, NewName()).Where(t => t.Key.Name.Contains(name)).Single().Value;
+            return CodeGenerator.Create(metaInfo, TestUtils.NewName()).Where(t => t.Key.Name.Contains(name)).Single().Value;
         }
 
         private static ITypeDescription SingleFieldMeta(IEnumerable<ITypeDescription> metaInfo)
