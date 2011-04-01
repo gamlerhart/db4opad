@@ -14,7 +14,7 @@ namespace Gamlor.Db4oPad.Tests.TestTypes
 
     class ClassWithFields
     {
-        private string aField;
+        public string aField;
     }
     class ClassWithIndexedFields
     {
@@ -23,7 +23,7 @@ namespace Gamlor.Db4oPad.Tests.TestTypes
     }
     class RecursiveClass
     {
-        private RecursiveClass aField;
+        public RecursiveClass aField;
     }
 
     class WithBuiltInGeneric

@@ -10,12 +10,11 @@ namespace Gamlor.Db4oPad.MetaInfo
         TypeName TypeName { get; }
         IEnumerable<SimpleFieldDescription> Fields { get; }
         Maybe<Type> TryResolveType(Func<ITypeDescription, Type> typeResolver);
-        ITypeDescription BaseClass { get;}
+        Maybe<ITypeDescription> BaseClass { get;}
         bool IsArray { get; }
         /// <summary>
         /// Do we consider this type as a real entity?
         /// </summary>
         bool IsBusinessEntity { get; }
     }
-
 }

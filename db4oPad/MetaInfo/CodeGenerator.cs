@@ -118,7 +118,7 @@ namespace Gamlor.Db4oPad.MetaInfo
                                             IDictionary<ITypeDescription, Type> typeBuildMap,
                                             ModuleBuilder modBuilder)
         {
-            var baseType = GetOrCreateType(typeBuildMap, modBuilder, typeInfo.BaseClass);
+            var baseType = typeInfo.BaseClass.Convert(bc=>GetOrCreateType(typeBuildMap, modBuilder,bc ));
             var defineType = CreateType(modBuilder,
                 typeInfo.TypeName.NameWithGenerics, baseType);
             typeBuildMap[typeInfo] = defineType;
@@ -206,10 +206,10 @@ namespace Gamlor.Db4oPad.MetaInfo
         }
 
         private static TypeBuilder CreateType(ModuleBuilder modBuilder,
-            string className, Type baseType)
+            string className, Maybe<Type> baseType)
         {
             return modBuilder.DefineType(BuildName(className),
-                                         TypeAttributes.Class | TypeAttributes.Public, baseType);
+                                         TypeAttributes.Class | TypeAttributes.Public, baseType.GetValue(typeof(object)));
         }
 
         private static string BuildName(string className)

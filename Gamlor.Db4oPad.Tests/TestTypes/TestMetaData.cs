@@ -22,8 +22,12 @@ namespace Gamlor.Db4oPad.Tests.TestTypes
 
         internal static IEnumerable<ITypeDescription> CreateSingleFieldClass()
         {
+            return CreateSingleFieldClass(StringType);
+        }
+        internal static IEnumerable<ITypeDescription> CreateSingleFieldClass(ITypeDescription fieldType)
+        {
             var type = SimpleClassDescription.Create(SingleFieldType(),
-                                                             f => CreateField(StringType));
+                                                             f => CreateField(fieldType));
             return new[] { type, StringType };
         }
 
@@ -54,12 +58,12 @@ namespace Gamlor.Db4oPad.Tests.TestTypes
         internal static IEnumerable<SimpleFieldDescription> CreateField(string fieldName,
             ITypeDescription type)
         {
-            return new[] { SimpleFieldDescription.Create(fieldName, type,IndexingState.Unknown) };
+            return new[] { SimpleFieldDescription.Create(fieldName, type) };
         }
         internal static IEnumerable<SimpleFieldDescription> CreateArrayField(ITypeDescription type)
         {
             var arrayType = ArrayDescription.Create(type, 1);
-            return new[] { SimpleFieldDescription.Create(FieldName, arrayType,IndexingState.Unknown) };
+            return new[] { SimpleFieldDescription.Create(FieldName, arrayType) };
         }
         internal static IEnumerable<SimpleFieldDescription> CreateField(ITypeDescription type)
         {

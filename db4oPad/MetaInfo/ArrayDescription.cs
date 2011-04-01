@@ -9,7 +9,7 @@ namespace Gamlor.Db4oPad.MetaInfo
         private readonly ITypeDescription innerType;
 
         private ArrayDescription(TypeName typeName, ITypeDescription innerType)
-            : base(typeName, KnownType.Array)
+            : base(typeName, Maybe.From(KnownType.Array))
         {
             this.innerType = innerType;
         }
@@ -30,9 +30,9 @@ namespace Gamlor.Db4oPad.MetaInfo
             get { return new SimpleFieldDescription[0]; }
         }
 
-        public override Maybe<ITypeDescription> ArrayOf
+        public override bool IsArray
         {
-            get { return Maybe.From(innerType); }
+            get { return true; }
         }
     }
 }

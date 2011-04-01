@@ -126,7 +126,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         {
             var classMeta = For<SubClass>();
             Assert.IsTrue(classMeta.Fields.Any(f => f.Name == "subClassField"));
-            Assert.IsTrue(classMeta.BaseClass.Fields.Any(f => f.Name == FieldName));
+            Assert.IsTrue(classMeta.BaseClass.Value.Fields.Any(f => f.Name == FieldName));
         }
         [Test]
         public void TypeWithArrays()
@@ -194,9 +194,8 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         public void ReadsIndexStateForKnownType()
         {
             this.generatedClassses = MetaDataReader.Read(database);
-            var classMeta = For<ClassWithIndexedFields>();
+            var classMeta = For<ClassWithFields>();
             var fieldInfo = classMeta.Fields;
-            Assert.IsTrue(fieldInfo.Any(f => f.IndexingState == IndexingState.Indexed));
             Assert.IsTrue(fieldInfo.Any(f => f.IndexingState == IndexingState.NotIndexed));
         }
 

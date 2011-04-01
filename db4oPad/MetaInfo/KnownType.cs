@@ -49,9 +49,9 @@ namespace Gamlor.Db4oPad.MetaInfo
             return typeInfo; 
         }
 
-        public ITypeDescription BaseClass
+        public Maybe<ITypeDescription> BaseClass
         {
-            get { return typeInfo==typeof(object) ?this:KnownType.Create(typeInfo.BaseType); }
+            get { return typeInfo.BaseType.AsMaybe().Convert(Create); }
         }
 
         public bool IsArray

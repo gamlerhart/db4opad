@@ -10,7 +10,8 @@ namespace Gamlor.Db4oPad.MetaInfo
         private IEnumerable<SimpleFieldDescription> fields;
 
 
-        private SimpleClassDescription(TypeName fullName, ITypeDescription baseClass) : base(fullName,baseClass)
+        private SimpleClassDescription(TypeName fullName, Maybe<ITypeDescription> baseClass)
+            : base(fullName,baseClass)
         {
         }
 
@@ -22,18 +23,18 @@ namespace Gamlor.Db4oPad.MetaInfo
             return Maybe<Type>.Empty;
         }
 
-        public override Maybe<ITypeDescription> ArrayOf
+        public override bool IsArray
         {
-            get { return Maybe<ITypeDescription>.Empty; }
+            get { return false; }
         }
 
         public static SimpleClassDescription Create(TypeName fullName,
             Func<ITypeDescription, IEnumerable<SimpleFieldDescription>> fieldGenerator)
         {
-            return Create(fullName,KnownType.Object,fieldGenerator);
+            return Create(fullName,Maybe<ITypeDescription>.Empty,fieldGenerator);
         }
 
-        public static SimpleClassDescription Create(TypeName fullName,ITypeDescription baseClass,
+        public static SimpleClassDescription Create(TypeName fullName, Maybe<ITypeDescription> baseClass,
             Func<ITypeDescription, IEnumerable<SimpleFieldDescription>> fieldGenerator)
         {
             if (fullName.OrderOfArray != 0)

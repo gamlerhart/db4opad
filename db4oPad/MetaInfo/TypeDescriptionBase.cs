@@ -7,7 +7,7 @@ namespace Gamlor.Db4oPad.MetaInfo
 {
     internal abstract class TypeDescriptionBase : ITypeDescription
     {
-        protected TypeDescriptionBase(TypeName typeName, ITypeDescription baseClass)
+        protected TypeDescriptionBase(TypeName typeName, Maybe<ITypeDescription> baseClass)
         {
             Name = typeName.NameWithGenerics.Split('.').Last();
             TypeName = typeName;
@@ -21,14 +21,10 @@ namespace Gamlor.Db4oPad.MetaInfo
 
         public abstract IEnumerable<SimpleFieldDescription> Fields { get; }
 
-        public abstract Maybe<ITypeDescription> ArrayOf { get; }
 
-        public ITypeDescription BaseClass { get; private set; }
+        public Maybe<ITypeDescription> BaseClass { get; private set; }
 
-        public bool IsArray
-        {
-            get { return ArrayOf.HasValue; }
-        }
+        public abstract bool IsArray { get; }
 
         public bool IsBusinessEntity
         {

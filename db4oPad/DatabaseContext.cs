@@ -59,7 +59,7 @@ namespace Gamlor.Db4oPad
         {
             return new ExplorerItem(typeDescription.Name, 
                 ExplorerItemKind.QueryableObject, 
-                ExplorerIcon.Table) {Children = Fields(typeDescription)};
+                ExplorerIcon.Table) {Children = Fields(Maybe.From(typeDescription))};
         }
 
         private static ExplorerItem ToExplorerItem(SimpleFieldDescription field)
@@ -77,8 +77,13 @@ namespace Gamlor.Db4oPad
             return field.Name;
         }
 
-        private static List<ExplorerItem> Fields(ITypeDescription type)
+        private static List<ExplorerItem> Fields(Maybe<ITypeDescription> maybeType)
         {
+            if (!maybeType.HasValue)
+            {
+                return new List<ExplorerItem>(); 
+            }
+            var type = maybeType.Value;
             if(type.Equals(KnownType.Object))
             {
                 return new List<ExplorerItem>();

@@ -30,7 +30,7 @@
         }
 
         public static SimpleFieldDescription Create(string fieldName,
-            ITypeDescription type, IndexingState indexState)
+            ITypeDescription type, IndexingState indexState = IndexingState.Unknown)
         {
             return new SimpleFieldDescription(fieldName, type, indexState);
         }
