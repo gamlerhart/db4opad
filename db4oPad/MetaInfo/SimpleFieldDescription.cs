@@ -6,6 +6,7 @@
         NotIndexed,
         Indexed,
     }
+    internal delegate IndexingState IndexStateLookup(TypeName declaringType,string fieldName, TypeName fieldType);
     internal class SimpleFieldDescription
     {
         private const string BackingFieldMarker = ">k__BackingField";

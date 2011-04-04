@@ -14,21 +14,34 @@ namespace Gamlor.Db4oPad.MetaInfo
         public readonly static ITypeDescription Array = new KnownType(typeof(Array), f => EmptyFieldList);
         public readonly static ITypeDescription String = new KnownType(typeof(string), f => EmptyFieldList);
 
-        protected KnownType(Type typeInfo,
+        protected KnownType(Type typeInfo, TypeName theName,
             Func<ITypeDescription,IEnumerable<SimpleFieldDescription>> fieldsInitializer)
         {
             new { typeInfo }.CheckNotNull();
             this.typeInfo = typeInfo;
+            this.TypeName = theName; 
             this.Fields = fieldsInitializer(this).ToList();
+        }
+        private KnownType(Type typeInfo, 
+            Func<ITypeDescription,IEnumerable<SimpleFieldDescription>> fieldsInitializer) : this(typeInfo,CreateTypeName(typeInfo) ,fieldsInitializer)
+        {
         }
         public static ITypeDescription Create(Type knownType)
         {
-            return Create(knownType, new ITypeDescription[0]);
+            return Create(knownType, new ITypeDescription[0],(d,fn,ft)=>IndexingState.Unknown);
         }
-        public static ITypeDescription Create(Type knownType, IEnumerable<ITypeDescription> generics)
+        public static ITypeDescription Create(Type knownType,
+            IEnumerable<ITypeDescription> generics)
+        {
+            return Create(knownType, generics, (d, fn, ft) => IndexingState.Unknown);
+        }
+        public static ITypeDescription Create(Type knownType,
+            IEnumerable<ITypeDescription> generics,IndexStateLookup indexLookUp)
         {
             new{knownType,generics}.CheckNotNull();
-            return Create(knownType, new Dictionary<Type, ITypeDescription>(), generics);
+            return Create(knownType, 
+                new Dictionary<Type, ITypeDescription>(),
+                generics, indexLookUp);
         }
 
 
@@ -37,10 +50,7 @@ namespace Gamlor.Db4oPad.MetaInfo
             get { return typeInfo.Name; }
         }
 
-        public TypeName TypeName
-        {
-            get { return CreateTypeName(typeInfo); }
-        }
+        public TypeName TypeName { get; private set; }
 
         public IEnumerable<SimpleFieldDescription> Fields { get; private set; }
 
@@ -65,7 +75,9 @@ namespace Gamlor.Db4oPad.MetaInfo
         }
 
         static ITypeDescription Create(Type knownType,
-            IDictionary<Type, ITypeDescription> knownTypes, IEnumerable<ITypeDescription> generics)
+            IDictionary<Type, ITypeDescription> knownTypes,
+            IEnumerable<ITypeDescription> generics,
+            IndexStateLookup indexLookUp)
         {
             if (knownType.IsGenericTypeDefinition &&
                 knownType.GetGenericArguments().Length != generics.Count())
@@ -74,44 +86,46 @@ namespace Gamlor.Db4oPad.MetaInfo
             }
             if(generics.Any())
             {
-                return new KnownGenericType(knownType, FieldInitializer(knownType, knownTypes), generics);
+                return new KnownGenericType(knownType, FieldInitializer(knownType, knownTypes, indexLookUp), generics);
             }
-            return new KnownType(knownType,
-                FieldInitializer(knownType, knownTypes));
+            if (knownType.IsGenericParameter)
+            {
+                return new GenericVariable(knownType);
+            }
+            return new KnownType(knownType, CreateTypeName(knownType),
+                FieldInitializer(knownType, knownTypes, indexLookUp));
         }
 
-        private static Func<ITypeDescription, IEnumerable<SimpleFieldDescription>> FieldInitializer(Type knownType, IDictionary<Type, ITypeDescription> knownTypes)
+        private static Func<ITypeDescription, IEnumerable<SimpleFieldDescription>> FieldInitializer(Type knownType,
+            IDictionary<Type, ITypeDescription> knownTypes, IndexStateLookup indexLookUp)
         {
             return t =>
                        {
                            knownTypes[knownType] = t;
-                           return ListFields(knownType, knownTypes);
+                           return ListFields(t.TypeName,knownType, knownTypes, indexLookUp);
                        };
         }
 
-        static IEnumerable<SimpleFieldDescription> ListFields(Type type,
-            IDictionary<Type, ITypeDescription> knownTypes)
+        static IEnumerable<SimpleFieldDescription> ListFields(TypeName declaringType,Type type,
+            IDictionary<Type, ITypeDescription> knownTypes, IndexStateLookup indexLookUp)
         {
-            return type.GetProperties().Select(p => ToFieldDescription(p.PropertyType,p.Name, knownTypes))
-                .Union(type.GetFields().Select(f=>ToFieldDescription(f.FieldType,f.Name,knownTypes))).ToList();
+            return type.GetProperties().Select(p => ToFieldDescription(declaringType,p.PropertyType, p.Name, knownTypes, indexLookUp))
+                .Union(type.GetFields().Select(f => ToFieldDescription(declaringType,f.FieldType, f.Name, knownTypes, indexLookUp))).ToList();
         }
 
-        private static SimpleFieldDescription ToFieldDescription(Type fieldType,string name,
-            IDictionary<Type, ITypeDescription> knownTypes)
+        private static SimpleFieldDescription ToFieldDescription(TypeName declaringType,Type fieldType,string name,
+            IDictionary<Type, ITypeDescription> knownTypes, IndexStateLookup indexLookUp)
         {
             var type = knownTypes.TryGet(fieldType)
-                .GetValue(() => Create(fieldType, knownTypes,new ITypeDescription[0]));
-            return SimpleFieldDescription.Create(name, type,IndexingState.Unknown);
+                .GetValue(() => Create(fieldType, knownTypes,new ITypeDescription[0],indexLookUp));
+            return SimpleFieldDescription.Create(name, type, indexLookUp(declaringType, name, type.TypeName));
         }
 
-        private TypeName CreateTypeName(Type type)
+        private static TypeName CreateTypeName(Type type)
         {
-            return TypeName.Create(type.FullName.Split('`').First(), type.Assembly.GetName().Name, GenericNameArguments(type));
-        }
-
-        protected virtual IEnumerable<TypeName> GenericNameArguments(Type type)
-        {
-            return type.GetGenericArguments().Select(CreateTypeName);
+            return TypeName.Create(type.FullName.Split('`').First(), 
+                type.Assembly.GetName().Name,
+                type.GetGenericArguments().Select(CreateTypeName));
         }
 
         private bool Equals(KnownType other)

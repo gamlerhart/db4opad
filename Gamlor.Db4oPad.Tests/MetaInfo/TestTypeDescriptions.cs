@@ -90,7 +90,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         public void ObjectIsRecursive()
         {
             var type = KnownType.Object;
-            Assert.AreEqual(null, type.BaseClass);
+            Assert.IsFalse(type.BaseClass.HasValue);
         }
 
         [Test]

@@ -68,7 +68,6 @@
     <Compile Include="GUI\ConnectionViewModel.cs" />
     <Compile Include="MemberProvider.cs" />
     <Compile Include="MetaInfo\ArrayDescription.cs" />
-    <Compile Include="MetaInfo\IndexStateDecorator.cs" />
     <Compile Include="MetaInfo\KnownGenericType.cs" />
     <Compile Include="MetaInfo\MetaInfoBase.cs" />
     <Compile Include="MetaInfo\SimpleFieldDescription.cs" />
