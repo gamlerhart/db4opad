@@ -10,7 +10,8 @@ namespace Gamlor.Db4oPad.MetaInfo
         private IEnumerable<SimpleFieldDescription> fields;
 
 
-        private SimpleClassDescription(TypeName fullName, ITypeDescription baseClass) : base(fullName,baseClass)
+        private SimpleClassDescription(TypeName fullName, Maybe<ITypeDescription> baseClass)
+            : base(fullName,baseClass)
         {
         }
 
@@ -22,18 +23,18 @@ namespace Gamlor.Db4oPad.MetaInfo
             return Maybe<Type>.Empty;
         }
 
-        public override Maybe<ITypeDescription> ArrayOf
+        public override bool IsArray
         {
-            get { return Maybe<ITypeDescription>.Empty; }
+            get { return false; }
         }
 
         public static SimpleClassDescription Create(TypeName fullName,
             Func<ITypeDescription, IEnumerable<SimpleFieldDescription>> fieldGenerator)
         {
-            return Create(fullName,KnownType.Object,fieldGenerator);
+            return Create(fullName,Maybe<ITypeDescription>.Empty,fieldGenerator);
         }
 
-        public static SimpleClassDescription Create(TypeName fullName,ITypeDescription baseClass,
+        public static SimpleClassDescription Create(TypeName fullName, Maybe<ITypeDescription> baseClass,
             Func<ITypeDescription, IEnumerable<SimpleFieldDescription>> fieldGenerator)
         {
             if (fullName.OrderOfArray != 0)
@@ -44,49 +45,5 @@ namespace Gamlor.Db4oPad.MetaInfo
             toConstruct.fields = fieldGenerator(toConstruct).ToArray();
             return toConstruct;
         }
-    }
-
-    internal class SimpleFieldDescription
-    {
-        private const string BackingFieldMarker = ">k__BackingField";
-        private SimpleFieldDescription(string fieldName, ITypeDescription type)
-        {
-            this.Name = fieldName;
-            this.Type = type;
-            IsBackingField = IsPropertyField(fieldName);
-        }
-
-        public string Name { get; private set; }
-        public bool IsBackingField { get; private set; }
-
-
-        public ITypeDescription Type
-        {
-            get;
-            private set;
-        }
-
-        public static SimpleFieldDescription Create(string fieldName, ITypeDescription type)
-        {
-            return new SimpleFieldDescription(fieldName, type);
-        }
-
-        public string AsPropertyName()
-        {
-            var name = char.ToUpperInvariant(Name[0]) + Name.Substring(1);
-            if (IsBackingField)
-            {
-                return name.Substring(1, name.Length - BackingFieldMarker.Length - 1);
-            }
-            return name;
-        }
-
-
-        private static bool IsPropertyField(string fieldName)
-        {
-            return fieldName.EndsWith(BackingFieldMarker);
-        }
-
-
     }
 }

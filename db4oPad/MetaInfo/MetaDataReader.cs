@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Db4objects.Db4o;
+using Db4objects.Db4o.Ext;
 using Db4objects.Db4o.Reflect;
 using Db4objects.Db4o.Reflect.Net;
 using Gamlor.Db4oPad.Utils;
@@ -12,7 +13,7 @@ namespace Gamlor.Db4oPad.MetaInfo
     internal class MetaDataReader
     {
         private readonly TypeResolver typeResolver;
-        private readonly IEnumerable<IReflectClass> types;
+        private readonly IExtObjectContainer container;
 
         internal static TypeResolver DefaultTypeResolver()
         {
@@ -21,11 +22,12 @@ namespace Gamlor.Db4oPad.MetaInfo
                 .AsMaybe().Combine(c => c.MaybeCast<NetClass>()).Convert(rc => rc.GetNetType());
         }
 
-        private MetaDataReader(TypeResolver typeResolver, IEnumerable<IReflectClass> types)
+        private MetaDataReader(TypeResolver typeResolver, IExtObjectContainer container)
         {
             this.typeResolver = typeResolver;
-            this.types = types;
+            this.container = container;
         }
+
         public static IEnumerable<ITypeDescription> Read(IObjectContainer database)
         {
             return Read(database, DefaultTypeResolver());
@@ -36,19 +38,45 @@ namespace Gamlor.Db4oPad.MetaInfo
         {
             new { database, typeResolver }.CheckNotNull();
             
-            var allKnownClasses = database.Ext().KnownClasses().Distinct().ToArray();
-            var reader = new MetaDataReader(typeResolver,allKnownClasses);
-            return reader.CreateTypes(allKnownClasses);
+            var reader = new MetaDataReader(typeResolver,database.Ext());
+            return reader.CreateTypes(database.Ext()).ToList();
         }
 
-        private IEnumerable<ITypeDescription> CreateTypes(IEnumerable<IReflectClass> allClasses)
+        private IEnumerable<ITypeDescription> CreateTypes(IExtObjectContainer container)
         {
+            var allKnownClasses = container.KnownClasses().Distinct().ToArray();
             var typeMap = new Dictionary<string, ITypeDescription>();
-            foreach (var classInfo in allClasses)
+            foreach (var classInfo in allKnownClasses)
             {
                 CreateType(classInfo, typeMap);
             }
-            return typeMap.Select(t => t.Value).ToList();
+            return typeMap.Select(t => t.Value);
+        }
+
+        private IndexingState IndexLookUp(TypeName declaringtype, string fieldName, TypeName fieldtype)
+        {
+            var storedInfo = (from sc in container.StoredClasses()
+                                 where sc.GetName()==declaringtype.FullName
+                                 select sc).SingleOrDefault();
+            if (null == storedInfo)
+            {
+                return IndexingState.Unknown;
+            }
+            // HACK: Currently we cant narrow down the field-type propery
+            // we just assume that there only one field with a certain name
+            // Issue due to http://tracker.db4o.com/browse/COR-2174
+            // FIX: Adding back this line: type.GetName()==fieldtype.FullName
+
+            var storefField = (from sf in storedInfo.GetStoredFields()
+                                let type = sf.GetStoredType()
+                                  where type!=null
+                                  && sf.GetName() == fieldName
+                                  select sf).SingleOrDefault();
+            if (null == storefField)
+            {
+                return IndexingState.Unknown;
+            }
+            return storefField.HasIndex() ? IndexingState.Indexed : IndexingState.NotIndexed;
         }
 
         private ITypeDescription CreateType(IReflectClass classInfo,
@@ -70,16 +98,16 @@ namespace Gamlor.Db4oPad.MetaInfo
             if (knownType.HasValue)
             {
                 var systemType = KnownType.Create(knownType.Value,
-                    name.GenericArguments.Select(t => GetOrCreateTypeByName(t, knownTypes)));
+                    name.GenericArguments.Select(t => GetOrCreateTypeByName(t, knownTypes)),IndexLookUp);
                 knownTypes[name.FullName] = systemType;
                 return systemType;
             }
             return SimpleClassDescription.Create(name,
-                    GetOrCreateType(classInfo.GetSuperclass(), knownTypes),
+                    Maybe.From(GetOrCreateType(classInfo.GetSuperclass(), knownTypes)),
                     t =>
                         {
                             knownTypes[name.FullName] = t;
-                            return ExtractFields(classInfo,
+                            return ExtractFields(name, classInfo,
                                                 typeName =>
                                                 GetOrCreateType(typeName, knownTypes));
                         });
@@ -121,17 +149,18 @@ namespace Gamlor.Db4oPad.MetaInfo
         }
 
 
-        private static IEnumerable<SimpleFieldDescription> ExtractFields(IReflectClass classInfo,
-                                                                         Func<IReflectClass, ITypeDescription>
-                                                                             typeLookUp)
+        private IEnumerable<SimpleFieldDescription> ExtractFields(TypeName declaringTypeName,IReflectClass classInfo,
+                                                                         Func<IReflectClass, ITypeDescription>typeLookUp)
         {
-            return classInfo.GetDeclaredFields().Select(f => CreateField(f, typeLookUp));
+            return classInfo.GetDeclaredFields().Select(f => CreateField(declaringTypeName, f, typeLookUp));
         }
 
-        private static SimpleFieldDescription CreateField(IReflectField field,
+        private SimpleFieldDescription CreateField(TypeName declaredOn, IReflectField field,
                                                           Func<IReflectClass, ITypeDescription> typeLookUp)
         {
-            return SimpleFieldDescription.Create(field.GetName(), typeLookUp(field.GetFieldType()));
+            var fieldType = typeLookUp(field.GetFieldType());
+            return SimpleFieldDescription.Create(field.GetName(),
+                fieldType,IndexLookUp(declaredOn,field.GetName(),fieldType.TypeName));
         }
     }
 }

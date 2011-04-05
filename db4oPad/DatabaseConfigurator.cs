@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Db4objects.Db4o.Config;
+using Db4objects.Db4o.Internal;
 using Gamlor.Db4oPad.MetaInfo;
 
 namespace Gamlor.Db4oPad
@@ -30,7 +31,7 @@ namespace Gamlor.Db4oPad
         {
             var reflector = DynamicGeneratedTypesReflector.CreateInstance();
             configuration.Common.ReflectWith(reflector);
-            foreach (var typeInfo in types.Where(t=>!(t.Key.GetType().Equals(typeof(KnownType)))))
+            foreach (var typeInfo in types.Where(t=>t.Key.TypeName.FullName!=ReflectPlatform.FullyQualifiedName(t.Value)))
             {
                 reflector.AddType(typeInfo.Key.TypeName.FullName, typeInfo.Value);
             }

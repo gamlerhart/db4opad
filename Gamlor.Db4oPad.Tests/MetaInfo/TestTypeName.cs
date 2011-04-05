@@ -1,7 +1,5 @@
-using System;
 using System.Linq;
 using Gamlor.Db4oPad.MetaInfo;
-using Gamlor.Db4oPad.Utils;
 using NUnit.Framework;
 
 namespace Gamlor.Db4oPad.Tests.MetaInfo

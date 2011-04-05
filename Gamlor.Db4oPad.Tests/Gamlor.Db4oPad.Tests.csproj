@@ -74,9 +74,11 @@
     <Compile Include="GUI\TestConnectionViewModel.cs" />
     <Compile Include="HashCodeAsserts.cs" />
     <Compile Include="MemoryDBForTests.cs" />
+    <Compile Include="MetaInfo\MetaInfoBaseTests.cs" />
     <Compile Include="MetaInfo\ReadingMetaDataTestCases.cs" />
     <Compile Include="MetaInfo\TestDynamicGeneratedTypesReflector.cs" />
     <Compile Include="MetaInfo\TestGenerateCodeAssumptions.cs" />
+    <Compile Include="MetaInfo\TestMetaDataInfo.cs" />
     <Compile Include="MetaInfo\TestQueryContextGeneration.cs" />
     <Compile Include="MetaInfo\TestTypeDescriptions.cs" />
     <Compile Include="MetaInfo\TestTypeGeneration.cs" />

@@ -22,8 +22,12 @@ namespace Gamlor.Db4oPad.Tests.TestTypes
 
         internal static IEnumerable<ITypeDescription> CreateSingleFieldClass()
         {
+            return CreateSingleFieldClass(StringType);
+        }
+        internal static IEnumerable<ITypeDescription> CreateSingleFieldClass(ITypeDescription fieldType)
+        {
             var type = SimpleClassDescription.Create(SingleFieldType(),
-                                                             f => CreateField(StringType));
+                                                             f => CreateField(fieldType));
             return new[] { type, StringType };
         }
 

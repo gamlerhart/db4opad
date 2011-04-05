@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Db4objects.Db4o;
+using Db4objects.Db4o.Config;
 using Db4objects.Db4o.Reflect.Net;
 using Gamlor.Db4oPad.MetaInfo;
 using Gamlor.Db4oPad.Tests.TestTypes;
@@ -21,7 +23,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         public void Setup()
         {
             var dbContainer = MultiContainerMemoryDB.Create();
-            using (var db = dbContainer.NewDB())
+            using (var db = dbContainer.NewDB(ConfigureIndexes))
             {
                 db.Store(new ClassWithoutFields());
                 db.Store(new ClassWithFields());
@@ -36,6 +38,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
                 db.Store(new ClassWithAutoProperty());
                 db.Store(new ClassWithSelfUsingArray());
                 db.Store(new WithMixedGeneric());
+                db.Store(new ClassWithIndexedFields());
             }
             database = dbContainer.NewDB();
 
@@ -47,16 +50,14 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         {
             this.generatedClassses = MetaDataReader.Read(database);
             var classMeta = For<ClassWithoutFields>();
-            Assert.NotNull(classMeta);
-            Assert.IsTrue(classMeta.TryResolveType(TestUtils.FindNothingTypeResolver).HasValue);
-            Assert.AreEqual(typeof(ClassWithoutFields), classMeta.TryResolveType(TestUtils.FindNothingTypeResolver).Value);
+            var type = classMeta.TryResolveType(TestUtils.FindNothingTypeResolver).Value;
+            Assert.AreEqual(typeof(ClassWithoutFields), type);
         }
 
         [Test]
         public void ClassWithoutFields()
         {
             var classMeta = For<ClassWithoutFields>();
-            Assert.NotNull(classMeta);
             Assert.IsFalse(classMeta.Fields.Any());
         }
 
@@ -64,11 +65,12 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         public void ClassWithFields()
         {
             var classMeta = For<ClassWithFields>();
-            Assert.NotNull(classMeta);
-            Assert.IsFalse(classMeta.Fields.Single().IsBackingField);
-            Assert.AreEqual("AField", classMeta.Fields.Single().AsPropertyName());
-            Assert.AreEqual(FieldName, classMeta.Fields.Single().Name);
-            Assert.AreEqual("String", classMeta.Fields.Single().Type.Name);
+            var fieldInfo = classMeta.Fields.Single();
+            Assert.IsFalse(fieldInfo.IsBackingField);
+            Assert.AreEqual("AField", fieldInfo.AsPropertyName());
+            Assert.AreEqual(FieldName, fieldInfo.Name);
+            Assert.AreEqual(IndexingState.NotIndexed, fieldInfo.IndexingState);
+            Assert.AreEqual("String", fieldInfo.Type.Name);
         }
 
         [Test]
@@ -81,7 +83,6 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         public void CanHaveRecursiveType()
         {
             var classMeta = For<RecursiveClass>();
-            Assert.NotNull(classMeta);
             Assert.AreEqual(FieldName, classMeta.Fields.Single().Name);
             Assert.AreEqual(classMeta, classMeta.Fields.Single().Type);
         }
@@ -89,7 +90,6 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         public void WithBuiltInGeneric()
         {
             var classMeta = For<WithBuiltInGeneric>();
-            Assert.NotNull(classMeta);
             Assert.AreEqual(FieldName, classMeta.Fields.Single().Name);
             Assert.AreEqual(typeof(List<string>).Name, classMeta.Fields.Single().Type.Name);
         }
@@ -97,7 +97,6 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         public void WithMixedGeneric()
         {
             var classMeta = For<WithMixedGeneric>();
-            Assert.NotNull(classMeta);
             Assert.AreEqual(FieldName, classMeta.Fields.Single().Name);
             Assert.AreEqual(typeof(List<ClassWithoutFields>).Name, classMeta.Fields.Single().Type.Name);
         }
@@ -105,7 +104,6 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         public void SimpleGeneric()
         {
             var classMeta = For<Generic<string>>();
-            Assert.NotNull(classMeta);
             Assert.AreEqual(FieldName, classMeta.Fields.Single().Name);
             Assert.AreEqual(typeof(List<string>).Name, classMeta.Fields.Single().Type.Name);
         }
@@ -113,7 +111,6 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         public void NestedGeneric()
         {
             var classMeta = For<Generic<string, List<string>>>();
-            Assert.NotNull(classMeta);
             Assert.AreEqual(FieldName, classMeta.Fields.Single().Name);
             Assert.AreEqual(typeof(Dictionary<string, List<string>>).Name, classMeta.Fields.Single().Type.Name);
         }
@@ -121,7 +118,6 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         public void BaseClass()
         {
             var classMeta = For<Base>();
-            Assert.NotNull(classMeta);
             Assert.AreEqual(FieldName, classMeta.Fields.Single().Name);
             Assert.AreEqual(typeof(string).Name, classMeta.Fields.Single().Type.Name);
         }
@@ -129,15 +125,13 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         public void SubClass()
         {
             var classMeta = For<SubClass>();
-            Assert.NotNull(classMeta);
             Assert.IsTrue(classMeta.Fields.Any(f => f.Name == "subClassField"));
-            Assert.IsTrue(classMeta.BaseClass.Fields.Any(f => f.Name == FieldName));
+            Assert.IsTrue(classMeta.BaseClass.Value.Fields.Any(f => f.Name == FieldName));
         }
         [Test]
         public void TypeWithArrays()
         {
             var classMeta = For<ClassWithArrays>();
-            Assert.NotNull(classMeta);
             Assert.IsTrue(classMeta.Fields.Single(f=>f.Name=="strings").Type.IsArray);
             Assert.IsTrue(classMeta.Fields.Single(f => f.Name == "withfields").Type.IsArray);
         }
@@ -145,14 +139,12 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         public void TypeWithSelfArrays()
         {
             var classMeta = For<ClassWithSelfUsingArray>();
-            Assert.NotNull(classMeta);
             Assert.IsTrue(classMeta.Fields.Single().Type.IsArray);
         }
         [Test]
         public void TypeWithSystemArrays()
         {
             var classMeta = For<SystemTypeArrays>();
-            Assert.NotNull(classMeta);
             var fieldInfo = classMeta.Fields.Single(f => f.Name == "aField").Type;
             Assert.IsTrue(fieldInfo.IsArray);
             Assert.IsTrue(fieldInfo.TryResolveType(t=>t.TryResolveType(TestUtils.FindNothingTypeResolver).Value).HasValue);
@@ -189,6 +181,27 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             dbMock.Setup(c => c.Ext().KnownClasses()).Returns(new[] {colorHolderType});
             var classInfos = MetaDataReader.Read(dbMock.Object, TestUtils.TestTypeResolver());
             Assert.IsTrue(1<classInfos.Count());
+        }
+        [Test]
+        public void ReadsIndexState()
+        {
+            var classMeta = For<ClassWithIndexedFields>();
+            var fieldInfo = classMeta.Fields;
+            Assert.IsTrue(fieldInfo.Any(f=>f.IndexingState==IndexingState.Indexed));
+            Assert.IsTrue(fieldInfo.Any(f=>f.IndexingState==IndexingState.NotIndexed));
+        }
+        [Test]
+        public void ReadsIndexStateForKnownType()
+        {
+            this.generatedClassses = MetaDataReader.Read(database);
+            var classMeta = For<ClassWithFields>();
+            var fieldInfo = classMeta.Fields;
+            Assert.IsTrue(fieldInfo.Any(f => f.IndexingState == IndexingState.NotIndexed));
+        }
+
+        private void ConfigureIndexes(IEmbeddedConfiguration obj)
+        {
+            obj.Common.ObjectClass(typeof(ClassWithIndexedFields)).ObjectField("indexedField").Indexed(true);
         }
 
         private void StoreAPerson(MultiContainerMemoryDB contex)

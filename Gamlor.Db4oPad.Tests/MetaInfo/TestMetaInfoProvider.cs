@@ -34,7 +34,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         {
             var dataContext = toTest.DataContext;
             Assert.NotNull(dataContext);
-            Assert.NotNull(CodeGenerator.QueryContextClassName, dataContext.Name);
+            Assert.NotNull(ContextTypeGenerator.QueryContextClassName, dataContext.Name);
         }
 
         [Test]

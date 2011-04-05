@@ -9,6 +9,7 @@ namespace Db4oPad.TestDBs
         {
             StoreLocationInfo();
             StorePreferencesInfo();
+            StoreIndexExample();
         }
 
         private static void StorePreferencesInfo()
@@ -52,5 +53,21 @@ namespace Db4oPad.TestDBs
             mainLocation.AddAlternativeLocation(new Location("Alternative"));
             db.Store(mainLocation);
         }
+
+        private static void StoreIndexExample()
+        {
+            var cfg = Db4oEmbedded.NewConfiguration();
+            cfg.Common.ObjectClass(typeof(IndexesOnFields)).ObjectField("firstIndexedField").Indexed(true);
+            cfg.Common.ObjectClass(typeof(IndexesOnFields)).ObjectField("secondIndexedField").Indexed(true);
+            using (var db = Db4oEmbedded.OpenFile(cfg,"databaseWithIndexes.db4o"))
+            {
+                db.Store(new IndexesOnFields());
+                db.Store(new IndexesOnFields());
+                db.Store(new IndexesOnFields());
+                db.Store(new IndexesOnFields());
+            }
+        }
+
     }
+
 }

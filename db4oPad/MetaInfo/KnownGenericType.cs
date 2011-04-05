@@ -11,20 +11,33 @@ namespace Gamlor.Db4oPad.MetaInfo
 
         internal KnownGenericType(Type typeInfo,
                                   Func<ITypeDescription, IEnumerable<SimpleFieldDescription>> fieldsInitializer,
-                                  IEnumerable<ITypeDescription> genericArgumentTypes) : base(typeInfo, fieldsInitializer)
+                                  IEnumerable<ITypeDescription> genericArgumentTypes)
+            : base(typeInfo, CreateTypeName(typeInfo, genericArgumentTypes), fieldsInitializer)
         {
             this.genericArgumentTypes = genericArgumentTypes;
         }
+
 
         public override Maybe<Type> TryResolveType(Func<ITypeDescription, Type> typeResolver)
         {
             var genericArguments = genericArgumentTypes.Select(typeResolver).ToArray();
             return typeInfo.MakeGenericType(genericArguments);
         }
-
-        protected override IEnumerable<TypeName> GenericNameArguments(Type type)
+        private static TypeName CreateTypeName(Type type, IEnumerable<ITypeDescription> genericArgumentTypes)
         {
-            return genericArgumentTypes.Select(td=>td.TypeName).ToList();
+            return TypeName.Create(type.FullName.Split('`').First(),
+                type.Assembly.GetName().Name,
+                genericArgumentTypes.Select(t=>t.TypeName));
         }
+    }
+
+    class GenericVariable : KnownType
+    {
+        internal GenericVariable(Type typeInfo)
+            : base(typeInfo, MetaInfo.TypeName.Create(typeInfo.Name,typeInfo.Assembly.GetName().Name),f=>new SimpleFieldDescription[0] )
+        {
+        }
+
+
     }
 }

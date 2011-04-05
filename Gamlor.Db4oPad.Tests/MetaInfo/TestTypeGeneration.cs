@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using Gamlor.Db4oPad.MetaInfo;
 using Gamlor.Db4oPad.Tests.TestTypes;
+using Gamlor.Db4oPad.Utils;
 using NUnit.Framework;
 
 namespace Gamlor.Db4oPad.Tests.MetaInfo
@@ -223,7 +224,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         {
             var metaInfo = TestMetaData.CreateEmptyClassMetaInfo();
 
-            var name = NewName();
+            var name = TestUtils.NewName();
             var infos = CodeGenerator.Create(metaInfo, name);
             Assert.IsTrue(File.Exists(name.CodeBase));
 
@@ -247,7 +248,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             var intType = KnownType.Create(typeof(int));
             var baseClass = baseClasses.Single(b => !b.TryResolveType(TestUtils.FindNothingTypeResolver).HasValue);
             var subType = SimpleClassDescription.Create(
-                TypeName.Create("ANamespace.SubClass", TestMetaData.AssemblyName), baseClass,
+                TypeName.Create("ANamespace.SubClass", TestMetaData.AssemblyName), Maybe.From(baseClass),
                 f => TestMetaData.CreateField("subField", intType));
             return baseClasses.Concat(new[] {intType, subType});
         }
@@ -307,7 +308,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
 
         private static Type ExtractTypeByName(IEnumerable<ITypeDescription> metaInfo, string name)
         {
-            return CodeGenerator.Create(metaInfo, NewName()).Where(t => t.Key.Name.Contains(name)).Single().Value;
+            return CodeGenerator.Create(metaInfo, TestUtils.NewName()).Where(t => t.Key.Name.Contains(name)).Single().Value;
         }
 
         private static ITypeDescription SingleFieldMeta(IEnumerable<ITypeDescription> metaInfo)
