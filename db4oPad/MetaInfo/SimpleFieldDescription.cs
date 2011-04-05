@@ -1,6 +1,6 @@
 ﻿namespace Gamlor.Db4oPad.MetaInfo
 {
-    internal enum IndexingState
+    public enum IndexingState
     {
         Unknown,
         NotIndexed,

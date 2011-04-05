@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 using Gamlor.Db4oPad.Utils;
@@ -12,7 +11,6 @@ namespace Gamlor.Db4oPad.MetaInfo
     internal static class CodeGenerator
     {
         public const string NameSpace = "LINQPad.User";
-        public const string QueryContextClassName = "LINQPad.User.TypedDataContext";
 
         internal static CodeGenerationResult Create(IEnumerable<ITypeDescription> metaInfo,
             AssemblyName intoAssembly)
@@ -20,7 +18,7 @@ namespace Gamlor.Db4oPad.MetaInfo
             var assemblyBuilder = CreateAssembly(intoAssembly);
             var builder = CreateModule(assemblyBuilder);
             var types = CreateTypes(builder, metaInfo);
-            var contextType = CreateContextType(builder, types);
+            var contextType = ContextTypeGenerator.CreateContextType(builder, types);
             assemblyBuilder.Save(Path.GetFileName(intoAssembly.CodeBase));
             return new CodeGenerationResult(contextType, types);
         }
@@ -28,7 +26,7 @@ namespace Gamlor.Db4oPad.MetaInfo
         public static CodeGenerationResult Create(IEnumerable<ITypeDescription> metaInfo, Assembly candidateAssembly)
         {
             var types = metaInfo.ToDictionary(mi => mi, mi => FindType(mi,candidateAssembly));
-            var contextType = candidateAssembly.GetType(QueryContextClassName);
+            var contextType = candidateAssembly.GetType(ContextTypeGenerator.QueryContextClassName);
             return new CodeGenerationResult(contextType, types);
         }
 
@@ -44,43 +42,6 @@ namespace Gamlor.Db4oPad.MetaInfo
         {
             return typeInfo.TryResolveType(t =>FindType(t,candidateAssembly))
                 .GetValue(() => candidateAssembly.GetType(BuildName(typeInfo.TypeName.NameWithGenerics)));
-        }
-
-
-        private static Type CreateContextType(ModuleBuilder builder, IEnumerable<KeyValuePair<ITypeDescription, Type>> types)
-        {
-            var typeBuilder = builder.DefineType(QueryContextClassName,
-                                         TypeAttributes.Class | TypeAttributes.Public);
-            foreach (var type in types.Where(t=>t.Key.IsBusinessEntity))
-            {
-                var querableType = typeof (IQueryable<>).MakeGenericType(type.Value);
-                var property = typeBuilder.DefineProperty(type.Key.Name,
-                                                          PropertyAttributes.HasDefault, 
-                                                          querableType, null);
-                property.SetGetMethod(CreateQueryGetter(type.Value,querableType, type.Key.Name, typeBuilder));
-            }
-            return typeBuilder.CreateType();
-        }
-
-        private static MethodBuilder CreateQueryGetter(Type type, Type queryableType,
-            string propertyName,
-            TypeBuilder typeBuilder)
-        {
-            var getterMethod =
-                typeBuilder.DefineMethod("get_" + propertyName,
-                                         MethodAttributes.Public | MethodAttributes.SpecialName |
-                                         MethodAttributes.HideBySig|MethodAttributes.Static);
-
-            var call = Expression.Call(null, StaticQueryCall(type));
-            var lambda = Expression.Lambda(typeof(Func<>).MakeGenericType(queryableType),
-                call, new ParameterExpression[0]);
-            lambda.CompileToMethod(getterMethod);
-            return getterMethod;
-        }
-
-        private static MethodInfo StaticQueryCall(Type forType)
-        {
-            return typeof (CurrentContext).GetMethod("Query").MakeGenericMethod(forType);
         }
 
         private static IDictionary<ITypeDescription, Type> CreateTypes(ModuleBuilder modBuilder,

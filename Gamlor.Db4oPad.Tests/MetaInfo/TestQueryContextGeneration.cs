@@ -1,4 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using Gamlor.Db4oPad.MetaInfo;
 using Gamlor.Db4oPad.Tests.TestTypes;
 using NUnit.Framework;
 
@@ -37,8 +41,8 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         {
                     var metaInfo = TypeWithGenericList();
                     var infos = NewTestInstance(metaInfo);
-                    var properties = infos.DataContext.GetProperties();
-                    Assert.AreEqual(1, properties.Length);
+                    var properties = AllPropertiesExceptMetaData(infos);
+                    Assert.AreEqual(1, properties.Count());
         }
         [Test]
         public void QueryForGenericType()
@@ -53,8 +57,15 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         {
                     var metaInfo = TestMetaData.CreateClassWithArrayField();
                     var infos = NewTestInstance(metaInfo);
-                    var properties = infos.DataContext.GetProperties();
-                    Assert.AreEqual(1,properties.Length);
+                    var properties = AllPropertiesExceptMetaData(infos);
+                    Assert.AreEqual(1,properties.Count());
+        }
+
+        private IEnumerable<PropertyInfo> AllPropertiesExceptMetaData(CodeGenerationResult infos)
+        {
+            return (from p in infos.DataContext.GetProperties()
+                    where p.Name!="MetaData"
+                    select p);
         }
 
 
