@@ -55,16 +55,22 @@ namespace Gamlor.Db4oPad.MetaInfo
 
         private IndexingState IndexLookUp(TypeName declaringtype, string fieldName, TypeName fieldtype)
         {
-            var storedInfo = container.StoredClass(declaringtype.FullName);
+            var storedInfo = (from sc in container.StoredClasses()
+                                 where sc.GetName()==declaringtype.FullName
+                                 select sc).SingleOrDefault();
             if (null == storedInfo)
             {
                 return IndexingState.Unknown;
             }
+            // HACK: Currently we cant narrow down the field-type propery
+            // we just assume that there only one field with a certain name
+            // Issue due to http://tracker.db4o.com/browse/COR-2174
+            // FIX: Adding back this line: type.GetName()==fieldtype.FullName
+
             var storefField = (from sf in storedInfo.GetStoredFields()
                                 let type = sf.GetStoredType()
                                   where type!=null
                                   && sf.GetName() == fieldName
-                                  && type.GetName()==fieldtype.FullName
                                   select sf).SingleOrDefault();
             if (null == storefField)
             {

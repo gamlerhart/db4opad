@@ -56,7 +56,10 @@ namespace Db4oPad.TestDBs
 
         private static void StoreIndexExample()
         {
-            using (var db = Db4oEmbedded.OpenFile("databaseWithIndexes.db4o"))
+            var cfg = Db4oEmbedded.NewConfiguration();
+            cfg.Common.ObjectClass(typeof(IndexesOnFields)).ObjectField("firstIndexedField").Indexed(true);
+            cfg.Common.ObjectClass(typeof(IndexesOnFields)).ObjectField("secondIndexedField").Indexed(true);
+            using (var db = Db4oEmbedded.OpenFile(cfg,"databaseWithIndexes.db4o"))
             {
                 db.Store(new IndexesOnFields());
                 db.Store(new IndexesOnFields());
