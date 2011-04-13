@@ -65,6 +65,7 @@
   <ItemGroup>
     <Compile Include="CurrentContext.cs" />
     <Compile Include="DatabaseConfigurator.cs" />
+    <Compile Include="ExtendedQueryable.cs" />
     <Compile Include="GUI\ConnectionViewModel.cs" />
     <Compile Include="MemberProvider.cs" />
     <Compile Include="MetaInfo\ArrayDescription.cs" />
