@@ -67,6 +67,7 @@
     <Compile Include="DatabaseConfigurator.cs" />
     <Compile Include="ExtendedQueryable.cs" />
     <Compile Include="GUI\ConnectionViewModel.cs" />
+    <Compile Include="LinqPadConfigUtils.cs" />
     <Compile Include="MemberProvider.cs" />
     <Compile Include="MetaInfo\ArrayDescription.cs" />
     <Compile Include="MetaInfo\ContextTypeGenerator.cs" />

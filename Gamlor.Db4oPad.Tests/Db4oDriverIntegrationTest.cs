@@ -3,6 +3,7 @@ using System.Collections;
 using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
+using Gamlor.Db4oPad.GUI;
 using LINQPad.Extensibility.DataContext;
 using Moq;
 using NUnit.Framework;
@@ -12,7 +13,6 @@ namespace Gamlor.Db4oPad.Tests
     public class Db4oDriverIntegrationTest
     {
         private const string Databasename = "testDB.db4o";
-
         [Test]
         public void CanQuery()
         {
@@ -23,7 +23,7 @@ namespace Gamlor.Db4oPad.Tests
             var assemblyPath = assembly.CodeBase;
             connectionInfo.Setup(i => i.CustomTypeInfo.CustomMetadataPath)
                 .Returns(() => Databasename);
-            connectionInfo.Setup(i => i.SessionData[Db4oDriver.AssemblyLocation])
+            connectionInfo.Setup(i => i.SessionData[ConnectionViewModel.AssemblyLocation])
                 .Returns(() => assemblyPath);
             var dummy = "";
             testInstance.GetSchemaAndBuildAssembly(connectionInfo.Object, assembly,

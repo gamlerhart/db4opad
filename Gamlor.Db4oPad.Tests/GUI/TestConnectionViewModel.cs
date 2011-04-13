@@ -35,7 +35,7 @@ namespace Gamlor.Db4oPad.Tests.GUI
         public void UsesExistingWriteAccessFlag()
         {
             var valueFunction = new XElement("root",
-                new XElement(ConnectionViewModel.WriteAccessFlag,"false"));
+                new XElement(LinqPadConfigUtils.WriteAccessFlag,"false"));
             mock.Setup(c => c.DriverData).Returns(valueFunction);
             Assert.AreEqual(false, NewTestInstance().WriteAccess);
         }
@@ -43,11 +43,11 @@ namespace Gamlor.Db4oPad.Tests.GUI
         public void CanSetAndGetWriteAccessFlag()
         {
             var valueFunction = new XElement("root",
-                new XElement(ConnectionViewModel.WriteAccessFlag, "false"));
+                new XElement(LinqPadConfigUtils.WriteAccessFlag, "false"));
             mock.Setup(c => c.DriverData).Returns(valueFunction);
             NewTestInstance().WriteAccess = true;
             Assert.AreEqual(true, NewTestInstance().WriteAccess);
-            Assert.AreEqual("true", valueFunction.Element(ConnectionViewModel.WriteAccessFlag).Value);
+            Assert.AreEqual("true", valueFunction.Element(LinqPadConfigUtils.WriteAccessFlag).Value);
         }
         [Test]
         public void EmptyDataEqualsNoWriteAcces()

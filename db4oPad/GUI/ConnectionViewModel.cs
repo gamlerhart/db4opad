@@ -8,7 +8,6 @@ namespace Gamlor.Db4oPad.GUI
 {
     public class ConnectionViewModel : INotifyPropertyChanged
     {
-        public const string WriteAccessFlag = "WriteAccess";
         private readonly IConnectionInfo cxInfo;
 
         public ConnectionViewModel(IConnectionInfo cxInfo)
@@ -42,14 +41,13 @@ namespace Gamlor.Db4oPad.GUI
         {
             get
             {
-                return cxInfo.DriverData.Element(WriteAccessFlag)
-                    .AsMaybe().Convert(e => "true".Equals(e.Value)).GetValue(false);
+                return LinqPadConfigUtils.HasWriteAccess(cxInfo);
             }
             set
             {
-                cxInfo.DriverData.Element(WriteAccessFlag)
+                cxInfo.DriverData.Element(LinqPadConfigUtils.WriteAccessFlag)
                     .AsMaybe()
-                    .Handle(() => cxInfo.DriverData.Add(new XElement(WriteAccessFlag, value)))
+                    .Handle(() => cxInfo.DriverData.Add(new XElement(LinqPadConfigUtils.WriteAccessFlag, value)))
                     .Apply(e => e.SetValue(value));
             }
         }
@@ -65,5 +63,6 @@ namespace Gamlor.Db4oPad.GUI
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
+        internal const string AssemblyLocation = "Db4oDriver.AssemblyLocationKey";
     }
 }
