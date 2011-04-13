@@ -129,7 +129,7 @@ namespace Gamlor.Db4oPad
 
         private static bool AllowWrites(IConnectionInfo cxInfo)
         {
-            return LinqPadConfigUtils.HasWriteAccess(cxInfo);
+            return !LinqPadConfigUtils.HasWriteAccess(cxInfo);
         }
 
         private static IEmbeddedConfiguration NewConfig(bool isReadOnly = false)
