@@ -32,6 +32,7 @@
                  IsEnabled="False"/>
 
         <CheckBox IsChecked="{Binding Persist}">Remember this connection</CheckBox>
+        <CheckBox IsChecked="{Binding WriteAccess}">Allow writes to the database. DANGEROUS!</CheckBox>
         <DockPanel LastChildFill="False" Margin="0,10,0,0">
             <Button Name="btnCancel"
                     DockPanel.Dock="Right"
