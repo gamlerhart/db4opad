@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Xml.Linq;
 using Db4objects.Db4o;
 using Db4objects.Db4o.Config;
 using Gamlor.Db4oPad.GUI;
@@ -14,8 +15,6 @@ namespace Gamlor.Db4oPad
 {
     public class Db4oDriver : DynamicDataContextDriver
     {
-        internal const string AssemblyLocation = "Db4oDriver.AssemblyLocationKey";
-
         public override string GetConnectionDescription(IConnectionInfo cxInfo)
         {
             return Path.GetFileName(cxInfo.CustomTypeInfo.CustomMetadataPath);
@@ -46,7 +45,7 @@ namespace Gamlor.Db4oPad
                 OpenDB(cxInfo),
                 assemblyToBuild,CreateTypeLoader(cxInfo)))
             {
-                cxInfo.SessionData[AssemblyLocation] = assemblyToBuild.CodeBase;
+                cxInfo.SessionData[ConnectionViewModel.AssemblyLocation] = assemblyToBuild.CodeBase;
                 nameSpace = context.MetaInfo.DataContext.Namespace;
                 typeName = context.MetaInfo.DataContext.Name;
                 return context.ListTypes().ToList();
@@ -101,7 +100,7 @@ namespace Gamlor.Db4oPad
             return base.GetCustomDisplayMemberProvider(objectToWrite);
         }
 
-        private static Tuple<DatabaseConfigurator,DatabaseMetaInfo> Configurator(IConnectionInfo cxInfo, Assembly assembly)
+        private static Tuple<DatabaseConfigurator, DatabaseMetaInfo> Configurator(IConnectionInfo cxInfo, Assembly assembly)
         {
             using (var tmpDb = OpenDB(cxInfo))
             {
@@ -123,25 +122,27 @@ namespace Gamlor.Db4oPad
         private static IEmbeddedObjectContainer OpenDB(IConnectionInfo cxInfo,
             Action<IEmbeddedConfiguration> configurator)
         {
-            var config = NewConfig();
+            var config = NewConfig(AllowWrites(cxInfo));
             configurator(config);
             return Db4oEmbedded.OpenFile(config,cxInfo.CustomTypeInfo.CustomMetadataPath);
         }
 
-        private static IEmbeddedConfiguration NewConfig()
+        private static bool AllowWrites(IConnectionInfo cxInfo)
+        {
+            return !LinqPadConfigUtils.HasWriteAccess(cxInfo);
+        }
+
+        private static IEmbeddedConfiguration NewConfig(bool isReadOnly = false)
         {
             var config = Db4oEmbedded.NewConfiguration();
-            config.File.ReadOnly = true;
+            config.File.ReadOnly = isReadOnly;
             return config;
         }
 
         private static string GetAssemblyLocation(IConnectionInfo cxInfo)
         {
-            return (string)cxInfo.SessionData[AssemblyLocation];
+            return (string)cxInfo.SessionData[ConnectionViewModel.AssemblyLocation];
         }
-
-
-
     }
 }
 
