@@ -80,6 +80,16 @@ namespace Gamlor.Db4oPad.Tests
             Assert.NotNull(type);
         }
         [Test]
+        public void CanCreateNewInstances()
+        {
+            using(var toTest = NewTestInstance())
+            {
+                var newInstance = toTest.Query<ClassWithFields>().New();
+                Assert.NotNull(newInstance);
+                    
+            }
+        }
+        [Test]
         public void NoEntryForArrays()
         {
             DB.Store(new SystemTypeArrays());
@@ -118,6 +128,18 @@ namespace Gamlor.Db4oPad.Tests
                 Assert.IsTrue(type.TryResolveType(TestUtils.FindNothingTypeResolver).HasValue);
                 
             }
+        }
+
+        [Test]
+        public void StoresObject()
+        {
+            using (var db = NewTestInstance())
+            {
+                var beforeInsert = db.Query<ClassWithoutFields>().Count();
+                db.Store(new ClassWithoutFields());
+                Assert.AreEqual(beforeInsert + 1, db.Query<ClassWithoutFields>().Count());
+            }
+            
         }
 
         private DatabaseContext NewTestInstance()

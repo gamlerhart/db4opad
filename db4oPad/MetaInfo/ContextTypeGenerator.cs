@@ -7,6 +7,13 @@ using System.Reflection.Emit;
 
 namespace Gamlor.Db4oPad.MetaInfo
 {
+    public class ContextRoot
+    {
+        public static void Store(object toStore)
+        {
+            CurrentContext.Store(toStore);
+        }
+    }
     internal static class ContextTypeGenerator
     {
         private const string MetaDataProperty = "MetaData";
@@ -19,7 +26,7 @@ namespace Gamlor.Db4oPad.MetaInfo
             IEnumerable<KeyValuePair<ITypeDescription, Type>> types)
         {
             var typeBuilder = builder.DefineType(QueryContextClassName,
-                                                 PublicClass());
+                                                 PublicClass(), typeof(ContextRoot));
             CreateQueryEntryPoints(types, typeBuilder);
             CreateMetaDataStructure(types, builder, typeBuilder);
             return typeBuilder.CreateType();
@@ -30,7 +37,7 @@ namespace Gamlor.Db4oPad.MetaInfo
         {
             foreach (var type in AllBusinessObjects(types))
             {
-                var querableType = typeof(IQueryable<>).MakeGenericType(type.Value);
+                var querableType = typeof(ExtendedQueryable<>).MakeGenericType(type.Value);
                 var property = DefineProperty(typeBuilder, type.Key.Name, querableType);
                CreateQueryGetter(type.Value, querableType, property, typeBuilder);
             }

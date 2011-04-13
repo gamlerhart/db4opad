@@ -31,6 +31,19 @@ namespace Gamlor.Db4oPad.Tests
                 Assert.NotNull(meta2);
             }
         }
+        [Test]
+        public void CanCreateNewInstance()
+        {
+            RunTestWith(CarDatabase,
+                        ctx =>
+                            {
+                                var propertyInfo = ctx.MetaInfo.DataContext.GetProperty("Car");
+                                dynamic carQuery = propertyInfo.GetValue(null, null);
+                                 var newCar = carQuery.New();
+                                 Assert.NotNull(propertyInfo.PropertyType.GetMethod("New"));
+                                Assert.NotNull(newCar);
+                            });
+        }
 
         [Test]
         public void CanOpenArrayDatabase()
@@ -93,10 +106,16 @@ namespace Gamlor.Db4oPad.Tests
         {
             TestUtils.CopyTestDB(dbName);
             var name = TestUtils.NewName();
-            using (var ctx = DatabaseContext.Create(Db4oEmbedded.OpenFile(dbName), name,
-                                                    TypeLoader.Create(new string[0])))
+            var ctx = DatabaseContext.Create(Db4oEmbedded.OpenFile(dbName), name,
+                                                         TypeLoader.Create(new string[0]));
+            CurrentContext.NewContext(ctx);
+            try
             {
                 context(ctx);
+                    
+            }finally
+            {
+                CurrentContext.CloseContext();
             }
         }
     }

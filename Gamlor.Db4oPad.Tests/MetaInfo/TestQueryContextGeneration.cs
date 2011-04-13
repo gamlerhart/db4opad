@@ -25,6 +25,27 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             Assert.NotNull(property);
         }
         [Test]
+        public void HasNewOperator()
+        {
+            var theProperty = SingleTypeQueryContext().GetProperty("EmptyClass");
+            Assert.AreEqual(typeof(ExtendedQueryable<>),theProperty.PropertyType.GetGenericTypeDefinition());
+        }
+        [Test]
+        public void HasStoreMethod()
+        {
+            TestUtils.WithTestContext(
+                () =>
+                {
+                    var queryClass = SingleTypeQueryContext();
+                    dynamic propertyForEmptyClass = queryClass.GetProperty("EmptyClass").GetValue(null,null);
+                    var newInstance = propertyForEmptyClass.New();
+                    queryClass.GetMethod("Store",
+                        BindingFlags.Static | BindingFlags.Public
+                        | BindingFlags.FlattenHierarchy).Invoke(null, new[] {newInstance});
+                    Assert.AreEqual(1, Enumerable.Count(propertyForEmptyClass));
+                });
+        }
+        [Test]
         public void CanQuery()
         {
             TestUtils.WithTestContext(

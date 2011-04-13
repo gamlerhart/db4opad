@@ -54,6 +54,15 @@ namespace Gamlor.Db4oPad.Tests
             CurrentContext.CloseContext();
 
         }
+        [Test]
+        public void DirectStore()
+        {
+            var context = NewContext();
+            CurrentContext.NewContext(context);
+            CurrentContext.Store(new ClassWithIndexedFields());
+            Assert.AreEqual(1, CurrentContext.Query<ClassWithIndexedFields>().Count());
+            CurrentContext.CloseContext();
+        }
         
         private DatabaseContext NewContext()
         {

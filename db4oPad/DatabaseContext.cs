@@ -37,6 +37,11 @@ namespace Gamlor.Db4oPad
             disposer.Dispose();
         }
 
+        public void Store(object objectToStore)
+        {
+            this.theContainer.Store(objectToStore);
+        }
+
         public IEnumerable<ExplorerItem> ListTypes()
         {
             return (from t in metaInfo.Types
@@ -44,9 +49,9 @@ namespace Gamlor.Db4oPad
                        select ToExplorerItem(t)).ToList();
         }
 
-        public IQueryable<T> Query<T>()
+        public ExtendedQueryable<T> Query<T>()
         {
-            return this.theContainer.AsQueryable<T>();
+            return ExtendedQueryable.Create(theContainer.AsQueryable<T>());
         }
 
         public DatabaseMetaInfo MetaInfo

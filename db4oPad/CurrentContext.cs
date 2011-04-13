@@ -30,9 +30,14 @@ namespace Gamlor.Db4oPad
             context.Value = null;
         }
 
-        public static IQueryable<T> Query<T>()
+        public static ExtendedQueryable<T> Query<T>()
         {
             return GetCurrentContext().Query<T>();
+        }
+
+        public static void Store(object toStore)
+        {
+            GetCurrentContext().Store(toStore);
         }
 
         private static bool IsAvailable()
