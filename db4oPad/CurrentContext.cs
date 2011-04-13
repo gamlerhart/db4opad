@@ -35,6 +35,11 @@ namespace Gamlor.Db4oPad
             return GetCurrentContext().Query<T>();
         }
 
+        public static void Store(object toStore)
+        {
+            GetCurrentContext().Store(toStore);
+        }
+
         private static bool IsAvailable()
         {
             return context.IsValueCreated && context.Value != null;

@@ -130,6 +130,18 @@ namespace Gamlor.Db4oPad.Tests
             }
         }
 
+        [Test]
+        public void StoresObject()
+        {
+            using (var db = NewTestInstance())
+            {
+                var beforeInsert = db.Query<ClassWithoutFields>().Count();
+                db.Store(new ClassWithoutFields());
+                Assert.AreEqual(beforeInsert + 1, db.Query<ClassWithoutFields>().Count());
+            }
+            
+        }
+
         private DatabaseContext NewTestInstance()
         {
             var name = TestUtils.NewName();
