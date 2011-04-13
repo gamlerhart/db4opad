@@ -30,7 +30,7 @@ namespace Gamlor.Db4oPad.MetaInfo
         {
             foreach (var type in AllBusinessObjects(types))
             {
-                var querableType = typeof(IQueryable<>).MakeGenericType(type.Value);
+                var querableType = typeof(ExtendedQueryable<>).MakeGenericType(type.Value);
                 var property = DefineProperty(typeBuilder, type.Key.Name, querableType);
                CreateQueryGetter(type.Value, querableType, property, typeBuilder);
             }

@@ -21,12 +21,11 @@ namespace Gamlor.Db4oPad.Tests
             Assert.AreEqual(original.Expression, wrapped.Expression);
         }
         [Test]
-        public void CanCreateNewInstance()
+        public void ThrowsIfNowConstructorIsThere()
         {
             var original = new[] { 1 }.AsQueryable();
             var wrapped = ExtendedQueryable.Create(original);
-
-            Assert.AreEqual(0, wrapped.New());
+            Assert.Throws<ArgumentException>(() => wrapped.New(42));
         }
         [Test]
         public void CanCreateNewInstanceOfComplexType()

@@ -44,9 +44,9 @@ namespace Gamlor.Db4oPad
                        select ToExplorerItem(t)).ToList();
         }
 
-        public IQueryable<T> Query<T>()
+        public ExtendedQueryable<T> Query<T>()
         {
-            return this.theContainer.AsQueryable<T>();
+            return ExtendedQueryable.Create(theContainer.AsQueryable<T>());
         }
 
         public DatabaseMetaInfo MetaInfo

@@ -80,6 +80,16 @@ namespace Gamlor.Db4oPad.Tests
             Assert.NotNull(type);
         }
         [Test]
+        public void CanCreateNewInstances()
+        {
+            using(var toTest = NewTestInstance())
+            {
+                var newInstance = toTest.Query<ClassWithFields>().New();
+                Assert.NotNull(newInstance);
+                    
+            }
+        }
+        [Test]
         public void NoEntryForArrays()
         {
             DB.Store(new SystemTypeArrays());

@@ -25,6 +25,12 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             Assert.NotNull(property);
         }
         [Test]
+        public void HasNewOperator()
+        {
+            var theProperty = SingleTypeQueryContext().GetProperty("EmptyClass");
+            Assert.AreEqual(typeof(ExtendedQueryable<>),theProperty.PropertyType.GetGenericTypeDefinition());
+        }
+        [Test]
         public void CanQuery()
         {
             TestUtils.WithTestContext(

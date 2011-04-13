@@ -56,7 +56,12 @@ namespace Gamlor.Db4oPad
             }
             var typeOfArguments = (from arg in arguments
                                   select arg.GetType()).ToArray();
-            return (T)typeof(T).GetConstructor(typeOfArguments).Invoke(arguments);
+            var constructor = typeof(T).GetConstructor(typeOfArguments);
+            if(null==constructor)
+            {
+                throw new ArgumentException(string.Format("Couldn't find a constructor for {0} with the arguments {1}", typeof(T), arguments));
+            }
+            return (T)constructor.Invoke(arguments);
         }
     }
 }
