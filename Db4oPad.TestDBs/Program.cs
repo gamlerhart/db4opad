@@ -7,14 +7,28 @@ namespace Db4oPad.TestDBs
     {
         static void Main(string[] args)
         {
-            StoreLocationInfo();
-            StorePreferencesInfo();
-            StoreIndexExample();
+            StoreExampleDBs();
+            StoreMergedExampleDB();
         }
 
-        private static void StorePreferencesInfo()
+        private static void StoreMergedExampleDB()
         {
-            using (var db = Db4oEmbedded.OpenFile("databaseWithGenerics.db4o"))
+            const string fileName ="allInOne.db4o";
+            StoreLocationInfo(fileName);
+            StorePreferencesInfo(fileName);
+            StoreIndexExample(fileName);
+        }
+
+        private static void StoreExampleDBs()
+        {
+            StoreLocationInfo("databaseWithArrayFields.db4o");
+            StorePreferencesInfo("databaseWithGenerics.db4o");
+            StoreIndexExample("databaseWithIndexes.db4o");
+        }
+
+        private static void StorePreferencesInfo(string fileName)
+        {
+            using (var db = Db4oEmbedded.OpenFile(fileName))
             {
                 var spagetti = new Food {Name = "Spagetti", Calories = 500};
                 var pizza = new Food {Name = "Pizza", Calories = 700};
@@ -39,9 +53,9 @@ namespace Db4oPad.TestDBs
             }
         }
 
-        private static void StoreLocationInfo()
+        private static void StoreLocationInfo(string fileName)
         {
-            using (var db = Db4oEmbedded.OpenFile("databaseWithArrayFields.db4o"))
+            using (var db = Db4oEmbedded.OpenFile(fileName))
             {
                 StoreADemoDataModel(db);
             }
@@ -54,12 +68,12 @@ namespace Db4oPad.TestDBs
             db.Store(mainLocation);
         }
 
-        private static void StoreIndexExample()
+        private static void StoreIndexExample(string fileName)
         {
             var cfg = Db4oEmbedded.NewConfiguration();
             cfg.Common.ObjectClass(typeof(IndexesOnFields)).ObjectField("firstIndexedField").Indexed(true);
             cfg.Common.ObjectClass(typeof(IndexesOnFields)).ObjectField("secondIndexedField").Indexed(true);
-            using (var db = Db4oEmbedded.OpenFile(cfg,"databaseWithIndexes.db4o"))
+            using (var db = Db4oEmbedded.OpenFile(cfg,fileName))
             {
                 db.Store(new IndexesOnFields());
                 db.Store(new IndexesOnFields());

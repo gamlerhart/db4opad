@@ -93,7 +93,6 @@ namespace Gamlor.Db4oPad.Tests
         private void AssertNoChance(ExtendedQueryable<Person> query)
         {
             Assert.IsTrue(query.All(p=>originalData.Contains(p)));
-                        
         }
     }
 }
