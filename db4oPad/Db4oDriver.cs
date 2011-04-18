@@ -86,7 +86,7 @@ namespace Gamlor.Db4oPad
 
         public override IEnumerable<string> GetNamespacesToAdd()
         {
-            return new[] { CodeGenerator.NameSpace };
+            return new[] { CodeGenerator.NameSpace, PadExtensions.NameSpace};
         }
 
         private static TypeResolver CreateTypeLoader(IConnectionInfo cxInfo)
