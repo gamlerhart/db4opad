@@ -45,7 +45,7 @@ namespace Gamlor.Db4oPad.MetaInfo
         public static DatabaseMetaInfo Create(IObjectContainer db,
             AssemblyName intoAssembly)
         {
-            return Create(db, MetaDataReader.DefaultTypeResolver(), intoAssembly);
+            return Create(db, TypeLoader.DefaultTypeResolver(), intoAssembly);
         }
 
         public static DatabaseMetaInfo Create(IObjectContainer db,

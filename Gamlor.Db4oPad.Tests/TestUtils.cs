@@ -2,6 +2,7 @@ using System;
 using System.Configuration.Assemblies;
 using System.IO;
 using System.Reflection;
+using Db4objects.Db4o;
 using Gamlor.Db4oPad.MetaInfo;
 using Gamlor.Db4oPad.Utils;
 using NUnit.Framework;
@@ -17,12 +18,18 @@ namespace Gamlor.Db4oPad.Tests
         public static void WithTestContext(Action action)
         {
             var db = MemoryDBForTests.NewDB();
-            using (var ctx = DatabaseContext.Create(db,NewName(),TestTypeResolver()))
+            WithTestContext(db,TestTypeResolver(), action);
+        }
+
+        internal static void WithTestContext(IObjectContainer db,TypeResolver resolver, Action action)
+        {
+            using (var ctx = DatabaseContext.Create(db, NewName(), resolver))
             {
                 CurrentContext.NewContext(ctx);
                 action();
             }
         }
+
         public static AssemblyName NewName()
         {
             var assemblyName = "TestAssembyl_" + Path.GetRandomFileName();
@@ -44,12 +51,15 @@ namespace Gamlor.Db4oPad.Tests
         /// <returns></returns>
         internal static TypeResolver TestTypeResolver()
         {
-            var defaultResolver = MetaDataReader.DefaultTypeResolver();
+            var defaultResolver = TypeLoader.DefaultTypeResolver();
             return n => n.FullName.StartsWith("Gamlor.Db4oPad.Tests")
                 ? Maybe<Type>.Empty
                 : defaultResolver(n);
         }
-
+        internal static TypeResolver DefaultResolver()
+        {
+            return TypeLoader.DefaultTypeResolver();
+        }
 
 
         internal static void CopyTestDB(string dbName)

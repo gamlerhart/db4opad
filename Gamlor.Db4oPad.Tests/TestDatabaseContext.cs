@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Db4objects.Db4o;
@@ -139,7 +140,35 @@ namespace Gamlor.Db4oPad.Tests
                 db.Store(new ClassWithoutFields());
                 Assert.AreEqual(beforeInsert + 1, db.Query<ClassWithoutFields>().Count());
             }
-            
+        }
+        [Test]
+        public void DoNotFailOnStringFields()
+        {
+            using (var db = NewTestInstance())
+            {
+                var withStringField = new ClassWithFields {aField = "testData"};
+                db.Store(withStringField);
+            }
+        }
+        [Test]
+        public void StoresCollectionsAlso()
+        {
+            using (var db = NewTestInstance())
+            {
+                var newInstance = new WithBuiltInGeneric()
+                                      {
+                                          AField = new List<string>()
+                                      };
+                db.Store(newInstance);
+                newInstance.AField.Add("Fun");
+                db.Store(newInstance);
+                DB.Commit();
+                using (var db2 = DB.Ext().OpenSession())
+                {
+                    var updated = db2.Query<WithBuiltInGeneric>().Single();
+                    Assert.AreEqual(1, updated.AField.Count);
+                }
+            }
         }
 
         private DatabaseContext NewTestInstance()

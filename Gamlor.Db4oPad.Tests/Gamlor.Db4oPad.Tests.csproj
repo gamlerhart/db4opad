@@ -95,6 +95,7 @@
     <Compile Include="TestDb4oAssumptions.cs" />
     <Compile Include="TestExtendedQueryable.cs" />
     <Compile Include="TestMemberProviders.cs" />
+    <Compile Include="TestPadExtensions.cs" />
     <Compile Include="TestTypes\Color.cs" />
     <Compile Include="TestTypes\ColorHolder.cs" />
     <Compile Include="TestTypes\Person.cs" />

@@ -8,7 +8,8 @@ using Gamlor.Db4oPad.Utils;
 
 namespace Gamlor.Db4oPad.MetaInfo
 {
-    public class DynamicGeneratedTypesReflector : NetReflector
+
+    internal class DynamicGeneratedTypesReflector : NetReflector
     {
         private readonly IDictionary<string, Type> specialTypes = new Dictionary<string, Type>();
         private readonly IDictionary<string, Tuple<string, Type>> renames = new Dictionary<string, Tuple<string, Type>>();

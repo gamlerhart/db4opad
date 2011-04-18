@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -86,7 +87,7 @@ namespace Gamlor.Db4oPad
 
         public override IEnumerable<string> GetNamespacesToAdd()
         {
-            return new[] { CodeGenerator.NameSpace };
+            return new[] { CodeGenerator.NameSpace, PadExtensions.NameSpace};
         }
 
         private static TypeResolver CreateTypeLoader(IConnectionInfo cxInfo)

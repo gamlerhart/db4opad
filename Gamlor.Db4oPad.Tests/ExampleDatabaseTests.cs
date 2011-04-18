@@ -70,9 +70,6 @@ namespace Gamlor.Db4oPad.Tests
                             Assert.AreEqual(typeof(List<>),propertyType.GetGenericTypeDefinition());
                         });
         }
-        /// <summary>
-        /// This is brocken. Mostly due to db4o-bug: COR-2177
-        /// </summary>
         [Test]
         public void HasIndexInfo()
         {
@@ -83,22 +80,6 @@ namespace Gamlor.Db4oPad.Tests
                             dynamic metaData = context.GetProperty("MetaData").GetValue(null, null);
                             Assert.IsTrue(metaData.IndexesOnFields.firstIndexedField.ToString().Contains("Indexed)"));
                             Assert.IsTrue(metaData.IndexesOnFields.notIndexed.ToString().Contains("NotIndexed)"));
-                        });
-        }
-        /// <summary>
-        /// The same test as 'HasIndexInfo', but with the brocken pattern. Ensures that the brocken information
-        /// is at least brocken as expected
-        /// </summary>
-        [Test]
-        public void BrockenIndexInfo()
-        {
-            RunTestWith("databaseWithIndexes.db4o",
-                        ctx =>
-                        {
-                            var context = ctx.MetaInfo.DataContext;
-                            dynamic metaData = context.GetProperty("MetaData").GetValue(null, null);
-                            Assert.IsTrue(metaData.IndexesOnFields.firstIndexedField.ToString().Contains("Unknown)"));
-                            Assert.IsTrue(metaData.IndexesOnFields.notIndexed.ToString().Contains("Unknown)"));
                         });
         }
 

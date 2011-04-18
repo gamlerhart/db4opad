@@ -1,5 +1,7 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Db4objects.Db4o;
@@ -24,7 +26,8 @@ namespace Gamlor.Db4oPad
         }
         public static DatabaseContext Create(IObjectContainer db, AssemblyName theAssembly, TypeResolver resolver)
         {
-            return new DatabaseContext(db, DatabaseMetaInfo.Create(db,resolver, theAssembly));
+            var meta = DatabaseMetaInfo.Create(db, resolver, theAssembly);
+            return new DatabaseContext(db, meta);
         }
 
         public static DatabaseContext Create(IObjectContainer db, DatabaseMetaInfo metaInfo)
@@ -39,6 +42,7 @@ namespace Gamlor.Db4oPad
 
         public void Store(object objectToStore)
         {
+            StoreCollectionValues(objectToStore);
             this.theContainer.Store(objectToStore);
         }
 
@@ -95,6 +99,22 @@ namespace Gamlor.Db4oPad
             }
             return (from f in type.Fields
                    select ToExplorerItem(f)).Concat(Fields(type.BaseClass)).ToList();
+        }
+
+        private void StoreCollectionValues(object objectToStore)
+        {
+            IEnumerable<FieldInfo> collectionFields = CollectionFields(objectToStore);
+            foreach (var fieldInfo in collectionFields)
+            {
+                this.theContainer.Store(fieldInfo.GetValue(objectToStore));
+            }
+        }
+
+        private IEnumerable<FieldInfo> CollectionFields(object objectToStore)
+        {
+            var fields = objectToStore.GetType().GetFields(
+                BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+            return fields.Where(f => typeof(ICollection).IsAssignableFrom(f.FieldType));
         }
     }
 }
