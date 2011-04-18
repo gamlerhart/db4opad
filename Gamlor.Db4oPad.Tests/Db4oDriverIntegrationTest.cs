@@ -3,6 +3,7 @@ using System.Collections;
 using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Xml.Linq;
 using Gamlor.Db4oPad.GUI;
 using LINQPad.Extensibility.DataContext;
 using Moq;
@@ -25,6 +26,7 @@ namespace Gamlor.Db4oPad.Tests
                 .Returns(() => Databasename);
             connectionInfo.Setup(i => i.SessionData[ConnectionViewModel.AssemblyLocation])
                 .Returns(() => assemblyPath);
+            connectionInfo.Setup(i => i.DriverData).Returns(new XElement("root"));
             var dummy = "";
             testInstance.GetSchemaAndBuildAssembly(connectionInfo.Object, assembly,
                 ref dummy, ref dummy);

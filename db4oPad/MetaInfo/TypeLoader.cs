@@ -8,13 +8,14 @@ using Gamlor.Db4oPad.Utils;
 
 namespace Gamlor.Db4oPad.MetaInfo
 {
+    internal delegate Maybe<Type> TypeResolver(TypeName toFind);
+
     /// <summary>
     /// Loads types from the optional specified assemblies.
     /// </summary>
     internal class TypeLoader
     {
         private readonly IEnumerable<string> filePaths;
-        private readonly TypeResolver nativeResolver = MetaDataReader.DefaultTypeResolver();
         private TypeLoader(IEnumerable<string> filePaths)
         {
             new{filePaths}.CheckNotNull();
@@ -25,7 +26,6 @@ namespace Gamlor.Db4oPad.MetaInfo
         {
             return new TypeLoader(filePaths.ToList()).Resolver();
         }
-
         private TypeResolver Resolver()
         {
             return Resolve;
@@ -33,8 +33,7 @@ namespace Gamlor.Db4oPad.MetaInfo
 
         private Maybe<Type> Resolve(TypeName toFind)
         {
-            return nativeResolver(toFind)
-                .Otherwise(()=>FindInCurrentAppDomain(toFind))
+            return FindInCurrentAppDomain(toFind)
                 .Otherwise(()=>FindInGivenAssemblyPaths(toFind));
         }
 
@@ -125,6 +124,13 @@ namespace Gamlor.Db4oPad.MetaInfo
         private static bool IsGeneric(TypeName toFind)
         {
             return toFind.GenericArguments.Any();
+        }
+
+        internal static TypeResolver DefaultTypeResolver()
+        {
+            var loader = Create(new string[0]);
+            return loader;
+
         }
     }
 }

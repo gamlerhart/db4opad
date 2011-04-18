@@ -51,14 +51,14 @@ namespace Gamlor.Db4oPad.Tests
         /// <returns></returns>
         internal static TypeResolver TestTypeResolver()
         {
-            var defaultResolver = MetaDataReader.DefaultTypeResolver();
+            var defaultResolver = TypeLoader.DefaultTypeResolver();
             return n => n.FullName.StartsWith("Gamlor.Db4oPad.Tests")
                 ? Maybe<Type>.Empty
                 : defaultResolver(n);
         }
         internal static TypeResolver DefaultResolver()
         {
-            return MetaDataReader.DefaultTypeResolver();
+            return TypeLoader.DefaultTypeResolver();
         }
 
 

@@ -1,50 +1,44 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Db4objects.Db4o;
 using Db4objects.Db4o.Ext;
 using Db4objects.Db4o.Reflect;
-using Db4objects.Db4o.Reflect.Net;
 using Gamlor.Db4oPad.Utils;
 
 namespace Gamlor.Db4oPad.MetaInfo
 {
-    internal delegate Maybe<Type> TypeResolver(TypeName toFind);
+
     internal class MetaDataReader
     {
         private readonly TypeResolver typeResolver;
-        private readonly IExtObjectContainer container;
+        private readonly IDictionary<string,CachedStoredClass> cachedStoredClasses;
 
-        internal static TypeResolver DefaultTypeResolver()
-        {
-            var resolver = new NetReflector();
-            return n => resolver.ForName(n.FullName)
-                .AsMaybe().Combine(c => c.MaybeCast<NetClass>()).Convert(rc => rc.GetNetType());
-        }
-
-        private MetaDataReader(TypeResolver typeResolver, IExtObjectContainer container)
+        private MetaDataReader(TypeResolver typeResolver, IDictionary<string, CachedStoredClass> cachedStoredClasses)
         {
             this.typeResolver = typeResolver;
-            this.container = container;
+            this.cachedStoredClasses = cachedStoredClasses;
         }
 
         public static IEnumerable<ITypeDescription> Read(IObjectContainer database)
         {
-            return Read(database, DefaultTypeResolver());
+            return Read(database, TypeLoader.DefaultTypeResolver());
         }
 
         public static IEnumerable<ITypeDescription> Read(IObjectContainer database,
             TypeResolver typeResolver)
         {
             new { database, typeResolver }.CheckNotNull();
-            
-            var reader = new MetaDataReader(typeResolver,database.Ext());
+            var reader = new MetaDataReader(typeResolver, ExtractStoredClasses(database.Ext().StoredClasses()));
             return reader.CreateTypes(database.Ext()).ToList();
         }
 
+
         private IEnumerable<ITypeDescription> CreateTypes(IExtObjectContainer container)
         {
-            var allKnownClasses = container.KnownClasses().Distinct().ToArray();
+            var reflectClasses = container.KnownClasses();
+            var allKnownClasses = reflectClasses.Distinct().ToArray();
             var typeMap = new Dictionary<string, ITypeDescription>();
             foreach (var classInfo in allKnownClasses)
             {
@@ -55,28 +49,14 @@ namespace Gamlor.Db4oPad.MetaInfo
 
         private IndexingState IndexLookUp(TypeName declaringtype, string fieldName, TypeName fieldtype)
         {
-            var storedInfo = (from sc in container.StoredClasses()
-                                 where sc.GetName()==declaringtype.FullName
-                                 select sc).SingleOrDefault();
-            if (null == storedInfo)
-            {
-                return IndexingState.Unknown;
-            }
-            // HACK: Currently we cant narrow down the field-type propery
-            // we just assume that there only one field with a certain name
-            // Issue due to http://tracker.db4o.com/browse/COR-2174
-            // FIX: Adding back this line: type.GetName()==fieldtype.FullName
-
-            var storefField = (from sf in storedInfo.GetStoredFields()
-                                let type = sf.GetStoredType()
-                                  where type!=null
-                                  && sf.GetName() == fieldName
-                                  select sf).SingleOrDefault();
-            if (null == storefField)
-            {
-                return IndexingState.Unknown;
-            }
-            return storefField.HasIndex() ? IndexingState.Indexed : IndexingState.NotIndexed;
+            var storedInfo = cachedStoredClasses.TryGet(declaringtype.FullName);
+            return storedInfo.Combine(sc=>
+                               (from f in sc.Fields 
+                                   where f.FieldName==fieldName && 
+                                   f.TypeName==fieldtype.FullName
+                                select f).FirstMaybe())
+                                .Convert(f=>f.IndexState)
+                                .GetValue(IndexingState.Unknown);
         }
 
         private ITypeDescription CreateType(IReflectClass classInfo,
@@ -161,6 +141,55 @@ namespace Gamlor.Db4oPad.MetaInfo
             var fieldType = typeLookUp(field.GetFieldType());
             return SimpleFieldDescription.Create(field.GetName(),
                 fieldType,IndexLookUp(declaredOn,field.GetName(),fieldType.TypeName));
+        }
+
+
+        private static IDictionary<string, CachedStoredClass> ExtractStoredClasses(IStoredClass[] storedClasses)
+        {
+            return (from storedClass in storedClasses
+                    select new CachedStoredClass(storedClass.GetName(),
+                        ExtractStoredFields(storedClass)))
+                        .ToDictionary(sc=>sc.FullName,sc=>sc);
+        }
+
+        private static IEnumerable<StoredFieldCache> ExtractStoredFields(IStoredClass storedClass)
+        {
+            return from sf in storedClass.GetStoredFields()
+                   where sf.GetStoredType() != null
+                   select new StoredFieldCache(sf.GetName(), sf.GetStoredType().GetName(), HasIndex(sf));
+        }
+
+        private static IndexingState HasIndex(IStoredField sf)
+        {
+            return sf.HasIndex() ? IndexingState.Indexed : IndexingState.NotIndexed;
+        }
+        
+        /// <summary>
+        /// We cache this data to save time and avoid this db4o-bug  COR-2177
+        /// </summary>
+        class CachedStoredClass
+        {
+            internal string FullName { get; private set; }
+            internal IEnumerable<StoredFieldCache> Fields { get; private set; }
+
+            public CachedStoredClass(string fullName, IEnumerable<StoredFieldCache> fields)
+            {
+                FullName = fullName;
+                Fields = fields;
+            }
+        }
+        class StoredFieldCache
+        {
+            internal string TypeName { get; private set; }
+            internal string FieldName { get; private set; }
+            internal IndexingState IndexState { get; private set; }
+
+            public StoredFieldCache(string fieldName, string typeName, IndexingState indexState)
+            {
+                TypeName = typeName;
+                FieldName = fieldName;
+                IndexState = indexState;
+            }
         }
     }
 }
