@@ -78,6 +78,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NDepend) = preSolution
-		Project = ".\db4oPad.ndproj"
+		Project = ""
 	EndGlobalSection
 EndGlobal

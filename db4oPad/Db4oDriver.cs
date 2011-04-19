@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Xml.Linq;
 using Db4objects.Db4o;
 using Db4objects.Db4o.Config;
 using Gamlor.Db4oPad.GUI;
@@ -30,7 +28,7 @@ namespace Gamlor.Db4oPad
 
         public override string Name
         {
-            get { return "db4o Driver Alpha"; }
+            get { return "db4o Driver"; }
         }
 
         public override string Author
