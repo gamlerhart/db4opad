@@ -18,7 +18,7 @@ namespace Gamlor.Db4oPad.MetaInfo
             new { name, assemblyName, genericArguments }.CheckNotNull();
             this.rawName = name;
             NameAndNamespace = WithArray(name, array);
-            Name = WithArray(name, array).Split('.').Last();
+            Name = WithArray(name, array).Split('.','+').Last();
             AssemblyName = assemblyName;
             this.OrderOfArray = array;
             GenericArguments = genericArguments;
@@ -129,7 +129,7 @@ namespace Gamlor.Db4oPad.MetaInfo
         }
         private string SanatizeGenericName(string name)
         {
-            var buffer = new StringBuilder(name);
+            var buffer = new StringBuilder(name.Replace('+','_'));
             AppendGenericCount(buffer, GenericArguments.Count());
             AppendGenericList(buffer, GenericArguments);
             return buffer.ToString();

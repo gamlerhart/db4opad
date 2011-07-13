@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="IndexesOnFields.cs" />
     <Compile Include="Location.cs" />
+    <Compile Include="NestedClasses.cs" />
     <Compile Include="Preferences.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

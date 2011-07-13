@@ -71,6 +71,20 @@ namespace Gamlor.Db4oPad.Tests
                         });
         }
         [Test]
+        public void CanOpenDBWithNestedClasses()
+        {
+            RunTestWith("databaseWithNestedClasses.db4o",
+                        ctx =>
+                        {
+                            var arrayType = ctx.MetaInfo.DyanmicTypesRepresentation
+                                .Single(t => t.Key.Name.Contains("NestedClasses_ChildClass")).Value;
+                            var propertyType = arrayType.GetField("data").FieldType;
+                            var property = ctx.MetaInfo.DataContext.GetProperty("NestedClasses_ChildClass");
+                            Assert.AreEqual(typeof(string), propertyType);
+                            Assert.IsNotNull(property);
+                        });
+        }
+        [Test]
         public void HasIndexInfo()
         {
             RunTestWith("databaseWithIndexes.db4o",

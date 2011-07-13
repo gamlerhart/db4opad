@@ -24,6 +24,7 @@ namespace Db4oPad.TestDBs
             StoreLocationInfo("databaseWithArrayFields.db4o");
             StorePreferencesInfo("databaseWithGenerics.db4o");
             StoreIndexExample("databaseWithIndexes.db4o");
+            StoreNestedClassExample("databaseWithNestedClasses.db4o");
         }
 
         private static void StorePreferencesInfo(string fileName)
@@ -79,6 +80,15 @@ namespace Db4oPad.TestDBs
                 db.Store(new IndexesOnFields());
                 db.Store(new IndexesOnFields());
                 db.Store(new IndexesOnFields());
+            }
+        }
+
+        private static void StoreNestedClassExample(string fileName)
+        {
+            using (var db = Db4oEmbedded.OpenFile(fileName))
+            {
+                db.Store(new NestedClasses.ChildClass("data"));
+                db.Store(new NestedClasses());
             }
         }
 

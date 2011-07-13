@@ -43,6 +43,14 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
                 complex.NameWithGenerics);
         }
         [Test]
+        public void NestedClassName()
+        {
+            var complex = TypeName.Create("Type.Parent+Child", "Assembly.Name");
+
+            Assert.AreEqual("Type.Parent_Child",
+                complex.NameWithGenerics);
+        }
+        [Test]
         public void CreateGenericClass()
         {
             var genericInstace = CreateComplexType();

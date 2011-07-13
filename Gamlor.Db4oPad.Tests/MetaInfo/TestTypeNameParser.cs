@@ -197,6 +197,17 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             Assert.AreEqual("System.String, mscorlib", result.ArrayOf.Value.FullName);
         }
 
+        [Test]
+        public void NestedClasses()
+        {
+            var input = "Db4oPad.TestDBs.NestedClasses+ChildClass, Db4oPad.TestDBs";
+            var result = TypeNameParser.ParseString(input);
+            Assert.AreEqual("Db4oPad.TestDBs.NestedClasses+ChildClass", result.NameAndNamespace);
+            Assert.AreEqual("Db4oPad.TestDBs", result.AssemblyName);
+            Assert.AreEqual(input, result.FullName);
+            Assert.AreEqual("ChildClass", result.Name);
+        }
+
 
         private void ValidateGenericArgs(IEnumerable<TypeName> result)
         {

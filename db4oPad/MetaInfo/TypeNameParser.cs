@@ -9,6 +9,7 @@ namespace Gamlor.Db4oPad.MetaInfo
     internal static class TypeNameParser
     {
         internal static readonly Parser<string> Identifier = from id in Parse.LetterOrDigit
+                                                        .Or(Parse.Char('+'))
                                                         .Or(Parse.Char('.'))
                                                         .Or(Parse.Char('_')).Many()
                                                     select new string(id.ToArray());
