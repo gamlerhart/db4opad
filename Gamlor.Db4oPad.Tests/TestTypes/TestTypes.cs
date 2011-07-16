@@ -21,6 +21,11 @@ namespace Gamlor.Db4oPad.Tests.TestTypes
         private string indexedField;
         private string notIndexedField;
     }
+    class ClassWithHalfKnownGeneric
+    {
+        private IList<ListItem> theList = new List<ListItem>();
+    }
+    class ListItem{}
     class RecursiveClass
     {
         public RecursiveClass aField;

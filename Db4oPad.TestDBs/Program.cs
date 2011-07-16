@@ -25,6 +25,16 @@ namespace Db4oPad.TestDBs
             StorePreferencesInfo("databaseWithGenerics.db4o");
             StoreIndexExample("databaseWithIndexes.db4o");
             StoreNestedClassExample("databaseWithNestedClasses.db4o");
+            StoreKnowGenericsWithUnknownParamterTypes("databaseWithKnownGenricsAndUnknowParameterTypes.db4o");
+        }
+
+        private static void StoreKnowGenericsWithUnknownParamterTypes(string databaseName)
+        {
+            using (var db = Db4oEmbedded.OpenFile(databaseName))
+            {
+                db.Store(new ListHolder());
+            }
+
         }
 
         private static void StorePreferencesInfo(string fileName)

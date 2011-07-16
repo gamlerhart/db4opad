@@ -96,6 +96,17 @@ namespace Gamlor.Db4oPad.Tests
                             Assert.IsTrue(metaData.IndexesOnFields.notIndexed.ToString().Contains("NotIndexed)"));
                         });
         }
+        [Test]
+        public void WorksWithMixedGenerics()
+        {
+            RunTestWith("databaseWithKnownGenricsAndUnknowParameterTypes.db4o",
+                        ctx =>
+                        {
+                            var context = ctx.MetaInfo.DataContext;
+                            dynamic metaData = context.GetProperty("ListHolder").GetValue(null, null);
+                            Assert.NotNull(metaData);
+                        });
+        }
 
         private void RunTestWith(string dbName, Action<DatabaseContext> context)
         {

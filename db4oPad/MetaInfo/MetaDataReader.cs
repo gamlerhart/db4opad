@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Db4objects.Db4o;
 using Db4objects.Db4o.Ext;
@@ -9,11 +8,10 @@ using Gamlor.Db4oPad.Utils;
 
 namespace Gamlor.Db4oPad.MetaInfo
 {
-
     internal class MetaDataReader
     {
         private readonly TypeResolver typeResolver;
-        private readonly IDictionary<string,CachedStoredClass> cachedStoredClasses;
+        private readonly IDictionary<string, CachedStoredClass> cachedStoredClasses;
 
         private MetaDataReader(TypeResolver typeResolver, IDictionary<string, CachedStoredClass> cachedStoredClasses)
         {
@@ -27,9 +25,9 @@ namespace Gamlor.Db4oPad.MetaInfo
         }
 
         public static IEnumerable<ITypeDescription> Read(IObjectContainer database,
-            TypeResolver typeResolver)
+                                                         TypeResolver typeResolver)
         {
-            new { database, typeResolver }.CheckNotNull();
+            new {database, typeResolver}.CheckNotNull();
             var reader = new MetaDataReader(typeResolver, ExtractStoredClasses(database.Ext().StoredClasses()));
             return reader.CreateTypes(database.Ext()).ToList();
         }
@@ -42,80 +40,104 @@ namespace Gamlor.Db4oPad.MetaInfo
             var typeMap = new Dictionary<string, ITypeDescription>();
             foreach (var classInfo in allKnownClasses)
             {
-                CreateType(classInfo, typeMap);
+                CreateType(classInfo, c => FindReflectClass(c, allKnownClasses), typeMap);
             }
             return typeMap.Select(t => t.Value);
+        }
+
+        private IReflectClass FindReflectClass(TypeName typeName, IReflectClass[] allKnownClasses)
+        {
+            var result = (from c in allKnownClasses
+                    where c.GetName() == typeName.FullName
+                    select c).SingleOrDefault();
+            if(null==result)
+            {
+                throw new InvalidOperationException();
+            }
+            return result;
         }
 
         private IndexingState IndexLookUp(TypeName declaringtype, string fieldName, TypeName fieldtype)
         {
             var storedInfo = cachedStoredClasses.TryGet(declaringtype.FullName);
-            return storedInfo.Combine(sc=>
-                               (from f in sc.Fields 
-                                   where f.FieldName==fieldName && 
-                                   f.TypeName==fieldtype.FullName
-                                select f).FirstMaybe())
-                                .Convert(f=>f.IndexState)
-                                .GetValue(IndexingState.Unknown);
+            return storedInfo.Combine(sc =>
+                                      (from f in sc.Fields
+                                       where f.FieldName == fieldName &&
+                                             f.TypeName == fieldtype.FullName
+                                       select f).FirstMaybe())
+                .Convert(f => f.IndexState)
+                .GetValue(IndexingState.Unknown);
         }
 
         private ITypeDescription CreateType(IReflectClass classInfo,
-                                                   IDictionary<string, ITypeDescription> knownTypes)
+                                            Func<TypeName, IReflectClass> classLookup,
+                                            IDictionary<string, ITypeDescription> knownTypes)
         {
             var name = NameOf(classInfo);
             return name.ArrayOf.Convert(
-                n => CreateArrayType(name, classInfo, knownTypes))
+                n => CreateArrayType(name, classInfo, classLookup, knownTypes))
                 .GetValue(() =>
-                    CreateType(name, classInfo, knownTypes));
+                          CreateType(name, classInfo, classLookup, knownTypes));
         }
 
         private ITypeDescription CreateType(TypeName name,
                                             IReflectClass classInfo,
+                                            Func<TypeName, IReflectClass> classLookup,
                                             IDictionary<string, ITypeDescription> knownTypes)
         {
             var knownType = typeResolver(name)
-                .Otherwise(()=>typeResolver(name.GetGenericTypeDefinition()));
+                .Otherwise(() => typeResolver(name.GetGenericTypeDefinition()));
             if (knownType.HasValue)
             {
                 var systemType = KnownType.Create(knownType.Value,
-                    name.GenericArguments.Select(t => GetOrCreateTypeByName(t, knownTypes)),IndexLookUp);
+                                                  name.GenericArguments.Select(
+                                                      t => GetOrCreateTypeByName(t.Value, classLookup, knownTypes)).
+                                                      ToList(), IndexLookUp);
                 knownTypes[name.FullName] = systemType;
                 return systemType;
             }
             return SimpleClassDescription.Create(name,
-                    Maybe.From(GetOrCreateType(classInfo.GetSuperclass(), knownTypes)),
-                    t =>
-                        {
-                            knownTypes[name.FullName] = t;
-                            return ExtractFields(name, classInfo,
-                                                typeName =>
-                                                GetOrCreateType(typeName, knownTypes));
-                        });
+                                                 Maybe.From(GetOrCreateType(classInfo.GetSuperclass(), classLookup,
+                                                                            knownTypes)),
+                                                 t =>
+                                                     {
+                                                         knownTypes[name.FullName] = t;
+                                                         return ExtractFields(name, classInfo,
+                                                                              typeName =>
+                                                                              GetOrCreateType(typeName, classLookup,
+                                                                                              knownTypes));
+                                                     });
         }
 
-        private ITypeDescription GetOrCreateTypeByName(Maybe<TypeName> maybe,
-            IDictionary<string, ITypeDescription> knownTypes)
+        private ITypeDescription GetOrCreateTypeByName(TypeName name,
+                                                       Func<TypeName, IReflectClass> classLookup,
+                                                       IDictionary<string, ITypeDescription> knownTypes)
         {
-            var name = maybe.Value;
-            return knownTypes.TryGet(name.FullName)
-                .GetValue(() => KnownType.Create(typeResolver(name).Value));
+            var type = knownTypes.TryGet(name.FullName);
+            if(type.HasValue)
+            {
+                return type.Value;
+            }
+            var systemType = typeResolver(name);
+            return systemType.Convert(KnownType.Create)
+                .GetValue(()=>CreateType(name, classLookup(name), classLookup, knownTypes));
         }
 
         private ITypeDescription CreateArrayType(TypeName fullName,
-            IReflectClass classInfo,
-                                                        IDictionary<string, ITypeDescription> knownTypes)
+                                                 IReflectClass classInfo, Func<TypeName, IReflectClass> classLookup,
+                                                 IDictionary<string, ITypeDescription> knownTypes)
         {
-            var innerType = GetOrCreateType(classInfo.GetComponentType(),knownTypes);
+            var innerType = GetOrCreateType(classInfo.GetComponentType(), classLookup, knownTypes);
             var type = ArrayDescription.Create(innerType, fullName.OrderOfArray);
             knownTypes[fullName.FullName] = type;
             return type;
         }
 
-        private ITypeDescription GetOrCreateType(IReflectClass typeToFind,
-                                                        IDictionary<string, ITypeDescription> knownTypes)
+        private ITypeDescription GetOrCreateType(IReflectClass typeToFind, Func<TypeName, IReflectClass> classLookup,
+                                                 IDictionary<string, ITypeDescription> knownTypes)
         {
             return knownTypes.TryGet(NameOf(typeToFind).FullName)
-                .GetValue(() => CreateType(typeToFind, knownTypes));
+                .GetValue(() => CreateType(typeToFind, classLookup, knownTypes));
         }
 
         private static TypeName NameOf(IReflectClass typeToFind)
@@ -129,18 +151,18 @@ namespace Gamlor.Db4oPad.MetaInfo
         }
 
 
-        private IEnumerable<SimpleFieldDescription> ExtractFields(TypeName declaringTypeName,IReflectClass classInfo,
-                                                                         Func<IReflectClass, ITypeDescription>typeLookUp)
+        private IEnumerable<SimpleFieldDescription> ExtractFields(TypeName declaringTypeName, IReflectClass classInfo,
+                                                                  Func<IReflectClass, ITypeDescription> typeLookUp)
         {
             return classInfo.GetDeclaredFields().Select(f => CreateField(declaringTypeName, f, typeLookUp));
         }
 
         private SimpleFieldDescription CreateField(TypeName declaredOn, IReflectField field,
-                                                          Func<IReflectClass, ITypeDescription> typeLookUp)
+                                                   Func<IReflectClass, ITypeDescription> typeLookUp)
         {
             var fieldType = typeLookUp(field.GetFieldType());
             return SimpleFieldDescription.Create(field.GetName(),
-                fieldType,IndexLookUp(declaredOn,field.GetName(),fieldType.TypeName));
+                                                 fieldType, IndexLookUp(declaredOn, field.GetName(), fieldType.TypeName));
         }
 
 
@@ -148,8 +170,8 @@ namespace Gamlor.Db4oPad.MetaInfo
         {
             return (from storedClass in storedClasses
                     select new CachedStoredClass(storedClass.GetName(),
-                        ExtractStoredFields(storedClass)))
-                        .ToDictionary(sc=>sc.FullName,sc=>sc);
+                                                 ExtractStoredFields(storedClass)))
+                .ToDictionary(sc => sc.FullName, sc => sc);
         }
 
         private static IEnumerable<StoredFieldCache> ExtractStoredFields(IStoredClass storedClass)
@@ -163,11 +185,11 @@ namespace Gamlor.Db4oPad.MetaInfo
         {
             return sf.HasIndex() ? IndexingState.Indexed : IndexingState.NotIndexed;
         }
-        
+
         /// <summary>
-        /// We cache this data to save time and avoid this db4o-bug  COR-2177
+        ///   We cache this data to save time and avoid this db4o-bug  COR-2177
         /// </summary>
-        class CachedStoredClass
+        private class CachedStoredClass
         {
             internal string FullName { get; private set; }
             internal IEnumerable<StoredFieldCache> Fields { get; private set; }
@@ -178,7 +200,8 @@ namespace Gamlor.Db4oPad.MetaInfo
                 Fields = fields;
             }
         }
-        class StoredFieldCache
+
+        private class StoredFieldCache
         {
             internal string TypeName { get; private set; }
             internal string FieldName { get; private set; }

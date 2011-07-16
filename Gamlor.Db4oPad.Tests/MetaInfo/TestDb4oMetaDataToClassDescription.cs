@@ -39,6 +39,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
                 db.Store(new ClassWithSelfUsingArray());
                 db.Store(new WithMixedGeneric());
                 db.Store(new ClassWithIndexedFields());
+                db.Store(new ClassWithHalfKnownGeneric());
             }
             database = dbContainer.NewDB();
 
@@ -113,6 +114,15 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             var classMeta = For<Generic<string, List<string>>>();
             Assert.AreEqual(FieldName, classMeta.Fields.Single().Name);
             Assert.AreEqual(typeof(Dictionary<string, List<string>>).Name, classMeta.Fields.Single().Type.Name);
+        }
+        [Test]
+        public void HalfKnownGeneric()
+        {
+            var classMeta = (from g in generatedClassses
+                             where g.TypeName.FullName.Contains("System.Collections.Generic.List`1[[")
+                                && g.TypeName.FullName.Contains("ListItem")
+                             select g).Single();
+            Assert.AreEqual(typeof(List<ListItem>).Name, classMeta.Name);
         }
         [Test]
         public void BaseClass()
