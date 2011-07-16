@@ -45,16 +45,23 @@ namespace Gamlor.Db4oPad.MetaInfo
             return typeMap.Select(t => t.Value);
         }
 
-        private IReflectClass FindReflectClass(TypeName typeName, IReflectClass[] allKnownClasses)
+        private Maybe<IReflectClass> FindReflectClass(TypeName typeName,
+            IReflectClass[] allKnownClasses)
         {
-            var result = (from c in allKnownClasses
+            return (from c in allKnownClasses
                     where c.GetName() == typeName.FullName
-                    select c).SingleOrDefault();
-            if(null==result)
-            {
-                throw new InvalidOperationException();
-            }
-            return result;
+                    select c).FirstMaybe();
+        }
+
+        /// <summary>
+        /// For some types there is no type info available from db4o. Therefore we just create an empty class.
+        /// </summary>
+        private ITypeDescription MockTypeFor(TypeName typeName,
+                                            IDictionary<string, ITypeDescription> knownTypes)
+        {
+            var type= SimpleClassDescription.Create(typeName, t => Enumerable.Empty<SimpleFieldDescription>());
+            knownTypes[typeName.FullName] = type;
+            return type;
         }
 
         private IndexingState IndexLookUp(TypeName declaringtype, string fieldName, TypeName fieldtype)
@@ -70,7 +77,7 @@ namespace Gamlor.Db4oPad.MetaInfo
         }
 
         private ITypeDescription CreateType(IReflectClass classInfo,
-                                            Func<TypeName, IReflectClass> classLookup,
+                                            Func<TypeName, Maybe<IReflectClass>> classLookup,
                                             IDictionary<string, ITypeDescription> knownTypes)
         {
             var name = NameOf(classInfo);
@@ -82,7 +89,7 @@ namespace Gamlor.Db4oPad.MetaInfo
 
         private ITypeDescription CreateType(TypeName name,
                                             IReflectClass classInfo,
-                                            Func<TypeName, IReflectClass> classLookup,
+                                            Func<TypeName, Maybe<IReflectClass>> classLookup,
                                             IDictionary<string, ITypeDescription> knownTypes)
         {
             var knownType = typeResolver(name)
@@ -110,7 +117,7 @@ namespace Gamlor.Db4oPad.MetaInfo
         }
 
         private ITypeDescription GetOrCreateTypeByName(TypeName name,
-                                                       Func<TypeName, IReflectClass> classLookup,
+                                                       Func<TypeName, Maybe<IReflectClass>> classLookup,
                                                        IDictionary<string, ITypeDescription> knownTypes)
         {
             var type = knownTypes.TryGet(name.FullName);
@@ -120,11 +127,13 @@ namespace Gamlor.Db4oPad.MetaInfo
             }
             var systemType = typeResolver(name);
             return systemType.Convert(KnownType.Create)
-                .GetValue(()=>CreateType(name, classLookup(name), classLookup, knownTypes));
+                .GetValue(()=>classLookup(name)
+                    .Convert(n=>CreateType(name, n, classLookup, knownTypes))
+                    .GetValue(()=>MockTypeFor(name,knownTypes)));
         }
 
         private ITypeDescription CreateArrayType(TypeName fullName,
-                                                 IReflectClass classInfo, Func<TypeName, IReflectClass> classLookup,
+                                                 IReflectClass classInfo, Func<TypeName, Maybe<IReflectClass>> classLookup,
                                                  IDictionary<string, ITypeDescription> knownTypes)
         {
             var innerType = GetOrCreateType(classInfo.GetComponentType(), classLookup, knownTypes);
@@ -133,7 +142,7 @@ namespace Gamlor.Db4oPad.MetaInfo
             return type;
         }
 
-        private ITypeDescription GetOrCreateType(IReflectClass typeToFind, Func<TypeName, IReflectClass> classLookup,
+        private ITypeDescription GetOrCreateType(IReflectClass typeToFind, Func<TypeName, Maybe<IReflectClass>> classLookup,
                                                  IDictionary<string, ITypeDescription> knownTypes)
         {
             return knownTypes.TryGet(NameOf(typeToFind).FullName)

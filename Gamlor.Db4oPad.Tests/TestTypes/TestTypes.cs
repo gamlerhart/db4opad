@@ -24,8 +24,14 @@ namespace Gamlor.Db4oPad.Tests.TestTypes
     class ClassWithHalfKnownGeneric
     {
         private IList<ListItem> theList = new List<ListItem>();
+        private List<IUnknownType> anotherList;
     }
     class ListItem{}
+
+    internal interface IUnknownType
+    {
+        
+    } 
     class RecursiveClass
     {
         public RecursiveClass aField;

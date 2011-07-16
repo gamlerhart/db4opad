@@ -15,7 +15,7 @@ namespace Db4oPad.TestDBs
 
         public IList<ListItem> ListOfItems { get; set; }
         public IList<NoInstancesOfThisAreStored> ListOfNotStoredObjects { get; set; }
-        public IList<INotStoredItem> ListOfInterfaces { get; set; }
+        public List<INotStoredItem> ListOfInterfaces { get; set; }
     }
 
     public class ListItem{}
