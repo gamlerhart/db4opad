@@ -107,6 +107,17 @@ namespace Gamlor.Db4oPad.Tests
                             Assert.NotNull(metaData);
                         });
         }
+        [Test]
+        public void WorksWithDictionary()
+        {
+            RunTestWith("databaseWithDictionary.db4o",
+                        ctx =>
+                        {
+                            var context = ctx.MetaInfo.DataContext;
+                            dynamic metaData = context.GetProperty("DictionaryHolder").GetValue(null, null);
+                            Assert.NotNull(metaData);
+                        });
+        }
 
         private void RunTestWith(string dbName, Action<DatabaseContext> context)
         {

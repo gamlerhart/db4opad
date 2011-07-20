@@ -124,6 +124,13 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             Assert.IsTrue(theType.IsBusinessEntity);
         }
         [Test]
+        public void CanBuildDictionary()
+        {
+            var theType = KnownType.Create(typeof(Dictionary<,>),
+                new[] { KnownType.String, KnownType.String });
+            Assert.NotNull(theType);
+        }
+        [Test]
         public void KnownTypeReturnsPublicFields()
         {
             var theType = KnownType.Create(typeof(ClassWithPublicField));
