@@ -87,9 +87,14 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             var typeInfos = TestMetaData.CreateNameConflicMetaInfo();
             var result = CodeGenerator.Create(typeInfos, TestUtils.NewName());
             dynamic theNamespace = result.DataContext.GetProperty(TestMetaData.Namespace).GetValue(null,null);
-            Assert.NotNull(theNamespace.EmptyClass);
-            Assert.NotNull(theNamespace.OtherNamespace);
-            Assert.NotNull(theNamespace.OtherNamespace.EmptyClass);
+
+            TestUtils.WithTestContext(
+                () =>
+                    {
+                        Assert.NotNull(theNamespace.EmptyClass);
+                        Assert.NotNull(theNamespace.OtherNamespace);
+                        Assert.NotNull(theNamespace.OtherNamespace.EmptyClass);
+                    });
         }
 
         private IEnumerable<PropertyInfo> AllPropertiesExceptMetaData(CodeGenerationResult infos)
