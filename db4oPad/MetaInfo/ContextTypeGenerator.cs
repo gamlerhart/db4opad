@@ -80,7 +80,7 @@ namespace Gamlor.Db4oPad.MetaInfo
 
         private static Type BuildMetaInfoType(ModuleBuilder moduleBuilder, ITypeDescription type)
         {
-            var typeBuilder =moduleBuilder.DefineType(MetaDataNameSpace + "." + type.Name, PublicClass());
+            var typeBuilder = moduleBuilder.DefineType(MetaDataNameSpace + "." + type.TypeName.NameWithGenerics, PublicClass());
             AddNameProperty(typeBuilder, type);
             return typeBuilder.CreateType();
         }

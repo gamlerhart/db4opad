@@ -246,10 +246,12 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         {
             var typeInfos = TestMetaData.CreateNameConflicMetaInfo();
             var result = CodeGenerator.Create(typeInfos, TestUtils.NewName());
-            dynamic theNamespace = result.DataContext.GetProperty(TestMetaData.Namespace).GetValue(null,null);
-            Assert.NotNull(theNamespace.EmptyClass);
-            Assert.NotNull(theNamespace.OtherNamespace);
-            Assert.NotNull(theNamespace.OtherNamespace.EmptyClass);
+            var types = from t in result.Types
+                        select t.Value;
+            Assert.IsTrue(types.Any(t => t.Namespace.EndsWith(TestMetaData.Namespace) && t.Name==TestMetaData.EmptyClassName));
+            Assert.IsTrue(types.Any(t => 
+                t.Namespace.EndsWith(TestMetaData.Namespace+"."+TestMetaData.SubNamespace)
+                && t.Name==TestMetaData.EmptyClassName));
         }
 
         private IEnumerable<ITypeDescription> SubClassType()
