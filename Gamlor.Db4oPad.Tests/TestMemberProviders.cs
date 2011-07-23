@@ -53,6 +53,27 @@ namespace Gamlor.Db4oPad.Tests
 
             Assert.IsFalse(showInfo.HasValue);
         }
+        [Test]
+        public void ShowFieldsIfNoPropertyAvailalbe()
+        {
+            var showInfo = MemberProvider.Create(new FieldsWithUnderLines());
+
+            var value = showInfo.Value;
+            var names = value.GetNames();
+            Assert.IsTrue(names.Contains("_Field"));
+            Assert.IsTrue(names.Contains("_OtherField"));
+        }
+        [Test]
+        public void MixBag()
+        {
+            var showInfo = MemberProvider.Create(new MixedBag());
+
+            var value = showInfo.Value;
+            var names = value.GetNames();
+            Assert.IsTrue(names.Contains("_Field"));
+            Assert.IsTrue(names.Contains("AutoProperty"));
+            Assert.IsTrue(names.Contains("AProperty"));
+        }
 
         private void AssertInfo(ICustomMemberProvider showInfo)
         {
@@ -78,6 +99,18 @@ namespace LINQPad.User
         public long otherField = 2L;
         public long OtherField { get { return otherField; } }
         public string AutoProperty { get; set; }
+    }
+    class FieldsWithUnderLines
+    {
+        public int _Field = 1;
+        public long _OtherField = 2L;
+    }
+    class MixedBag
+    {
+        public int _Field = 1;
+        public long AutoProperty { get; set; }
+        public string aProperty = "";
+        public string AProperty { get { return aProperty; } }
     }
     
 }

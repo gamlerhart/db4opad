@@ -56,14 +56,26 @@ namespace Gamlor.Db4oPad
 
         private static Maybe<ICustomMemberProvider> CreateInfo(object objectToWrite)
         {
+            var type = objectToWrite.GetType();
             var properties =
-                objectToWrite.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            var orderedByName = from p in properties
+                type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
+            var fieldsAndProperties = properties.Cast<MemberInfo>().Union(fields);
+            var members = from f in fieldsAndProperties
+                                group f by f.Name.ToLowerInvariant()
+                                into byName
+                                select byName.First();
+            var orderedByName = from p in members
                                 orderby p.Name
                                 select p;
             var names = orderedByName.Select(p => p.Name).ToList();
-            var types = orderedByName.Select(p => p.PropertyType).ToList();
-            var values = orderedByName.Select(p => p.GetValue(objectToWrite,new object[0])).ToList();
+            var types = orderedByName.Select(p =>
+                p is PropertyInfo ?
+                ((PropertyInfo)p).PropertyType 
+                : ((FieldInfo)p).FieldType).ToList();
+            var values = orderedByName.Select(p =>p is PropertyInfo 
+                ? ((PropertyInfo)p).GetValue(objectToWrite,new object[0])
+                : ((FieldInfo)p).GetValue(objectToWrite)).ToList();
             return new MemberProvider(names, types, values);
         }
     }
