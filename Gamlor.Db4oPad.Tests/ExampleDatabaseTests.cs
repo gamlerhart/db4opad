@@ -148,7 +148,7 @@ namespace Gamlor.Db4oPad.Tests
                                     var type = metaData.TestDBs.SameNameInDifferentNamespaces;
                                     Assert.NotNull(type);
                                     object objInstance1 = type.New();
-                                    Assert.AreEqual(0, objInstance1.GetType().GetProperties());
+                                    Assert.AreEqual(0, objInstance1.GetType().GetProperties().Count());
                                 }
                                 {
                                     var type = metaData.TestDBs.NameSpaceOne.SameNameInDifferentNamespaces;
@@ -157,7 +157,7 @@ namespace Gamlor.Db4oPad.Tests
                                     Assert.NotNull(objInstance1.GetType().GetProperty("Field1"));
                                 }
                                 {
-                                    var type = metaData.TestDBs.NameSpaceOne.SameNameInDifferentNamespaces;
+                                    var type = metaData.TestDBs.NameSpaceTwo.SameNameInDifferentNamespaces;
                                     Assert.NotNull(type);
                                     object objInstance1 = type.New();
                                     Assert.NotNull(objInstance1.GetType().GetProperty("Field2"));
