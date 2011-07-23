@@ -52,6 +52,15 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             Assert.AreEqual(runtimeType,type.GetName());
         }
 
+        [Test]
+        public void CanHandleNull()
+        {
+
+            Assert.IsNull(toTest.ForClass(null));
+            Assert.IsNull(toTest.ForName(null));
+            Assert.IsNull(toTest.ForObject(null));
+        }
+
 
         [Test]
         public void CanCloneItself()

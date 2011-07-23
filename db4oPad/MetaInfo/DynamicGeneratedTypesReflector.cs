@@ -37,6 +37,10 @@ namespace Gamlor.Db4oPad.MetaInfo
 
         public override IReflectClass ForName(string className)
         {
+            if(null==className)
+            {
+                return null;
+            }
             return TryGetType(className).Convert(ByDbName)
                 .GetValue(()=>ResolveByTypeName(className,()=>FallbackResolve(className)));
         }
@@ -44,13 +48,20 @@ namespace Gamlor.Db4oPad.MetaInfo
 
         public override IReflectClass ForObject(object obj)
         {
+            if (null == obj)
+            {
+                return null;
+            }
             return Parent().ForClass(obj.GetType());
         }
 
         public override IReflectClass ForClass(Type forType)
         {
+            if (null == forType)
+            {
+                return null;
+            }
             return ResolveByTypeName(ReflectPlatform.FullyQualifiedName(forType), () => FallbackResolve(forType));
-
         }
         private IReflectClass ResolveByTypeName(string name,Func<IReflectClass> fallback)
         {
