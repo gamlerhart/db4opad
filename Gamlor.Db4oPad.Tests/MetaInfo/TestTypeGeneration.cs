@@ -241,6 +241,16 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             var arrayType = result.Types[knownTypeArray];
             Assert.NotNull(arrayType);
         }
+        [Test]
+        public void CanDealWithNamespaceConflicts()
+        {
+            var typeInfos = TestMetaData.CreateNameConflicMetaInfo();
+            var result = CodeGenerator.Create(typeInfos, TestUtils.NewName());
+            dynamic theNamespace = result.DataContext.GetProperty(TestMetaData.Namespace).GetValue(null,null);
+            Assert.NotNull(theNamespace.EmptyClass);
+            Assert.NotNull(theNamespace.OtherNamespace);
+            Assert.NotNull(theNamespace.OtherNamespace.EmptyClass);
+        }
 
         private IEnumerable<ITypeDescription> SubClassType()
         {

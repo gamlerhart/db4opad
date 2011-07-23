@@ -9,15 +9,28 @@ namespace Gamlor.Db4oPad.Tests.TestTypes
     {
         public const string AssemblyName = "AAssembly";
         public const string SingleFieldClassName = "SingleField";
-        public const string SingleFieldTypeName = "ANamespace." + SingleFieldClassName;
+        public const string Namespace = "ANamespace";
+        public const string SubNamespace = "OtherNamespace";
+        public const string EmptyClassName =  "EmptyClass";
+        public const string SingleFieldTypeName = Namespace+"." + SingleFieldClassName;
         public const string FieldName = "data";
         public readonly static ITypeDescription StringType = KnownType.String;
 
 
         internal static IEnumerable<ITypeDescription> CreateEmptyClassMetaInfo()
         {
-            return new[]{SimpleClassDescription.Create(TypeName.Create("ANamespace.EmptyClass", AssemblyName),
-                                                 (f) => new SimpleFieldDescription[0])};
+            return new[] { CreateEmptySimpleClass( Namespace+"."+EmptyClassName) };
+        }
+        internal static IEnumerable<ITypeDescription> CreateNameConflicMetaInfo()
+        {
+            return new[]{CreateEmptySimpleClass( Namespace+"."+EmptyClassName),
+                CreateEmptySimpleClass("ANamespace.OtherNamespace.EmptyClass")};
+        }
+
+        private static SimpleClassDescription CreateEmptySimpleClass(string nameSpaceAndName)
+        {
+            return SimpleClassDescription.Create(TypeName.Create(nameSpaceAndName, AssemblyName),
+                                                 (f) => new SimpleFieldDescription[0]);
         }
 
         internal static IEnumerable<ITypeDescription> CreateSingleFieldClass()
