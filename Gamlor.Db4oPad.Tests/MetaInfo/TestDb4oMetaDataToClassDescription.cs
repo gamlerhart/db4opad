@@ -209,6 +209,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             Assert.IsTrue(fieldInfo.Any(f => f.IndexingState == IndexingState.NotIndexed));
         }
 
+
         private void ConfigureIndexes(IEmbeddedConfiguration obj)
         {
             obj.Common.ObjectClass(typeof(ClassWithIndexedFields)).ObjectField("indexedField").Indexed(true);

@@ -1,5 +1,6 @@
 ﻿using System;
 using Db4objects.Db4o;
+using Db4objects.Db4o.Config;
 
 namespace Db4oPad.TestDBs
 {
@@ -9,6 +10,7 @@ namespace Db4oPad.TestDBs
         {
             StoreExampleDBs();
             StoreMergedExampleDB();
+            StoreWithVirtualFieds("virtualFields.db4o");
         }
 
         private static void StoreMergedExampleDB()
@@ -17,6 +19,9 @@ namespace Db4oPad.TestDBs
             StoreLocationInfo(fileName);
             StorePreferencesInfo(fileName);
             StoreIndexExample(fileName);
+            StoreNestedClassExample(fileName);
+            StoreKnowGenericsWithUnknownParamterTypes(fileName);
+            StoreDictionary(fileName);
         }
 
         private static void StoreExampleDBs()
@@ -27,6 +32,17 @@ namespace Db4oPad.TestDBs
             StoreNestedClassExample("databaseWithNestedClasses.db4o");
             StoreKnowGenericsWithUnknownParamterTypes("databaseWithKnownGenricsAndUnknowParameterTypes.db4o");
             StoreDictionary("databaseWithDictionary.db4o");
+        }
+
+        private static void StoreWithVirtualFieds(string databaseName)
+        {
+            var cfg = Db4oEmbedded.NewConfiguration();
+            cfg.File.GenerateUUIDs = ConfigScope.Globally;
+            cfg.File.GenerateCommitTimestamps = true;
+            using (var db = Db4oEmbedded.OpenFile(cfg, databaseName))
+            {
+                StoreADemoDataModel(db);
+            }
         }
 
         private static void StoreKnowGenericsWithUnknownParamterTypes(string databaseName)

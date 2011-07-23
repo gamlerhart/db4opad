@@ -4,6 +4,7 @@ using System.Linq;
 using Db4objects.Db4o;
 using Db4objects.Db4o.Ext;
 using Db4objects.Db4o.Reflect;
+using Db4objects.Db4o.Reflect.Generic;
 using Gamlor.Db4oPad.Utils;
 
 namespace Gamlor.Db4oPad.MetaInfo
@@ -163,7 +164,9 @@ namespace Gamlor.Db4oPad.MetaInfo
         private IEnumerable<SimpleFieldDescription> ExtractFields(TypeName declaringTypeName, IReflectClass classInfo,
                                                                   Func<IReflectClass, ITypeDescription> typeLookUp)
         {
-            return classInfo.GetDeclaredFields().Select(f => CreateField(declaringTypeName, f, typeLookUp));
+            return classInfo.GetDeclaredFields()
+                .Where(f=>!(f is GenericVirtualField))
+                .Select(f => CreateField(declaringTypeName, f, typeLookUp));
         }
 
         private SimpleFieldDescription CreateField(TypeName declaredOn, IReflectField field,
