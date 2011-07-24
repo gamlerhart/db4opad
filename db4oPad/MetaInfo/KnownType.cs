@@ -122,7 +122,7 @@ namespace Gamlor.Db4oPad.MetaInfo
         private static TypeName CreateTypeName(Type type)
         {
             var name = type.Namespace +"." + 
-                (type.DeclaringType!=null?type.DeclaringType.Name+"_":"")
+                (type.DeclaringType!=null?type.DeclaringType.Name+"+":"")
                 + type.Name.Split('`').First();
             return TypeName.Create(name, 
                 type.Assembly.GetName().Name,

@@ -163,7 +163,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         {
             var listType = KnownType.Create(typeof(ClassWithProperty.NestedClass));
 
-            Assert.AreEqual("ClassWithProperty_NestedClass", listType.TypeName.Name);
+            Assert.IsTrue(listType.TypeName.NameWithGenerics.EndsWith("ClassWithProperty_NestedClass"));
         }
         [Test]
         public void CanResolveFullyKnownType()
