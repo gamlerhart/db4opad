@@ -18,6 +18,7 @@ namespace Gamlor.Db4oPad.MetaInfo
             Func<ITypeDescription,IEnumerable<SimpleFieldDescription>> fieldsInitializer)
         {
             new { typeInfo }.CheckNotNull();
+            this.Name = theName.NameWithGenerics.Split('.').Last();
             this.typeInfo = typeInfo;
             this.TypeName = theName; 
             this.Fields = fieldsInitializer(this).ToList();
@@ -45,10 +46,7 @@ namespace Gamlor.Db4oPad.MetaInfo
         }
 
 
-        public string Name
-        {
-            get { return typeInfo.Name; }
-        }
+        public string Name { get; private set; }
 
         public TypeName TypeName { get; private set; }
 
@@ -123,7 +121,9 @@ namespace Gamlor.Db4oPad.MetaInfo
 
         private static TypeName CreateTypeName(Type type)
         {
-            var name = type.Namespace +"." + type.Name.Split('`').First();
+            var name = type.Namespace +"." + 
+                (type.DeclaringType!=null?type.DeclaringType.Name+"_":"")
+                + type.Name.Split('`').First();
             return TypeName.Create(name, 
                 type.Assembly.GetName().Name,
                 type.GetGenericArguments().Select(CreateTypeName));

@@ -20,9 +20,14 @@ namespace Gamlor.Db4oPad.MetaInfo
 
         public override Maybe<Type> TryResolveType(Func<ITypeDescription, Type> typeResolver)
         {
-            var genericArguments = genericArgumentTypes.Select(typeResolver).ToArray();
-            return typeInfo.MakeGenericType(genericArguments);
+            if(typeInfo.IsGenericTypeDefinition)
+            {
+                var genericArguments = genericArgumentTypes.Select(typeResolver).ToArray();
+                return typeInfo.MakeGenericType(genericArguments);
+            }
+            return typeInfo;
         }
+
         private static TypeName CreateTypeName(Type type, IEnumerable<ITypeDescription> genericArgumentTypes)
         {
             return TypeName.Create(type.FullName.Split('`').First(),

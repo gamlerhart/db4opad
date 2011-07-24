@@ -158,6 +158,22 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
 
             Assert.IsTrue(listType.TypeName.FullName.StartsWith("System.Collections.Generic.List`1["));
         }
+        [Test]
+        public void NestedClassesAreUnderlined()
+        {
+            var listType = KnownType.Create(typeof(ClassWithProperty.NestedClass));
+
+            Assert.AreEqual("ClassWithProperty_NestedClass", listType.TypeName.Name);
+        }
+        [Test]
+        public void CanResolveFullyKnownType()
+        {
+            var theType = KnownType.Create(
+                typeof(Dictionary<ClassWithoutFields, ClassWithoutFields>),
+                new[] { KnownType.Create(typeof(ClassWithoutFields)), KnownType.Create(typeof(ClassWithoutFields)) });
+            Assert.NotNull(theType);
+            Assert.NotNull(theType.TryResolveType(t => typeof(ClassWithoutFields)));
+        }
 
         private ITypeDescription CreateArrayType()
         {
@@ -166,15 +182,18 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             return ArrayDescription.Create(innerType, 1);
         }
 
-        // Here we're listing test-types. We're not using it. Therefore we can suppress the warnings.
-#pragma warning disable 169
-#pragma warning disable 649
+        
+
+    }
+    // Here we're listing test-types. We're not using it. Therefore we can suppress the warnings.
+    #pragma warning disable 169
+    #pragma warning disable 649
         // ReSharper disable UnusedMember.Local
         class ClassWithPublicField
         {
             public string theField;
         }
-        class ClassWithProperty
+        public class ClassWithProperty
         {
             private string theField;
 
@@ -182,9 +201,10 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             {
                 get { return theField; }
             }
+
+            public class NestedClass { }
         }
         // ReSharper restore UnusedMember.Local
-#pragma warning restore 649
-#pragma warning restore 169
-    }
+    #pragma warning restore 649
+    #pragma warning restore 169
 }
