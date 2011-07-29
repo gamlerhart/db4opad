@@ -54,6 +54,14 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             dynamic metaData = MetaClassInfo(originalMetaData);
             Assert.AreEqual("data (Index: Unknown)",metaData.SingleField.data);
         }
+        [Test]
+        public void HasMetaDataForConflictingTypes()
+        {
+            var originalMetaData = TestMetaData.CreateNameConflicMetaInfo();
+            dynamic metaData = MetaClassInfo(originalMetaData);
+            Assert.NotNull(metaData.ANamespace.EmptyClass);
+            Assert.NotNull(metaData.ANamespace.OtherNamespace.EmptyClass);
+        }
 
         private object MetaClassInfo()
         {
