@@ -47,7 +47,8 @@ namespace Gamlor.Db4oPad
             {
                 return Maybe<ICustomMemberProvider>.Empty;
             }
-            if(objectToWrite.GetType().Namespace.StartsWith(CodeGenerator.NameSpace))
+            var ns = objectToWrite.GetType().Namespace;
+            if (null!=ns && ns.StartsWith(CodeGenerator.NameSpace))
             {
                 return CreateInfo(objectToWrite);
             }

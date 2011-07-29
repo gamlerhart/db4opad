@@ -74,6 +74,13 @@ namespace Gamlor.Db4oPad.Tests
             Assert.IsTrue(names.Contains("AutoProperty"));
             Assert.IsTrue(names.Contains("AProperty"));
         }
+        [Test]
+        public void CanDealWithAnonymousTypes()
+        {
+            var showInfo = MemberProvider.Create(new {A="Fun",B="More Fun"});
+
+            Assert.IsFalse(showInfo.HasValue);
+        }
 
         private void AssertInfo(ICustomMemberProvider showInfo)
         {

@@ -130,7 +130,7 @@ del "c:\ProgramData\LINQPad\Drivers\DataContext\4.0\Gamlor.Db4oPad (84df7351ef30
     <Year>$([System.DateTime]::Now.ToString("yy"))</Year>
     <Month>$([System.DateTime]::Now.ToString("MM"))</Month>
     <Date>$([System.DateTime]::Now.ToString("dd"))</Date>
-    <Time>$([System.DateTime]::Now.ToString("hhmmss"))</Time>
+    <Time>$([System.DateTime]::Now.ToString("hhmm"))</Time>
     <AssemblyFileVersionAttribute>[assembly:System.Reflection.AssemblyFileVersion("$(Year).$(Month).$(Date).$(Time)")][assembly:System.Reflection.AssemblyVersion("$(Year).$(Month).$(Date).$(Time)")]</AssemblyFileVersionAttribute>
   </PropertyGroup>
   <Target Name="BeforeBuild">
