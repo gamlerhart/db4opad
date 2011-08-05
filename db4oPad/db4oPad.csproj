@@ -98,6 +98,7 @@
     <Compile Include="Utils\MayExtensions.cs" />
     <Compile Include="Utils\NotifyExtensions.cs" />
     <Compile Include="Utils\ValidationExtensions.cs" />
+    <Compile Include="VersionInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="db4oPad.pfx" />
@@ -125,11 +126,16 @@
 del "c:\ProgramData\LINQPad\Drivers\DataContext\4.0\Gamlor.Db4oPad (84df7351ef30e150)\LINQPad.exe"
 </PostBuildEvent>
   </PropertyGroup>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
+  <PropertyGroup>
+    <Year>$([System.DateTime]::Now.ToString("yy"))</Year>
+    <Month>$([System.DateTime]::Now.ToString("MM"))</Month>
+    <Date>$([System.DateTime]::Now.ToString("dd"))</Date>
+    <Time>$([System.DateTime]::Now.ToString("hhmm"))</Time>
+    <AssemblyFileVersionAttribute>[assembly:System.Reflection.AssemblyFileVersion("$(Year).$(Month).$(Date).$(Time)")][assembly:System.Reflection.AssemblyVersion("$(Year).$(Month).$(Date).$(Time)")]</AssemblyFileVersionAttribute>
+  </PropertyGroup>
   <Target Name="BeforeBuild">
+    <WriteLinesToFile File="VersionInfo.cs" Lines="$(AssemblyFileVersionAttribute)" Overwrite="true" />
   </Target>
   <Target Name="AfterBuild">
   </Target>
-  -->
 </Project>

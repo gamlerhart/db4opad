@@ -69,6 +69,7 @@
     <Compile Include="AbstractDatabaseFixture.cs" />
     <Compile Include="AssertDisposable.cs" />
     <Compile Include="Db4oDriverIntegrationTest.cs" />
+    <Compile Include="ExampleDatabasesWithKnownTypesTests.cs" />
     <Compile Include="ExampleDatabaseTests.cs" />
     <Compile Include="GenerateTestDatabase.cs" />
     <Compile Include="GUI\TestConnectionViewModel.cs" />

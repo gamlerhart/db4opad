@@ -92,28 +92,28 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         {
             var classMeta = For<WithBuiltInGeneric>();
             Assert.AreEqual(FieldName, classMeta.Fields.Single().Name);
-            Assert.AreEqual(typeof(List<string>).Name, classMeta.Fields.Single().Type.Name);
+            Assert.AreEqual("List_1_String", classMeta.Fields.Single().Type.Name);
         }
         [Test]
         public void WithMixedGeneric()
         {
             var classMeta = For<WithMixedGeneric>();
             Assert.AreEqual(FieldName, classMeta.Fields.Single().Name);
-            Assert.AreEqual(typeof(List<ClassWithoutFields>).Name, classMeta.Fields.Single().Type.Name);
+            Assert.AreEqual("List_1_ClassWithoutFields", classMeta.Fields.Single().Type.Name);
         }
         [Test]
         public void SimpleGeneric()
         {
             var classMeta = For<Generic<string>>();
             Assert.AreEqual(FieldName, classMeta.Fields.Single().Name);
-            Assert.AreEqual(typeof(List<string>).Name, classMeta.Fields.Single().Type.Name);
+            Assert.AreEqual("List_1_String", classMeta.Fields.Single().Type.Name);
         }
         [Test]
         public void NestedGeneric()
         {
             var classMeta = For<Generic<string, List<string>>>();
             Assert.AreEqual(FieldName, classMeta.Fields.Single().Name);
-            Assert.AreEqual(typeof(Dictionary<string, List<string>>).Name, classMeta.Fields.Single().Type.Name);
+            Assert.AreEqual("Dictionary_2_String_List_1_String", classMeta.Fields.Single().Type.Name);
         }
         [Test]
         public void HalfKnownGeneric()
@@ -122,7 +122,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
                              where g.TypeName.FullName.Contains("System.Collections.Generic.List`1[[")
                                 && g.TypeName.FullName.Contains("ListItem")
                              select g).Single();
-            Assert.AreEqual(typeof(List<ListItem>).Name, classMeta.Name);
+            Assert.AreEqual("List_1_ListItem", classMeta.Name);
         }
         [Test]
         public void BaseClass()
