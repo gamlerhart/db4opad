@@ -20,6 +20,12 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             Assert.AreEqual("Type.Name", name.NameAndNamespace);
         }
         [Test]
+        public void NamespaceName()
+        {
+            var name = CreateSimpleType();
+            Assert.AreEqual("Type", name.Namespace);
+        }
+        [Test]
         public void NameWithoutNamespace()
         {
             var name = CreateSimpleType();

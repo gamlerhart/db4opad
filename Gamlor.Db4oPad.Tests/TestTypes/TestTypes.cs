@@ -105,6 +105,21 @@ namespace Gamlor.Db4oPad.Tests.TestTypes
                                            DayOfWeek.Sunday,
                                        };
     }
+
+    namespace ConflictingNamespaces
+    {
+        class AClass { }
+
+        namespace SubNamespace
+        {
+            class AClass
+            {
+                private int field;
+            }
+        
+        }
 // ReSharper restore ConvertToAutoProperty
 #pragma warning restore 169
+}
+
 }

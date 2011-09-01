@@ -42,6 +42,16 @@ namespace Gamlor.Db4oPad.Tests
             Assert.IsTrue(types.Any(t => t.Text == "ClassWithoutFields"));
         }
         [Test]
+        public void ShowsNamespaces()
+        {
+            DB.Store(new TestTypes.ConflictingNamespaces.AClass());
+            DB.Store(new TestTypes.ConflictingNamespaces.SubNamespace.AClass());
+            var toTest = NewTestInstance();
+            var types = toTest.ListTypes().ToList();
+            Assert.IsTrue(types.Any(t => t.Text == "Gamlor.Db4oPad.Tests.TestTypes.ConflictingNamespaces"));
+            Assert.IsTrue(types.Any(t => t.Text == "Gamlor.Db4oPad.Tests.TestTypes.ConflictingNamespaces.SubNamespace"));
+        }
+        [Test]
         public void HasFields()
         {
             DB.Store(new ClassWithFields());

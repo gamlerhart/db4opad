@@ -50,7 +50,39 @@ namespace Gamlor.Db4oPad
         {
             return (from t in metaInfo.Types
                        where t.IsBusinessEntity
-                       select ToExplorerItem(t)).ToList();
+                       group t by t.Name into nameGroup
+                    from finalItem in ToExplorerItem(nameGroup)
+                    select finalItem).ToList();
+        }
+
+        private IEnumerable<ExplorerItem> ToExplorerItem(IGrouping<string, ITypeDescription> typeDescriptions)
+        {
+            if(1==typeDescriptions.Count())
+            {
+                return new []{ToTypeExplorerItem(typeDescriptions.Single())};
+            }
+            else
+            {
+                return from type in typeDescriptions
+                           group type by type.TypeName.Namespace
+                           into byNS
+                           select ToNamespacedEntries(byNS); 
+            }
+        }
+
+        private ExplorerItem ToNamespacedEntries(IGrouping<string, ITypeDescription> namespaceEntry)
+        {
+            return new ExplorerItem(namespaceEntry.Key,
+                                    ExplorerItemKind.Schema,
+                                    ExplorerIcon.Schema) { Children = 
+                new List<ExplorerItem>() { ToTypeExplorerItem(namespaceEntry.Single()) } };
+        }
+
+        private static ExplorerItem ToTypeExplorerItem(ITypeDescription typeDescription)
+        {
+            return new ExplorerItem(typeDescription.Name,
+                                    ExplorerItemKind.QueryableObject,
+                                    ExplorerIcon.Table) {Children = Fields(Maybe.From(typeDescription))};
         }
 
         public ExtendedQueryable<T> Query<T>()
@@ -63,13 +95,6 @@ namespace Gamlor.Db4oPad
             get { return metaInfo; }
         }
 
-
-        private static ExplorerItem ToExplorerItem(ITypeDescription typeDescription)
-        {
-            return new ExplorerItem(typeDescription.Name, 
-                ExplorerItemKind.QueryableObject, 
-                ExplorerIcon.Table) {Children = Fields(Maybe.From(typeDescription))};
-        }
 
         private static ExplorerItem ToExplorerItem(SimpleFieldDescription field)
         {

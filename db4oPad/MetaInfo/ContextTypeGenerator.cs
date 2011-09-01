@@ -14,73 +14,87 @@ namespace Gamlor.Db4oPad.MetaInfo
             CurrentContext.Store(toStore);
         }
     }
-    internal static class ContextTypeGenerator
+
+    internal class ContextTypeGenerator
     {
         private const string MetaDataProperty = "MetaData";
-
         public const string QueryContextClassName = "LINQPad.User.TypedDataContext";
         private const string MetaDataNameSpace= "LINQPad.User.MetaData";
         private const string MetaDataClassName = MetaDataNameSpace + ".Repo";
 
+        private readonly TypeBuilder rootType;
+        private readonly ModuleBuilder moduleBuilder;
+
+        public ContextTypeGenerator(ModuleBuilder moduleBuilder, TypeBuilder rootType)
+        {
+            this.rootType = rootType;
+            this.moduleBuilder = moduleBuilder;
+        }
+
         internal static Type CreateContextType(ModuleBuilder builder,
             IEnumerable<KeyValuePair<ITypeDescription, Type>> types)
         {
+            var typesGroupesByName = from t in types
+                                     where t.Key.IsBusinessEntity
+                                     group t by t.Key.Name
+                                     into byName
+                                         select new ByNameGrouping(byName.Key,byName);
             var typeBuilder = builder.DefineType(QueryContextClassName,
-                                                 PublicClass(), typeof(ContextRoot));
-            CreateQueryEntryPoints(types, typeBuilder);
-            CreateMetaDataStructure(types, builder, typeBuilder);
-            return typeBuilder.CreateType();
+                                                 CodeGenerationUtils.PublicClass(), typeof(ContextRoot));
+            return new ContextTypeGenerator(builder,typeBuilder).Build(typesGroupesByName);
         }
 
-        private static void CreateQueryEntryPoints(IEnumerable<KeyValuePair<ITypeDescription, Type>> types,
-            TypeBuilder typeBuilder)
+        private Type Build(IEnumerable<ByNameGrouping> typesGroupesByName)
         {
-            foreach (var type in AllBusinessObjects(types))
-            {
-                var querableType = typeof(ExtendedQueryable<>).MakeGenericType(type.Value);
-                var property = DefineProperty(typeBuilder, type.Key.Name, querableType);
-               CreateQueryGetter(type.Value, querableType, property, typeBuilder);
-            }
+            CreateQueryEntryPoints(typesGroupesByName);
+            CreateMetaDataStructure(typesGroupesByName);
+            return rootType.CreateType();
         }
 
-        private static PropertyBuilder DefineProperty(TypeBuilder typeBuilder,
-            string name, Type querableType)
+        private TypeBuilder CreateQueryEntryPoints(IEnumerable<ByNameGrouping> typesGroupesByName)
         {
-            return typeBuilder.DefineProperty(name,
-                                              PropertyAttributes.HasDefault,
-                                              querableType, null);
+            return new NamespaceContextGenerator("Query",moduleBuilder, rootType, typesGroupesByName,
+                                          CreateQueryGetter,
+                                          (t,d) => typeof(ExtendedQueryable<>).MakeGenericType(t)).BuildType();
         }
 
-        private static void CreateMetaDataStructure(IEnumerable<KeyValuePair<ITypeDescription, Type>> types,
-            ModuleBuilder moduleBuilder, TypeBuilder contextTypeBuilder)
+        private void CreateMetaDataStructure(IEnumerable<ByNameGrouping> typesGroupesByName)
         {
-            var metaInfoType = CreateMetaInfoProperty(moduleBuilder, types);
+            var metaInfoType = CreateMetaInfoProperty(typesGroupesByName);
             var constructorOfMetaInfoType = metaInfoType.GetConstructors().Single();
 
-            var property = DefineProperty(contextTypeBuilder, MetaDataProperty, metaInfoType);
+            var property = CodeGenerationUtils.DefineProperty(rootType, MetaDataProperty, metaInfoType);
 
-            var getterMethod = GetterMethodFor(contextTypeBuilder, property, StaticPublicGetter());
+            var getterMethod = CodeGenerationUtils.GetterMethodFor(rootType, property, CodeGenerationUtils.StaticPublicGetter());
             var lambda = Expression.Lambda(typeof(Func<>).MakeGenericType(metaInfoType),
                                            Expression.New(constructorOfMetaInfoType), new ParameterExpression[0]);
             lambda.CompileToMethod(getterMethod);
         }
 
-        private static Type CreateMetaInfoProperty(ModuleBuilder moduleBuilder, 
-            IEnumerable<KeyValuePair<ITypeDescription, Type>> types)
+        private Type CreateMetaInfoProperty(IEnumerable<ByNameGrouping> typesGroupesByName)
         {
-            var typeBuilder = moduleBuilder.DefineType(MetaDataClassName, PublicClass());
-            foreach (var type in AllBusinessObjects(types))
-            {
-                var property = DefineProperty(typeBuilder,type.Key.Name,typeof(string));
-                var buildInfoType = BuildMetaInfoType(moduleBuilder, type.Key);
-                property.SetGetMethod(CreateMetaDataGetter(type.Key, typeBuilder, buildInfoType));
-            }
-            return typeBuilder.CreateType();
+            var typeBuilder = moduleBuilder.DefineType(MetaDataClassName, CodeGenerationUtils.PublicClass());
+
+            var finalType = new NamespaceContextGenerator("MetaData",moduleBuilder, typeBuilder, typesGroupesByName,
+                                              CreateMetaDataGetter,
+                                              (t,d) => BuildMetaInfoType(moduleBuilder,d),true).BuildType();
+           return finalType.CreateType();
         }
+
+        private void CreateMetaDataGetter(MethodBuilder getterMethod,
+                                                       Type type,
+                                                       ITypeDescription typeDescription)
+        {
+            var returnType = getterMethod.ReturnType;
+            CodeGenerationUtils.ReturnNewInstanceILInstructions(
+                returnType.GetConstructors().Single(), getterMethod);
+        }
+
+
 
         private static Type BuildMetaInfoType(ModuleBuilder moduleBuilder, ITypeDescription type)
         {
-            var typeBuilder =moduleBuilder.DefineType(MetaDataNameSpace + "." + type.Name, PublicClass());
+            var typeBuilder = moduleBuilder.DefineType(MetaDataNameSpace + "." + type.TypeName.NameWithGenerics, CodeGenerationUtils.PublicClass());
             AddNameProperty(typeBuilder, type);
             return typeBuilder.CreateType();
         }
@@ -107,70 +121,21 @@ namespace Gamlor.Db4oPad.MetaInfo
         private static void AddLabelProperty(TypeBuilder typeBuilder,string propertyName,
             string valueToReturn)
         {
-            var property = DefineProperty(typeBuilder, propertyName, typeof(string));
-            var methodBuilder = GetterMethodFor(typeBuilder, property,PublicGetter());
+            var property = CodeGenerationUtils.DefineProperty(typeBuilder, propertyName, typeof(string));
+            var methodBuilder = CodeGenerationUtils.GetterMethodFor(typeBuilder, property, CodeGenerationUtils.PublicGetter());
             
             var ilCode = methodBuilder.GetILGenerator();
             ilCode.Emit(OpCodes.Ldstr, valueToReturn);
             ilCode.Emit(OpCodes.Ret);
         }
 
-        private static void CreateQueryGetter(Type type, Type queryableType,
-                                                       PropertyBuilder property,
-                                                       TypeBuilder typeBuilder)
+        private static void CreateQueryGetter(MethodBuilder getterMethod,
+                                                       Type type,
+                                                       ITypeDescription typeDescription)
         {
-            var getterMethod = GetterMethodFor(typeBuilder, property, StaticPublicGetter());
-
-            var call = Expression.Call(null, StaticQueryCall(type));
-            var lambda = Expression.Lambda(typeof(Func<>).MakeGenericType(queryableType),
-                call, new ParameterExpression[0]);
-            lambda.CompileToMethod(getterMethod);
-        }
-
-        private static MethodBuilder CreateMetaDataGetter(ITypeDescription forType,
-            TypeBuilder typeBuilder, Type buildInfoType)
-        {
-            var typeName = forType.Name;
-            var getterMethod = typeBuilder.DefineMethod("get_" + typeName,
-                                            PublicGetter(),typeof(string),null);
-
             var ilGenerator = getterMethod.GetILGenerator();
-            ilGenerator.Emit(OpCodes.Newobj, buildInfoType.GetConstructors().Single());
+            ilGenerator.Emit(OpCodes.Call, StaticQueryCall(type));
             ilGenerator.Emit(OpCodes.Ret);
-            return getterMethod;
-        }
-
-        private static MethodBuilder GetterMethodFor(TypeBuilder typeBuilder,
-            PropertyBuilder property,MethodAttributes access)
-        {
-            var getterMethod = typeBuilder.DefineMethod("get_" + property.Name,
-                                            access, property.PropertyType, null);
-
-            property.SetGetMethod(getterMethod);
-            return getterMethod;
-        }
-
-        private static MethodAttributes StaticPublicGetter()
-        {
-            return MethodAttributes.Public | MethodAttributes.SpecialName |
-                   MethodAttributes.HideBySig | MethodAttributes.Static;
-        }
-
-        private static MethodAttributes PublicGetter()
-        {
-            return MethodAttributes.Public | MethodAttributes.SpecialName |
-                   MethodAttributes.HideBySig;
-        }
-
-
-        private static TypeAttributes PublicClass()
-        {
-            return TypeAttributes.Class | TypeAttributes.Public;
-        }
-
-        private static IEnumerable<KeyValuePair<ITypeDescription, Type>> AllBusinessObjects(IEnumerable<KeyValuePair<ITypeDescription, Type>> types)
-        {
-            return types.Where(t=>t.Key.IsBusinessEntity);
         }
 
 
@@ -178,5 +143,19 @@ namespace Gamlor.Db4oPad.MetaInfo
         {
             return typeof(CurrentContext).GetMethod("Query").MakeGenericMethod(forType);
         }
+    }
+
+    class ByNameGrouping
+    {
+        public ByNameGrouping(string simpleName, 
+            IEnumerable<KeyValuePair<ITypeDescription, Type>> members)
+        {
+            SimpleName = simpleName;
+            Members = members.ToList();
+        }
+
+        public string SimpleName { get; private set; }
+        public IEnumerable<KeyValuePair<ITypeDescription, Type>> Members { get; private set; }
+        public bool HasMultipleValues { get {return Members.Count() > 1; } }
     }
 }

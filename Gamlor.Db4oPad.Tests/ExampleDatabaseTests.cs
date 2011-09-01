@@ -31,6 +31,7 @@ namespace Gamlor.Db4oPad.Tests
                 Assert.NotNull(meta2);
             }
         }
+
         [Test]
         public void CanCreateNewInstance()
         {
@@ -39,8 +40,8 @@ namespace Gamlor.Db4oPad.Tests
                             {
                                 var propertyInfo = ctx.MetaInfo.DataContext.GetProperty("Car");
                                 dynamic carQuery = propertyInfo.GetValue(null, null);
-                                 var newCar = carQuery.New();
-                                 Assert.NotNull(propertyInfo.PropertyType.GetMethod("New"));
+                                var newCar = carQuery.New();
+                                Assert.NotNull(propertyInfo.PropertyType.GetMethod("New"));
                                 Assert.NotNull(newCar);
                             });
         }
@@ -63,71 +64,105 @@ namespace Gamlor.Db4oPad.Tests
         {
             RunTestWith("databaseWithGenerics.db4o",
                         ctx =>
-                        {
-                            var arrayType = ctx.MetaInfo.DyanmicTypesRepresentation
-                                .Single(t => t.Key.Name.Contains("ListOfThings")).Value;
-                            var propertyType = arrayType.GetField("listOfFood").FieldType;
-                            Assert.AreEqual(typeof(List<>),propertyType.GetGenericTypeDefinition());
-                        });
+                            {
+                                var arrayType = ctx.MetaInfo.DyanmicTypesRepresentation
+                                    .Single(t => t.Key.Name.Contains("ListOfThings")).Value;
+                                var propertyType = arrayType.GetField("listOfFood").FieldType;
+                                Assert.AreEqual(typeof (List<>), propertyType.GetGenericTypeDefinition());
+                            });
         }
+
         [Test]
         public void CanOpenDBWithNestedClasses()
         {
             RunTestWith("databaseWithNestedClasses.db4o",
                         ctx =>
-                        {
-                            var arrayType = ctx.MetaInfo.DyanmicTypesRepresentation
-                                .Single(t => t.Key.Name.Contains("NestedClasses_ChildClass")).Value;
-                            var propertyType = arrayType.GetField("data").FieldType;
-                            var property = ctx.MetaInfo.DataContext.GetProperty("NestedClasses_ChildClass");
-                            Assert.AreEqual(typeof(string), propertyType);
-                            Assert.IsNotNull(property);
-                        });
+                            {
+                                var arrayType = ctx.MetaInfo.DyanmicTypesRepresentation
+                                    .Single(t => t.Key.Name.Contains("NestedClasses_ChildClass")).Value;
+                                var propertyType = arrayType.GetField("data").FieldType;
+                                var property = ctx.MetaInfo.DataContext.GetProperty("NestedClasses_ChildClass");
+                                Assert.AreEqual(typeof (string), propertyType);
+                                Assert.IsNotNull(property);
+                            });
         }
+
         [Test]
         public void HasIndexInfo()
         {
             RunTestWith("databaseWithIndexes.db4o",
                         ctx =>
-                        {
-                            var context = ctx.MetaInfo.DataContext;
-                            dynamic metaData = context.GetProperty("MetaData").GetValue(null, null);
-                            Assert.IsTrue(metaData.IndexesOnFields.firstIndexedField.ToString().Contains("Indexed)"));
-                            Assert.IsTrue(metaData.IndexesOnFields.notIndexed.ToString().Contains("NotIndexed)"));
-                        });
+                            {
+                                var context = ctx.MetaInfo.DataContext;
+                                dynamic metaData = context.GetProperty("MetaData").GetValue(null, null);
+                                Assert.IsTrue(metaData.IndexesOnFields.firstIndexedField.ToString().Contains("Indexed)"));
+                                Assert.IsTrue(metaData.IndexesOnFields.notIndexed.ToString().Contains("NotIndexed)"));
+                            });
         }
+
         [Test]
         public void WorksWithMixedGenerics()
         {
             RunTestWith("databaseWithKnownGenricsAndUnknowParameterTypes.db4o",
                         ctx =>
-                        {
-                            var context = ctx.MetaInfo.DataContext;
-                            dynamic metaData = context.GetProperty("ListHolder").GetValue(null, null);
-                            Assert.NotNull(metaData);
-                        });
+                            {
+                                var context = ctx.MetaInfo.DataContext;
+                                dynamic metaData = context.GetProperty("ListHolder").GetValue(null, null);
+                                Assert.NotNull(metaData);
+                            });
         }
+
         [Test]
         public void WorksWithDictionary()
         {
             RunTestWith("databaseWithDictionary.db4o",
                         ctx =>
-                        {
-                            var context = ctx.MetaInfo.DataContext;
-                            dynamic metaData = context.GetProperty("DictionaryHolder").GetValue(null, null);
-                            Assert.NotNull(metaData);
-                        });
+                            {
+                                var context = ctx.MetaInfo.DataContext;
+                                dynamic metaData = context.GetProperty("DictionaryHolder").GetValue(null, null);
+                                Assert.NotNull(metaData);
+                            });
         }
+
         [Test]
         public void WorksWithVirtualFields()
         {
             RunTestWith("virtualFields.db4o",
                         ctx =>
-                        {
-                            var context = ctx.MetaInfo.DataContext;
-                            dynamic metaData = context.GetProperty("Location").GetValue(null, null);
-                            Assert.NotNull(metaData);
-                        });
+                            {
+                                var context = ctx.MetaInfo.DataContext;
+                                dynamic metaData = context.GetProperty("Location").GetValue(null, null);
+                                Assert.NotNull(metaData);
+                            });
+        }
+
+        [Test]
+        public void WorksWithNameCollisions()
+        {
+            RunTestWith("dataspaceWithNameCollisions.db4o",
+                        ctx =>
+                            {
+                                var context = ctx.MetaInfo.DataContext;
+                                dynamic metaData = context.GetProperty("Db4oPad").GetValue(null, null);
+                                {
+                                    var type = metaData.TestDBs.SameNameInDifferentNamespaces;
+                                    Assert.NotNull(type);
+                                    object objInstance1 = type.New();
+                                    Assert.AreEqual(0, objInstance1.GetType().GetProperties().Count());
+                                }
+                                {
+                                    var type = metaData.TestDBs.NameSpaceOne.SameNameInDifferentNamespaces;
+                                    Assert.NotNull(type);
+                                    object objInstance1 = type.New();
+                                    Assert.NotNull(objInstance1.GetType().GetProperty("Field1"));
+                                }
+                                {
+                                    var type = metaData.TestDBs.NameSpaceTwo.SameNameInDifferentNamespaces;
+                                    Assert.NotNull(type);
+                                    object objInstance1 = type.New();
+                                    Assert.NotNull(objInstance1.GetType().GetProperty("Field2"));
+                                }
+                            });
         }
 
         private void RunTestWith(string dbName, Action<DatabaseContext> context)
@@ -135,13 +170,13 @@ namespace Gamlor.Db4oPad.Tests
             TestUtils.CopyTestDB(dbName);
             var name = TestUtils.NewName();
             var ctx = DatabaseContext.Create(Db4oEmbedded.OpenFile(dbName), name,
-                                                         TypeLoader.Create(new string[0]));
+                                             TypeLoader.Create(new string[0]));
             CurrentContext.NewContext(ctx);
             try
             {
                 context(ctx);
-                    
-            }finally
+            }
+            finally
             {
                 CurrentContext.CloseContext();
             }

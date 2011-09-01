@@ -65,6 +65,8 @@
   <ItemGroup>
     <Compile Include="CurrentContext.cs" />
     <Compile Include="DatabaseConfigurator.cs" />
+    <Compile Include="MetaInfo\CodeGenerationUtils.cs" />
+    <Compile Include="MetaInfo\NamespaceContextGenerator.cs" />
     <Compile Include="PadExtensions.cs" />
     <Compile Include="ExtendedQueryable.cs" />
     <Compile Include="GUI\ConnectionViewModel.cs" />

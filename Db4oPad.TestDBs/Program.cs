@@ -22,6 +22,7 @@ namespace Db4oPad.TestDBs
             StoreNestedClassExample(fileName);
             StoreKnowGenericsWithUnknownParamterTypes(fileName);
             StoreDictionary(fileName);
+            StoreWithNameCollisions(fileName);
         }
 
         private static void StoreExampleDBs()
@@ -32,6 +33,7 @@ namespace Db4oPad.TestDBs
             StoreNestedClassExample("databaseWithNestedClasses.db4o");
             StoreKnowGenericsWithUnknownParamterTypes("databaseWithKnownGenricsAndUnknowParameterTypes.db4o");
             StoreDictionary("databaseWithDictionary.db4o");
+            StoreWithNameCollisions("dataspaceWithNameCollisions.db4o");
         }
 
         private static void StoreWithVirtualFieds(string databaseName)
@@ -58,6 +60,16 @@ namespace Db4oPad.TestDBs
             using (var db = Db4oEmbedded.OpenFile(databaseName))
             {
                 db.Store(new DictionaryHolder());
+            }
+
+        }
+        private static void StoreWithNameCollisions(string databaseName)
+        {
+            using (var db = Db4oEmbedded.OpenFile(databaseName))
+            {
+                db.Store(new SameNameInDifferentNamespaces());
+                db.Store(new NameSpaceOne.SameNameInDifferentNamespaces());
+                db.Store(new NameSpaceTwo.SameNameInDifferentNamespaces());
             }
 
         }

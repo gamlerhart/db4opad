@@ -50,6 +50,7 @@
     <Compile Include="IndexesOnFields.cs" />
     <Compile Include="ListHolder.cs" />
     <Compile Include="Location.cs" />
+    <Compile Include="NameSpaceCollision.cs" />
     <Compile Include="NestedClasses.cs" />
     <Compile Include="Preferences.cs" />
     <Compile Include="Program.cs" />
