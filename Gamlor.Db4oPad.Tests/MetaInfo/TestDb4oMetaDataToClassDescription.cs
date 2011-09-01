@@ -61,6 +61,12 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             var classMeta = For<ClassWithoutFields>();
             Assert.IsFalse(classMeta.Fields.Any());
         }
+        [Test]
+        public void RenamesDoubleNamesWithDifferentAssemblies()
+        {
+            MetaDataReader.Read(database, TestUtils.TestTypeResolver());
+            Assert.IsFalse(classMeta.Fields.Any());
+        }
 
         [Test]
         public void ClassWithFields()
