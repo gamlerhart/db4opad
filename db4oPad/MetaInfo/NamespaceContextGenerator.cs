@@ -46,10 +46,10 @@ namespace Gamlor.Db4oPad.MetaInfo
             {
                 var definePropertyOn = FindLocationForProperty(type, typeToBuildFor.Key);
                 var querableType = propertyTypeBuilder(typeToBuildFor.Value,typeToBuildFor.Key);
-//                var property = CodeGenerationUtils.DefineProperty(definePropertyOn, typeToBuildFor.Key.Name, querableType);
-//                var getterMethod = CodeGenerationUtils.GetterMethodFor(definePropertyOn, property, QueryPropertyAccessRights(definePropertyOn));
-//                buildPropertyOnType(getterMethod, typeToBuildFor.Value,
-//                    typeToBuildFor.Key);
+                var property = CodeGenerationUtils.DefineProperty(definePropertyOn, typeToBuildFor.Key.Name, querableType);
+                var getterMethod = CodeGenerationUtils.GetterMethodFor(definePropertyOn, property, QueryPropertyAccessRights(definePropertyOn));
+                buildPropertyOnType(getterMethod, typeToBuildFor.Value,
+                    typeToBuildFor.Key);
             }
         }
 
@@ -102,22 +102,30 @@ namespace Gamlor.Db4oPad.MetaInfo
         private TypeBuilder BuildNamespaceContext(string lastNameSpace,
                                                   string forNamespace, string ns)
         {
-            var currentType = moduleBuilder.DefineType(CodeGenerator.NameSpace + "." + forNamespace + "."+nameSpaceClassesPrefix+"NameSpaceContext",
-                                                       CodeGenerationUtils.PublicClass());
             var parentNS = nameSpaceHolder.TryGet(lastNameSpace).GetValue(rootType);
 
-            var accessType = QueryPropertyAccessRights(parentNS);
+            var currentType = BuildNSContextType(forNamespace);
 
-            var property = CodeGenerationUtils.DefineProperty(parentNS, ns, currentType);
-            var constructor = currentType.DefineConstructor(CodeGenerationUtils.PublicConstructurSignature(), CallingConventions.Standard, new Type[0]);
+            var property = CodeGenerationUtils.DefineProperty(parentNS, ns, currentType.Item1);
+            property.SetGetMethod(CreateNewInstanceGetter(parentNS, property, currentType.Item2, QueryPropertyAccessRights(parentNS)));
+
+            nameSpaceHolder[forNamespace] = currentType.Item1;
+            return currentType.Item1;
+        }
+
+        private Tuple<TypeBuilder,ConstructorBuilder> BuildNSContextType(string forNamespace)
+        {
+            var currentType =
+                moduleBuilder.DefineType(
+                    CodeGenerator.NameSpace + "." + forNamespace + "." + nameSpaceClassesPrefix + "NameSpaceContext",
+                    CodeGenerationUtils.PublicClass());
+            var constructor = currentType.DefineConstructor(CodeGenerationUtils.PublicConstructurSignature(),
+                                                            CallingConventions.Standard, new Type[0]);
             var ilGenerator = constructor.GetILGenerator();
             ilGenerator.Emit(OpCodes.Ldarg_0);
-            ilGenerator.Emit(OpCodes.Call, typeof(object).GetConstructors().Single());
+            ilGenerator.Emit(OpCodes.Call, typeof (object).GetConstructors().Single());
             ilGenerator.Emit(OpCodes.Ret);
-            property.SetGetMethod(CreateNewInstanceGetter(currentType, property,constructor, accessType));
-
-            nameSpaceHolder[forNamespace] = currentType;
-            return currentType;
+            return Tuple.Create(currentType, constructor);
         }
 
         private MethodAttributes QueryPropertyAccessRights(TypeBuilder parentNS)

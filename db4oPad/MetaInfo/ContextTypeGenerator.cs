@@ -35,6 +35,7 @@ namespace Gamlor.Db4oPad.MetaInfo
             IEnumerable<KeyValuePair<ITypeDescription, Type>> types)
         {
             var typesGroupesByName = from t in types
+                                     where t.Key.IsBusinessEntity
                                      group t by t.Key.Name
                                      into byName
                                          select new ByNameGrouping(byName.Key,byName);
@@ -46,7 +47,7 @@ namespace Gamlor.Db4oPad.MetaInfo
         private Type Build(IEnumerable<ByNameGrouping> typesGroupesByName)
         {
             CreateQueryEntryPoints(typesGroupesByName);
-            //CreateMetaDataStructure(typesGroupesByName);
+            CreateMetaDataStructure(typesGroupesByName);
             return rootType.CreateType();
         }
 
