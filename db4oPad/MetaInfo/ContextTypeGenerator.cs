@@ -77,7 +77,7 @@ namespace Gamlor.Db4oPad.MetaInfo
 
             var finalType = new NamespaceContextGenerator("MetaData",moduleBuilder, typeBuilder, typesGroupesByName,
                                               CreateMetaDataGetter,
-                                              (t,d) => BuildMetaInfoType(moduleBuilder,d)).BuildType();
+                                              (t,d) => BuildMetaInfoType(moduleBuilder,d),true).BuildType();
            return finalType.CreateType();
         }
 
@@ -85,8 +85,9 @@ namespace Gamlor.Db4oPad.MetaInfo
                                                        Type type,
                                                        ITypeDescription typeDescription)
         {
+            var returnType = getterMethod.ReturnType;
             CodeGenerationUtils.ReturnNewInstanceILInstructions(
-                type.GetConstructors().Single(), getterMethod);
+                returnType.GetConstructors().Single(), getterMethod);
         }
 
 

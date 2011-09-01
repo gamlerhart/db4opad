@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Gamlor.Db4oPad.MetaInfo;
@@ -45,6 +46,9 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         {
             var originalMetaData = TestMetaData.CreateSingleFieldClass();
             dynamic metaData = MetaClassInfo(originalMetaData);
+            object meta2 = metaData;
+            Console.Out.WriteLine(meta2);
+            Assert.IsNotNull(metaData.SingleField);
             Assert.IsNotNull(metaData.SingleField.data);
         }
         [Test]

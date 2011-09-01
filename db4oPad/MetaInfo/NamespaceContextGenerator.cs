@@ -16,11 +16,13 @@ namespace Gamlor.Db4oPad.MetaInfo
         private readonly IEnumerable<ByNameGrouping> nameGroupsToBuild;
         private readonly Action<MethodBuilder, Type, ITypeDescription> buildPropertyOnType;
         private readonly Func<Type,ITypeDescription,Type> propertyTypeBuilder;
+        private readonly bool alwaysInstanceMethod;
 
         internal NamespaceContextGenerator(string nameSpaceClassesPrefix, ModuleBuilder moduleBuilder,
                                            TypeBuilder rootType, IEnumerable<ByNameGrouping> nameGroupsToBuild,
                                            Action<MethodBuilder, Type, ITypeDescription> buildPropertyOnType,
-                                        Func<Type, ITypeDescription, Type> propertyTypeBuilder)
+                                        Func<Type, ITypeDescription, Type> propertyTypeBuilder,
+            bool alwaysInstanceMethod = false)
         {
             this.nameSpaceClassesPrefix = nameSpaceClassesPrefix;
             this.moduleBuilder = moduleBuilder;
@@ -28,6 +30,7 @@ namespace Gamlor.Db4oPad.MetaInfo
             this.nameGroupsToBuild = nameGroupsToBuild;
             this.buildPropertyOnType = buildPropertyOnType;
             this.propertyTypeBuilder = propertyTypeBuilder;
+            this.alwaysInstanceMethod = alwaysInstanceMethod;
         }
 
         public TypeBuilder BuildType()
@@ -130,6 +133,10 @@ namespace Gamlor.Db4oPad.MetaInfo
 
         private MethodAttributes QueryPropertyAccessRights(TypeBuilder parentNS)
         {
+            if (alwaysInstanceMethod)
+            {
+                return CodeGenerationUtils.PublicGetter();
+            }
             return parentNS == rootType ? CodeGenerationUtils.StaticPublicGetter() : CodeGenerationUtils.PublicGetter();
         }
     }
