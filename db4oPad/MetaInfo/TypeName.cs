@@ -18,6 +18,7 @@ namespace Gamlor.Db4oPad.MetaInfo
             new { name, assemblyName, genericArguments }.CheckNotNull();
             this.rawName = name;
             NameAndNamespace = WithArray(name, array);
+            Namespace = NameAndNamespace.Substring(0,Math.Max(NameAndNamespace.LastIndexOf('.'),0));
             Name = WithArray(name, array).Split('.','+').Last();
             AssemblyName = assemblyName;
             this.OrderOfArray = array;
@@ -54,6 +55,7 @@ namespace Gamlor.Db4oPad.MetaInfo
         }
 
         public string NameAndNamespace { get; private set; }
+        public string Namespace { get; private set; }
         public string AssemblyName { get; private set; }
         public IEnumerable<Maybe<TypeName>> GenericArguments { get; private set; }
         
