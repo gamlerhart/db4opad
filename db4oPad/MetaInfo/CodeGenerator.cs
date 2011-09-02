@@ -11,6 +11,7 @@ namespace Gamlor.Db4oPad.MetaInfo
     internal static class CodeGenerator
     {
         public const string NameSpace = "LINQPad.User";
+        public const int EnumRange = 4096;
 
         internal static CodeGenerationResult Create(IEnumerable<ITypeDescription> metaInfo,
             AssemblyName intoAssembly)
@@ -102,7 +103,7 @@ namespace Gamlor.Db4oPad.MetaInfo
             var enumBuilder  = modBuilder.DefineEnum(BuildName(typeInfo.TypeName), TypeAttributes.Class | TypeAttributes.Public,
                                   typeof(int));
             typeBuildMap[typeInfo] = enumBuilder;
-            for(int i=-1024;i<1024;i++)
+            for (int i = -EnumRange; i < EnumRange; i++)
             {
                 if(i<0)
                 {
