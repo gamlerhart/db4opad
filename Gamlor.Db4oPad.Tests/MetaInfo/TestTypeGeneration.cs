@@ -21,7 +21,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             var metaInfo = TestMetaData.CreateEmptyClassMetaInfo();
 
             var type = GenerateSingle(metaInfo);
-            Assert.AreEqual(metaInfo.Single().Name, type.Name);
+            Assert.IsTrue(type.Name.StartsWith(metaInfo.Single().Name));
         }
         [Test]
         public void IsInRightAssembly()
@@ -86,7 +86,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         {
             var metaInfo = TestMetaData.CreateSingleFieldClass();
             var type = ExtractSingleFieldType(metaInfo);
-            Assert.AreEqual(SingleFieldMeta(metaInfo).Name, type.Name);
+            Assert.IsTrue(type.Name.StartsWith(SingleFieldMeta(metaInfo).Name));
             dynamic instance = CreateInstance(type);
             AssertFieldCanBeSet(instance, "newData");
         }
@@ -95,7 +95,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         {
             var metaInfo = TestMetaData.CreateClassWithArrayField();
             var type = ExtractSingleFieldType(metaInfo);
-            Assert.AreEqual(SingleFieldMeta(metaInfo).Name, type.Name);
+            Assert.IsTrue(type.Name.StartsWith(SingleFieldMeta(metaInfo).Name));
             dynamic instance = CreateInstance(type);
             AssertFieldCanBeSet(instance, new []{"1","2"});
         }
@@ -115,7 +115,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         {
             var metaInfo = TestMetaData.CreateSingleAutoPropertyClass();
             var type = ExtractSingleFieldType(metaInfo);
-            Assert.AreEqual(SingleFieldMeta(metaInfo).Name, type.Name);
+            Assert.IsTrue(type.Name.StartsWith(SingleFieldMeta(metaInfo).Name));
             dynamic instance = CreateInstance(type);
             instance.Data = "data";
             Assert.AreEqual("data", instance.Data);
@@ -127,7 +127,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             var metaInfo = CircularType();
 
             var type = GenerateSingle(metaInfo);
-            Assert.AreEqual(metaInfo.Single().Name, type.Name);
+            Assert.IsTrue(type.Name.StartsWith(metaInfo.Single().Name));
             dynamic instance = CreateInstance(type);
             dynamic fieldInstance = CreateInstance(type);
             AssertFieldCanBeSet(instance, fieldInstance);
@@ -138,7 +138,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             var metaInfo = TypeWithGenericList();
 
             var type = ExtractSingleFieldType(metaInfo);
-            Assert.AreEqual(SingleFieldMeta(metaInfo).Name, type.Name);
+            Assert.IsTrue(type.Name.StartsWith(SingleFieldMeta(metaInfo).Name));
             dynamic instance = CreateInstance(type);
             var fieldInstance = new List<string>();
             AssertFieldCanBeSet(instance, fieldInstance);
@@ -159,7 +159,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             var metaInfo = GenericType();
 
             var type = ExtractSingleFieldType(metaInfo);
-            Assert.AreEqual(TestMetaData.SingleFieldClassName + "_1_String", type.Name);
+            Assert.IsTrue(type.Name.StartsWith(TestMetaData.SingleFieldClassName + "_1_String"));
         }
         [Test]
         public void CanInstanteSubClass()
@@ -204,7 +204,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         {
             var metaInfo = TestMetaData.CreateSingleFieldClass();
             var type = ExtractSingleFieldType(metaInfo);
-            Assert.AreEqual(SingleFieldMeta(metaInfo).Name, type.Name);
+            Assert.IsTrue(type.Name.StartsWith(SingleFieldMeta(metaInfo).Name));
             dynamic instance = CreateInstance(type);
             instance.Data = "newData";
             Assert.AreEqual("newData", instance.Data);
@@ -214,7 +214,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         {
             var metaInfo = CreateSingleIntFieldClass();
             var type = ExtractSingleFieldType(metaInfo);
-            Assert.AreEqual(SingleFieldMeta(metaInfo).Name, type.Name);
+            Assert.IsTrue(type.Name.StartsWith(SingleFieldMeta(metaInfo).Name));
             dynamic instance = CreateInstance(type);
             instance.Data = 1;
             Assert.AreEqual(1, instance.Data);
@@ -248,10 +248,17 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             var result = CodeGenerator.Create(typeInfos, TestUtils.NewName());
             var types = from t in result.Types
                         select t.Value;
-            Assert.IsTrue(types.Any(t => t.Namespace.EndsWith(TestMetaData.Namespace) && t.Name==TestMetaData.EmptyClassName));
+            Assert.IsTrue(types.Any(t => t.Namespace.EndsWith(TestMetaData.Namespace) && t.Name.StartsWith(TestMetaData.EmptyClassName)));
             Assert.IsTrue(types.Any(t => 
                 t.Namespace.EndsWith(TestMetaData.Namespace+"."+TestMetaData.SubNamespace)
-                && t.Name==TestMetaData.EmptyClassName));
+                && t.Name.StartsWith(TestMetaData.EmptyClassName)));
+        }
+        [Test]
+        public void SameNameDifferentAssembly()
+        {
+            var typeInfos = TestMetaData.SameNameDifferentAssembly();
+            var result = CodeGenerator.Create(typeInfos, TestUtils.NewName());
+            Assert.AreEqual(2,result.Types.Count);
         }
 
         private IEnumerable<ITypeDescription> SubClassType()

@@ -59,7 +59,7 @@ namespace Gamlor.Db4oPad
         {
             if(1==typeDescriptions.Count())
             {
-                return new []{ToTypeExplorerItem(typeDescriptions.Single())};
+                return new []{ToTypeExplorerItem(typeDescriptions.Single(),false)};
             }
             else
             {
@@ -74,13 +74,24 @@ namespace Gamlor.Db4oPad
         {
             return new ExplorerItem(namespaceEntry.Key,
                                     ExplorerItemKind.Schema,
-                                    ExplorerIcon.Schema) { Children = 
-                new List<ExplorerItem>() { ToTypeExplorerItem(namespaceEntry.Single()) } };
+                                    ExplorerIcon.Schema) { Children =  ToTypeExplorerItem(namespaceEntry) };
         }
 
-        private static ExplorerItem ToTypeExplorerItem(ITypeDescription typeDescription)
+        private static List<ExplorerItem> ToTypeExplorerItem(IEnumerable<ITypeDescription> namespaceEntry)
         {
-            return new ExplorerItem(typeDescription.Name,
+            var namespaceEntries = namespaceEntry.ToList();
+            var needsAssemblyInName = (from entry in namespaceEntries
+                                       group entry by entry.TypeName.NameWithGenerics
+                                       into g
+                                       where g.Count() > 1
+                                       select g).Any();
+            return namespaceEntries.Select(e=>ToTypeExplorerItem(e,needsAssemblyInName)).ToList();
+        }
+
+        private static ExplorerItem ToTypeExplorerItem(ITypeDescription typeDescription, bool includeAssemblyName)
+        {
+            var name = typeDescription.Name + (includeAssemblyName ? "_"+CodeGenerationUtils.NormalizedAssemblyName(typeDescription.TypeName) : "");
+            return new ExplorerItem(name,
                                     ExplorerItemKind.QueryableObject,
                                     ExplorerIcon.Table) {Children = Fields(Maybe.From(typeDescription))};
         }

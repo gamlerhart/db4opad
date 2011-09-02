@@ -23,6 +23,7 @@ namespace Db4oPad.TestDBs
             StoreKnowGenericsWithUnknownParamterTypes(fileName);
             StoreDictionary(fileName);
             StoreWithNameCollisions(fileName);
+            StoreSameNameDifferentAssemblies(fileName);
         }
 
         private static void StoreExampleDBs()
@@ -34,6 +35,16 @@ namespace Db4oPad.TestDBs
             StoreKnowGenericsWithUnknownParamterTypes("databaseWithKnownGenricsAndUnknowParameterTypes.db4o");
             StoreDictionary("databaseWithDictionary.db4o");
             StoreWithNameCollisions("dataspaceWithNameCollisions.db4o");
+            StoreSameNameDifferentAssemblies("sameNameDifferentAssemblies.db4o");
+        }
+
+        private static void StoreSameNameDifferentAssemblies(string database)
+        {
+            using (var db = Db4oEmbedded.OpenFile(database))
+            {
+                db.Store(new SameNameInDifferentAssemblies());
+                WriteIntoDB.Write(db);
+            }
         }
 
         private static void StoreWithVirtualFieds(string databaseName)

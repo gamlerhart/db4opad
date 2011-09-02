@@ -26,10 +26,15 @@ namespace Gamlor.Db4oPad.Tests.TestTypes
             return new[]{CreateEmptySimpleClass( Namespace+"."+EmptyClassName),
                 CreateEmptySimpleClass("ANamespace.OtherNamespace.EmptyClass")};
         }
-
-        private static SimpleClassDescription CreateEmptySimpleClass(string nameSpaceAndName)
+        internal static IEnumerable<ITypeDescription> SameNameDifferentAssembly()
         {
-            return SimpleClassDescription.Create(TypeName.Create(nameSpaceAndName, AssemblyName),
+            const string name = Namespace+"."+EmptyClassName;
+            return new[]{CreateEmptySimpleClass( name,"assembly.one"),CreateEmptySimpleClass( name,"assembly.two")};
+        }
+
+        private static SimpleClassDescription CreateEmptySimpleClass(string nameSpaceAndName, string assemblyName = AssemblyName)
+        {
+            return SimpleClassDescription.Create(TypeName.Create(nameSpaceAndName, assemblyName),
                                                  (f) => new SimpleFieldDescription[0]);
         }
 

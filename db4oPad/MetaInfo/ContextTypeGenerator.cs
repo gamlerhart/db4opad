@@ -94,7 +94,7 @@ namespace Gamlor.Db4oPad.MetaInfo
 
         private static Type BuildMetaInfoType(ModuleBuilder moduleBuilder, ITypeDescription type)
         {
-            var typeBuilder = moduleBuilder.DefineType(MetaDataNameSpace + "." + type.TypeName.NameWithGenerics, CodeGenerationUtils.PublicClass());
+            var typeBuilder = moduleBuilder.DefineType(MetaDataNameSpace + "." + CodeGenerationUtils.ClassName(type.TypeName), CodeGenerationUtils.PublicClass());
             AddNameProperty(typeBuilder, type);
             return typeBuilder.CreateType();
         }

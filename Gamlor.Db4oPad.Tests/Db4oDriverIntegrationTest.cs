@@ -33,7 +33,7 @@ namespace Gamlor.Db4oPad.Tests
             testInstance.InitializeContext(connectionInfo.Object, null,null);
             try
             {
-                var type = Assembly.LoadFrom(assemblyPath).GetType("LINQPad.User.Gamlor.Db4oPad.Tests.OtherData.MyData");
+                var type = Assembly.LoadFrom(assemblyPath).GetType("LINQPad.User.Gamlor.Db4oPad.Tests.OtherData.MyData_Gamlor_Db4oPad_Tests");
                 var queryMethod = typeof (CurrentContext).GetMethod("Query").MakeGenericMethod(type);
                 var result = (IEnumerable)queryMethod.Invoke(null, new object[0]);
                 Assert.IsTrue(result.GetEnumerator().MoveNext());

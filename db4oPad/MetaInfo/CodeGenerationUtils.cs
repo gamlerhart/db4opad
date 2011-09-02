@@ -54,5 +54,16 @@ namespace Gamlor.Db4oPad.MetaInfo
         {
             return MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName;
         }
+
+        internal static string ClassName(TypeName className)
+        {
+            return className.NameWithGenerics + "_"
+                   + NormalizedAssemblyName(className);
+        }
+
+        internal static string NormalizedAssemblyName(TypeName className)
+        {
+            return className.AssemblyName.Replace('.', '_').Replace('-', '_');
+        }
     }
 }

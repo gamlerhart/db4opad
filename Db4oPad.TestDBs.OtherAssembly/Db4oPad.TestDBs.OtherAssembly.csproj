@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{DF77C371-FFC8-4DFB-B396-EE32446078E8}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{9019983D-118E-43AA-AEF1-363F00EA259E}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Db4oPad.TestDBs</RootNamespace>
-    <AssemblyName>Db4oPad.TestDBs</AssemblyName>
+    <RootNamespace>Db4oPad.TestDBs.OtherAssembly</RootNamespace>
+    <AssemblyName>Db4oPad.TestDBs.OtherAssembly</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
@@ -33,6 +33,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Db4objects.Db4o">
       <HintPath>..\libs\db4o\Db4objects.Db4o.dll</HintPath>
@@ -46,22 +49,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DictionaryHolder.cs" />
-    <Compile Include="IndexesOnFields.cs" />
-    <Compile Include="ListHolder.cs" />
-    <Compile Include="Location.cs" />
-    <Compile Include="NameSpaceCollision.cs" />
-    <Compile Include="NestedClasses.cs" />
-    <Compile Include="Preferences.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SameNameInDifferentAssemblies.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Db4oPad.TestDBs.OtherAssembly\Db4oPad.TestDBs.OtherAssembly.csproj">
-      <Project>{9019983D-118E-43AA-AEF1-363F00EA259E}</Project>
-      <Name>Db4oPad.TestDBs.OtherAssembly</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

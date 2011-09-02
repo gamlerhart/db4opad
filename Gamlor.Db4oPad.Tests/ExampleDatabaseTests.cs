@@ -1,6 +1,8 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Db4objects.Db4o;
 using Gamlor.Db4oPad.MetaInfo;
 using NUnit.Framework;
@@ -135,6 +137,22 @@ namespace Gamlor.Db4oPad.Tests
                                 Assert.NotNull(metaData);
                             });
         }
+        [Test]
+        public void WorksWithSameNameInDifferentAssemblies()
+        {
+            RunTestWith("sameNameDifferentAssemblies.db4o",
+                        ctx =>
+                        {
+                            var context = ctx.MetaInfo.DataContext;
+                            dynamic ns = context.GetProperty("Db4oPad").GetValue(null, null);
+                            dynamic metaData1 = ns.TestDBs.SameNameInDifferentAssemblies_Db4oPad_TestDBs;
+                            dynamic metaData2 = ns.TestDBs.SameNameInDifferentAssemblies_Db4oPad_TestDBs_OtherAssembly;
+                            Assert.NotNull(metaData1);
+                            Assert.NotNull(metaData2);
+                            IEnumerable enumerable = metaData2;
+                            Assert.IsTrue(0<enumerable.Cast<object>().Count());
+                        });
+        }
 
         [Test]
         public void WorksWithNameCollisions()
@@ -168,9 +186,11 @@ namespace Gamlor.Db4oPad.Tests
         private void RunTestWith(string dbName, Action<DatabaseContext> context)
         {
             TestUtils.CopyTestDB(dbName);
-            var name = TestUtils.NewName();
-            var ctx = DatabaseContext.Create(Db4oEmbedded.OpenFile(dbName), name,
-                                             TypeLoader.Create(new string[0]));
+            var metaInfo = GetConfig(dbName);
+            var cfg = Db4oEmbedded.NewConfiguration();
+            cfg.File.ReadOnly = true;
+            metaInfo.Item1.Configure(cfg);
+            var ctx = DatabaseContext.Create(Db4oEmbedded.OpenFile(cfg,dbName),metaInfo.Item2);
             CurrentContext.NewContext(ctx);
             try
             {
@@ -179,6 +199,19 @@ namespace Gamlor.Db4oPad.Tests
             finally
             {
                 CurrentContext.CloseContext();
+            }
+        }
+
+        private static Tuple<DatabaseConfigurator, DatabaseMetaInfo> GetConfig(string dbName)
+        {
+            var cfg = Db4oEmbedded.NewConfiguration();
+            cfg.File.ReadOnly = true;
+            using (var metaInfoDB = Db4oEmbedded.OpenFile(cfg,dbName))
+            {
+                var name = TestUtils.NewName();
+                var meta = DatabaseMetaInfo.Create(metaInfoDB, TypeLoader.Create(new string[0]), name);
+                var config = DatabaseConfigurator.Create(meta);
+                return Tuple.Create(config, meta);
             }
         }
     }
