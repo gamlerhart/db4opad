@@ -73,6 +73,18 @@ namespace Gamlor.Db4oPad.Tests
                                 Assert.AreEqual(typeof (List<>), propertyType.GetGenericTypeDefinition());
                             });
         }
+        [Test]
+        public void CanOpenEnums()
+        {
+            RunTestWith("databaseWithEnum.db4o",
+                        ctx =>
+                        {
+                            var arrayType = ctx.MetaInfo.DyanmicTypesRepresentation
+                                .Single(t => t.Key.Name.Contains("ItemWithEnum")).Value;
+                            var propertyType = arrayType.GetField("enumField").FieldType;
+                            Assert.IsTrue(typeof(Enum).IsAssignableFrom(propertyType));
+                        });
+        }
 
         [Test]
         public void CanOpenDBWithNestedClasses()

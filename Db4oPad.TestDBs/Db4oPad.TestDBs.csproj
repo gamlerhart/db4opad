@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="DictionaryHolder.cs" />
     <Compile Include="IndexesOnFields.cs" />
+    <Compile Include="ItemWithEnum.cs" />
     <Compile Include="ListHolder.cs" />
     <Compile Include="Location.cs" />
     <Compile Include="NameSpaceCollision.cs" />
