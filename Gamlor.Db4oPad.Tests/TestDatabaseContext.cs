@@ -52,6 +52,18 @@ namespace Gamlor.Db4oPad.Tests
             Assert.IsTrue(types.Any(t => t.Text == "Gamlor.Db4oPad.Tests.TestTypes.ConflictingNamespaces.SubNamespace"));
         }
         [Test]
+        public void SameNameDifferentAssembly()
+        {
+            var name = TestUtils.NewName();
+            var cfg = Db4oEmbedded.NewConfiguration();
+            cfg.File.ReadOnly = true;
+            using(var ctx = DatabaseContext.Create(Db4oEmbedded.OpenFile(cfg,"..\\..\\sameNameDifferentAssemblies.db4o"), name, TestUtils.TestTypeResolver()))
+            {
+                var types = ctx.ListTypes().ToList();
+                Assert.IsTrue(types.Any());
+            }
+        }
+        [Test]
         public void HasFields()
         {
             DB.Store(new ClassWithFields());

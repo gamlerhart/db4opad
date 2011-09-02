@@ -41,7 +41,7 @@ namespace Gamlor.Db4oPad.MetaInfo
         private static Type FindTypeOrArray(ITypeDescription typeInfo, Assembly candidateAssembly)
         {
             return typeInfo.TryResolveType(t =>FindType(t,candidateAssembly))
-                .GetValue(() => candidateAssembly.GetType(BuildName(typeInfo.TypeName.NameWithGenerics)));
+                .GetValue(() => candidateAssembly.GetType(BuildName(typeInfo.TypeName)));
         }
 
         private static IDictionary<ITypeDescription, Type> CreateTypes(ModuleBuilder modBuilder,
@@ -81,7 +81,7 @@ namespace Gamlor.Db4oPad.MetaInfo
         {
             var baseType = typeInfo.BaseClass.Convert(bc=>GetOrCreateType(typeBuildMap, modBuilder,bc ));
             var defineType = CreateType(modBuilder,
-                typeInfo.TypeName.NameWithGenerics, baseType);
+                typeInfo.TypeName, baseType);
             typeBuildMap[typeInfo] = defineType;
 
             foreach (var field in typeInfo.Fields)
@@ -167,15 +167,15 @@ namespace Gamlor.Db4oPad.MetaInfo
         }
 
         private static TypeBuilder CreateType(ModuleBuilder modBuilder,
-            string className, Maybe<Type> baseType)
+            TypeName className, Maybe<Type> baseType)
         {
             return modBuilder.DefineType(BuildName(className),
                                          TypeAttributes.Class | TypeAttributes.Public, baseType.GetValue(typeof(object)));
         }
 
-        private static string BuildName(string className)
+        private static string BuildName(TypeName className)
         {
-            return NameSpace + "." + className;
+            return NameSpace + "." + CodeGenerationUtils.ClassName(className);
         }
 
         private static ModuleBuilder CreateModule(AssemblyBuilder builder)

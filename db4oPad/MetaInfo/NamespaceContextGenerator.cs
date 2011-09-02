@@ -17,6 +17,7 @@ namespace Gamlor.Db4oPad.MetaInfo
         private readonly Action<MethodBuilder, Type, ITypeDescription> buildPropertyOnType;
         private readonly Func<Type,ITypeDescription,Type> propertyTypeBuilder;
         private readonly bool alwaysInstanceMethod;
+        private readonly ICollection<ITypeDescription> needsAssemblyInName; 
 
         internal NamespaceContextGenerator(string nameSpaceClassesPrefix, ModuleBuilder moduleBuilder,
                                            TypeBuilder rootType, IEnumerable<ByNameGrouping> nameGroupsToBuild,
@@ -27,10 +28,19 @@ namespace Gamlor.Db4oPad.MetaInfo
             this.nameSpaceClassesPrefix = nameSpaceClassesPrefix;
             this.moduleBuilder = moduleBuilder;
             this.rootType = rootType;
-            this.nameGroupsToBuild = nameGroupsToBuild;
+            this.nameGroupsToBuild = nameGroupsToBuild.ToList();
             this.buildPropertyOnType = buildPropertyOnType;
             this.propertyTypeBuilder = propertyTypeBuilder;
             this.alwaysInstanceMethod = alwaysInstanceMethod;
+
+            this.needsAssemblyInName = (from byNs in this.nameGroupsToBuild
+                     from byType in byNs.Members
+                     group byType by byType.Key.TypeName.NameWithGenerics
+                     into byName
+                     where byName.Count() > 1
+                     from name in byName
+                     select name.Key).ToList();
+
         }
 
         public TypeBuilder BuildType()
@@ -49,11 +59,22 @@ namespace Gamlor.Db4oPad.MetaInfo
             {
                 var definePropertyOn = FindLocationForProperty(type, typeToBuildFor.Key);
                 var querableType = propertyTypeBuilder(typeToBuildFor.Value,typeToBuildFor.Key);
-                var property = CodeGenerationUtils.DefineProperty(definePropertyOn, typeToBuildFor.Key.Name, querableType);
+                var nameOfProperty = NameOfProperty(typeToBuildFor.Key);
+                var property = CodeGenerationUtils.DefineProperty(definePropertyOn, nameOfProperty, querableType);
                 var getterMethod = CodeGenerationUtils.GetterMethodFor(definePropertyOn, property, QueryPropertyAccessRights(definePropertyOn));
                 buildPropertyOnType(getterMethod, typeToBuildFor.Value,
                     typeToBuildFor.Key);
             }
+        }
+
+        private string NameOfProperty(ITypeDescription typeDescription)
+        {
+            var name = typeDescription.TypeName.NameWithGenerics.Split('.').Last().Replace('+', '_');
+            if(needsAssemblyInName.Contains(typeDescription))
+            {
+                return name + "_" + CodeGenerationUtils.NormalizedAssemblyName(typeDescription.TypeName);
+            }
+            return name;
         }
 
         private TypeBuilder FindLocationForProperty(ByNameGrouping type,
