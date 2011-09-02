@@ -80,15 +80,39 @@ namespace Gamlor.Db4oPad.MetaInfo
                                             ModuleBuilder modBuilder)
         {
             var baseType = typeInfo.BaseClass.Convert(bc=>GetOrCreateType(typeBuildMap, modBuilder,bc ));
-            var defineType = CreateType(modBuilder,
-                typeInfo.TypeName, baseType);
-            typeBuildMap[typeInfo] = defineType;
-
-            foreach (var field in typeInfo.Fields)
+            if(baseType==typeof(Enum))
             {
-                CreateFields(defineType, field, modBuilder, typeBuildMap);
+                return BuildEnum(typeInfo,typeBuildMap, modBuilder);
+            } else
+            {
+                var defineType = CreateType(modBuilder,
+                    typeInfo.TypeName, baseType);
+                typeBuildMap[typeInfo] = defineType;
+
+                foreach (var field in typeInfo.Fields)
+                {
+                    CreateFields(defineType, field, modBuilder, typeBuildMap);
+                }
+                return defineType;
             }
-            return defineType;
+        }
+
+        private static Type BuildEnum(ITypeDescription typeInfo, IDictionary<ITypeDescription, Type> typeBuildMap, ModuleBuilder modBuilder)
+        {
+            var enumBuilder  = modBuilder.DefineEnum(BuildName(typeInfo.TypeName), TypeAttributes.Class | TypeAttributes.Public,
+                                  typeof(int));
+            typeBuildMap[typeInfo] = enumBuilder;
+            for(int i=-1024;i<1024;i++)
+            {
+                if(i<0)
+                {
+                    enumBuilder.DefineLiteral("Value_Negative" + Math.Abs(i),i);
+                }  else
+                {
+                    enumBuilder.DefineLiteral("Value_" + Math.Abs(i), i);
+                } 
+            }
+            return enumBuilder.CreateType();
         }
 
         private static Type AddNativeType(ITypeDescription typeInfo, Type type,

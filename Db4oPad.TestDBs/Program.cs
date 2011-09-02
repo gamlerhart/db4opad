@@ -24,6 +24,7 @@ namespace Db4oPad.TestDBs
             StoreDictionary(fileName);
             StoreWithNameCollisions(fileName);
             StoreSameNameDifferentAssemblies(fileName);
+            StoreDBWithEnum(fileName);
         }
 
         private static void StoreExampleDBs()
@@ -36,6 +37,16 @@ namespace Db4oPad.TestDBs
             StoreDictionary("databaseWithDictionary.db4o");
             StoreWithNameCollisions("dataspaceWithNameCollisions.db4o");
             StoreSameNameDifferentAssemblies("sameNameDifferentAssemblies.db4o");
+            StoreDBWithEnum("databaseWithEnum.db4o");
+        }
+
+        private static void StoreDBWithEnum(string dbName)
+        {
+            using (var db = Db4oEmbedded.OpenFile(dbName))
+            {
+                db.Store(new ItemWithEnum());
+                db.Store(new ItemWithEnum());
+            }
         }
 
         private static void StoreSameNameDifferentAssemblies(string database)
