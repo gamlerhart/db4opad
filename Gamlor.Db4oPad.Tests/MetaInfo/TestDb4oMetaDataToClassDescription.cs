@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Db4objects.Db4o;
 using Db4objects.Db4o.Config;
+using Db4objects.Db4o.Internal;
 using Db4objects.Db4o.Reflect.Net;
 using Gamlor.Db4oPad.MetaInfo;
 using Gamlor.Db4oPad.Tests.TestTypes;

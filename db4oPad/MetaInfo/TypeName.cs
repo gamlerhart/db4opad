@@ -131,8 +131,10 @@ namespace Gamlor.Db4oPad.MetaInfo
         }
         private string SanatizeGenericName(string name)
         {
-            var buffer = new StringBuilder(name.Replace('+','_'));
-            AppendGenericCount(buffer, GenericArguments.Count());
+            var buffer = new StringBuilder(name);
+            buffer.Replace('+', '_');
+            buffer.Replace('`', '_');
+
             AppendGenericList(buffer, GenericArguments);
             return buffer.ToString();
         }
@@ -142,14 +144,6 @@ namespace Gamlor.Db4oPad.MetaInfo
             foreach (var arg in genericArguments)
             {
                 buffer.Append("_").Append(arg.Value.SanatizeGenericName(arg.Value.Name));
-            }
-        }
-
-        private static void AppendGenericCount(StringBuilder buffer, int count)
-        {
-            if (count != 0)
-            {
-                buffer.Append("_").Append(count);
             }
         }
 
@@ -179,8 +173,6 @@ namespace Gamlor.Db4oPad.MetaInfo
             var arguments = typeName.GenericArguments.ToArray();
             if (arguments.Any())
             {
-                toBuild.Append('`');
-                toBuild.Append(arguments.Length);
                 toBuild.Append('[');
                 for (var i = 0; i < arguments.Length; i++)
                 {

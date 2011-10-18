@@ -105,7 +105,7 @@ namespace Gamlor.Db4oPad.MetaInfo
                 return systemType;
             }
             return SimpleClassDescription.Create(name,
-                                                 Maybe.From(GetOrCreateType(classInfo.GetSuperclass(), classLookup,
+                                                 classInfo.GetSuperclass().AsMaybe().Convert(sc=>GetOrCreateType(sc, classLookup,
                                                                             knownTypes)),
                                                  t =>
                                                      {

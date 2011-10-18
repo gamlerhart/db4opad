@@ -106,7 +106,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         private TypeName CreateComplexType()
         {
             var simple = TypeName.Create("Type.Name", "Assembly.Name");
-            return TypeName.Create("Type.Map", "Assembly.Name", new[] {simple,simple });
+            return TypeName.Create("Type.Map`2", "Assembly.Name", new[] {simple,simple });
         }
         private TypeName CreateArrayType()
         {

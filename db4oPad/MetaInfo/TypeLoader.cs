@@ -109,16 +109,7 @@ namespace Gamlor.Db4oPad.MetaInfo
 
         private static string Generify(TypeName toFind)
         {
-            return toFind.NameAndNamespace + GenericNumber(toFind);
-        }
-
-        private static string GenericNumber(TypeName toFind)
-        {
-            if(IsGeneric(toFind))
-            {
-                return "`" + toFind.GenericArguments.Count();
-            }
-            return "";
+            return toFind.NameAndNamespace;
         }
 
         private static bool IsGeneric(TypeName toFind)

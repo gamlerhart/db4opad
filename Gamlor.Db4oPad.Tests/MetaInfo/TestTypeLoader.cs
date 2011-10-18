@@ -56,7 +56,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         {
             var found = TypeLoader.Create(new[] { @"..\..\Gamlor.Db4oPad.ExternalAssemblyForTests.dll" })
                 (TypeNameParser.ParseString("Gamlor.Db4oPad.ExternalAssemblyForTests.AGeneric`1[[System.Int32, mscorlib]], Gamlor.Db4oPad.ExternalAssemblyForTests"));
-            Assert.IsNotNull(found.Value);
+            Assert.IsTrue(found.HasValue);
             Assert.IsNotNull(found.Value.GetConstructors().Single().Invoke(new object[0]));
         }
         [Test]
@@ -83,7 +83,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
         public void CanLoadGenericTypeDefinition()
         {
             var genericArgument = TypeName.Create("DoesNotExist.ClassName", "DoesNotExist");
-            var listName = TypeName.Create("System.Collections.Generic.List", "mscorlib", new[] { genericArgument });
+            var listName = TypeName.Create("System.Collections.Generic.List`1", "mscorlib", new[] { genericArgument });
             var type = TypeLoader.Create(new string[0])(listName.GetGenericTypeDefinition());
             Assert.AreEqual(typeof(List<>), type.Value);
         }
