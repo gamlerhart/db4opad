@@ -102,6 +102,21 @@ namespace Gamlor.Db4oPad.Tests
         }
 
         [Test]
+        public void CanOpenDBWithNestedGenerics()
+        {
+            RunTestWith("databaseWithNestedGenerics.db4o",
+                        ctx =>
+                            {
+                                var outerType = ctx.MetaInfo.DyanmicTypesRepresentation
+                                    .Any(t => t.Key.Name.Contains("NestedGenerics_1_String"));
+                                var innerType = ctx.MetaInfo.DyanmicTypesRepresentation
+                                    .Any(t => t.Key.Name.Contains("NestedGenerics_1_ListItem_InnerGeneric_2_String_ListItem"));
+                                Assert.IsTrue(outerType);
+                                Assert.IsTrue(innerType);
+                            });
+        }
+
+        [Test]
         public void HasIndexInfo()
         {
             RunTestWith("databaseWithIndexes.db4o",

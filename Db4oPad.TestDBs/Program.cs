@@ -25,6 +25,7 @@ namespace Db4oPad.TestDBs
             StoreWithNameCollisions(fileName);
             StoreSameNameDifferentAssemblies(fileName);
             StoreDBWithEnum(fileName);
+            StoreNestedGenerics(fileName);
         }
 
         private static void StoreExampleDBs()
@@ -38,6 +39,7 @@ namespace Db4oPad.TestDBs
             StoreWithNameCollisions("dataspaceWithNameCollisions.db4o");
             StoreSameNameDifferentAssemblies("sameNameDifferentAssemblies.db4o");
             StoreDBWithEnum("databaseWithEnum.db4o");
+            StoreNestedGenerics("databaseWithNestedGenerics.db4o");
         }
 
         private static void StoreDBWithEnum(string dbName)
@@ -46,6 +48,16 @@ namespace Db4oPad.TestDBs
             {
                 db.Store(new ItemWithEnum());
                 db.Store(new ItemWithEnum());
+            }
+        }
+
+        private static void StoreNestedGenerics(string dbName)
+        {
+            using (var db = Db4oEmbedded.OpenFile(dbName))
+            {
+                db.Store(new NestedGenerics<string>());
+                db.Store(new NestedGenerics<string>.InnerGeneric<string,int>());
+                db.Store(new NestedGenerics<ListItem>.InnerGeneric<string, ListItem>());
             }
         }
 
