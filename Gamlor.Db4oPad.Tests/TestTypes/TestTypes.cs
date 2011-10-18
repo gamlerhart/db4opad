@@ -73,6 +73,10 @@ namespace Gamlor.Db4oPad.Tests.TestTypes
     {
         private string AField { get; set; }
     }
+    class NestedGenerics<T>
+    {
+        public class InnerGeneric<U,K>{}
+    }
 
 
     class Base

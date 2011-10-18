@@ -40,6 +40,8 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
                 db.Store(new WithMixedGeneric());
                 db.Store(new ClassWithIndexedFields());
                 db.Store(new ClassWithHalfKnownGeneric());
+                db.Store(new NestedGenerics<string>());
+                db.Store(new NestedGenerics<string>.InnerGeneric<string,int>());
             }
             database = dbContainer.NewDB();
 
