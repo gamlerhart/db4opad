@@ -110,7 +110,7 @@ namespace Gamlor.Db4oPad.Tests
                                 var outerType = ctx.MetaInfo.DyanmicTypesRepresentation
                                     .Any(t => t.Key.Name.Contains("NestedGenerics_1_String"));
                                 var innerType = ctx.MetaInfo.DyanmicTypesRepresentation
-                                    .Any(t => t.Key.Name.Contains("NestedGenerics_1_ListItem_InnerGeneric_2_String_ListItem"));
+                                    .Any(t => t.Key.Name.Contains("NestedGenerics_1_InnerGeneric_2_ListItem_String_ListItem"));
                                 Assert.IsTrue(outerType);
                                 Assert.IsTrue(innerType);
                             });

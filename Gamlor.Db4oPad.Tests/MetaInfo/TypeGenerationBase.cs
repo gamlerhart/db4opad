@@ -23,7 +23,7 @@ namespace Gamlor.Db4oPad.Tests.MetaInfo
             var stringList = KnownType.Create(typeof(List<string>));
             var stringType = typeof(string);
             var genericArguments = GenericArg(stringType);
-            var type = SimpleClassDescription.Create(TypeName.Create(TestMetaData.SingleFieldTypeName,
+            var type = SimpleClassDescription.Create(TypeName.Create(TestMetaData.SingleFieldTypeName+"`1",
                 TestMetaData.AssemblyName, genericArguments),
                                                      f => TestMetaData.CreateField(stringList));
             return new[] { type, stringList };

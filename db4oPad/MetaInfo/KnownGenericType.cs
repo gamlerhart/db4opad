@@ -30,7 +30,7 @@ namespace Gamlor.Db4oPad.MetaInfo
 
         private static TypeName CreateTypeName(Type type, IEnumerable<ITypeDescription> genericArgumentTypes)
         {
-            return TypeName.Create(type.FullName.Split('`').First(),
+            return TypeName.Create(type.FullName.Split('[').First(),
                 type.Assembly.GetName().Name,
                 genericArgumentTypes.Select(t=>t.TypeName));
         }

@@ -96,7 +96,7 @@ namespace Gamlor.Db4oPad.Tests.TestTypes
 
         internal static SimpleClassDescription CreateGenericType(params TypeName[] genericArg)
         {
-            TypeName theName = TypeName.Create("ANamespace.TheType", "TheAssembly", genericArg);
+            TypeName theName = TypeName.Create("ANamespace.TheType`"+genericArg.Count(), "TheAssembly", genericArg);
             return SimpleClassDescription.Create(theName, f => new SimpleFieldDescription[0]);
         }
 
